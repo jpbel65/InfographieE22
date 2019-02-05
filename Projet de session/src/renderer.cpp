@@ -27,10 +27,18 @@ void Renderer::setup()
   
 
   ExportBut.addListener(this, &Renderer::Export);
+    returnBut.addListener(this, &Renderer::setup);
+  // RGB/HSV picker
+  RGBsaveBut.addListener(this, &Renderer::RGBsave);
+  HSVsaveBut.addListener(this, &Renderer::HSVsave);
 
   gui.setup("Panel");
   gui.add(Lmport.setup("Drag for Import", "Picture"));
   gui.add(ExportBut.setup("Export"));
+  gui.add(ColorRGB.setup("Color : ", 0, 0, 255));
+  gui.add(RGBsaveBut.setup("Save RGB Color"));
+  gui.add(HSVsaveBut.setup("Save HSV Color"));
+ 
   
 
   gui.draw();
@@ -84,4 +92,21 @@ void Renderer::Export() {
 	
 	image_export("render", "png");
 	ofLogNotice() << "export: true" << endl;
+}
+
+void Renderer::RGBsave() {
+    colorFromPicker = ColorRGB;
+    ofLog() << "<RGB Value: " << ColorRGB.getParameter().toString() << ">";
+}
+
+void Renderer::HSVsave() {
+    colorFromPicker = ColorRGB;
+    colorFromPicker.getHsb(H, S, V);
+    
+    ofLog() << "<H Value: " << colorFromPicker.getHue() << ">";
+    ofLog() << "<S Value: " << colorFromPicker.getSaturation() << ">";
+    ofLog() << "<V Value: " << colorFromPicker.getBrightness() << ">";
+    ofLog() << "<H: " << H << " S: " << S << " V: " << V << ">";
+    
+ 
 }

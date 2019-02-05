@@ -12,6 +12,16 @@ public:
 	ofxButton ExportBut;
 	void Export();
 	ofxLabel Lmport;
+    
+    // rgb/hsv picker
+    float H,S,V;
+    ofColor colorFromPicker;
+    ofxButton returnBut;
+    ofxButton RGBsaveBut;
+    ofxButton HSVsaveBut;
+    void RGBsave();
+    void HSVsave();
+    ofxColorSlider ColorRGB;
 
 
 
