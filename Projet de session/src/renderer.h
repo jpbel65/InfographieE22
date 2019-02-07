@@ -13,7 +13,11 @@ public:
 	void Export();
 	ofxLabel Lmport;
     
-    // rgb/hsv picker
+    // différent fonction de l'app Example: pour 2.3 -> 23
+    
+    int appFunction = 0;
+    
+    // rgb/hsv picker 1.4
     float H,S,V;
     ofColor colorFromPicker;
     ofxButton returnBut;
@@ -22,6 +26,10 @@ public:
     void RGBsave();
     void HSVsave();
     ofxColorSlider ColorRGB;
+    
+    // changement de curseur 2.1
+    
+    string appMode = "normal";
 
 
 
