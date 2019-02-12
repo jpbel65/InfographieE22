@@ -69,6 +69,11 @@ void Renderer::setup()
     "image_tint_330_fs.glsl");
 }
 
+void Renderer::update() {
+	text_fonction = textbox_fonction;
+	textbox_pv = text_pv;
+}
+
 void Renderer::draw()
 {
 	ofSetColor(255,255,255);
@@ -81,11 +86,6 @@ void Renderer::draw()
 		draw_PVector(Pvector[i]);
 	}
 	gui.draw();
-}
-
-void Renderer::update() {
-	text_fonction = textbox_fonction;
-	textbox_pv = text_pv;
 }
 
 void Renderer::image_export(const string name, const string extension) const
