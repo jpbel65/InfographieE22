@@ -5,6 +5,7 @@
 
 #include "ofMain.h"
 #include "ofxGui.h"
+#include "PVector.h"
 
 enum class VectorPrimitiveType { none, pixel, point, line, rectangle, ellipse };
 
@@ -21,6 +22,7 @@ struct VectorPrimitive
 class Renderer
 {
 public:
+	vector<PVector> Pvector;
 	VectorPrimitiveType draw_mode;
 	VectorPrimitive* shapes;
 
@@ -30,6 +32,23 @@ public:
 	ofxButton CleanBut;
 	void Clean();
 
+	ofParameter<string> textbox_fonction;
+	string text_fonction;
+
+
+	ofxGuiGroup group_Pvector;
+	ofxButton PV1;
+	void pv1_line();
+	ofxButton PV2;
+	void pv2_square();
+	ofxButton PV3;
+	void pv3_ellipse();
+	ofxButton PV4;
+	void pv4_triangle();
+	ofxButton PV5;
+	void pv5_point();
+	ofParameter<string> textbox_pv;
+	string text_pv = "line";
 
 
 	ofxPanel gui;
@@ -54,15 +73,21 @@ public:
   int offset_vertical;
   int offset_horizontal;
 
+  bool is_mouse_button_pressed;
   int mouse_current_x;
   int mouse_current_y;
+  int mouse_press_x;
+  int mouse_press_y;
 
   bool filter;
 
   void setup();
   void draw();
+  void update();
   void image_export(const string name, const string extension) const;
   void dragEvent(ofDragInfo dragInfo);
+  void add_PVector();
+  void draw_PVector(PVector pv);
 
 
 };
