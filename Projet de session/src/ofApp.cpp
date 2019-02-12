@@ -26,30 +26,31 @@ void ofApp::keyPressed(int key){
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
-	ofLog() << "<app::keyReleased: " << key << ">";
-
-	// valider si la touche du clavier est la barre d'espacement (spacebar)
-	if (key == ' ') renderer.image_export("render", "png"); //Export Classique vient exemple plus pauffinage
+	
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
-
+	renderer.mouse_current_x = x;
+	renderer.mouse_current_y = y;
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
-
+	renderer.mouse_current_x = x;
+	renderer.mouse_current_y = y;
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-
+	renderer.mouse_current_x = x;
+	renderer.mouse_current_y = y;
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-
+	renderer.mouse_current_x = x;
+	renderer.mouse_current_y = y;
 }
 
 //--------------------------------------------------------------
@@ -74,12 +75,7 @@ void ofApp::gotMessage(ofMessage msg){
 
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
-	renderer.image_source.load(dragInfo.files.at(0));
-	renderer.image_width = renderer.image_source.getWidth();
-	renderer.image_height = renderer.image_source.getHeight();
-	// redimensionner la fenêtre selon la résolution de l'image
-	if (renderer.image_source.getWidth() > 0 && renderer.image_source.getHeight() > 0)
-		ofSetWindowShape(renderer.image_source.getWidth() + renderer.offset_horizontal *2 , renderer.image_source.getHeight() + renderer.offset_vertical *2 );
+	renderer.dragEvent(dragInfo);
 }
 
 void ofApp::exit()

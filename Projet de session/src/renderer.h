@@ -6,12 +6,29 @@
 #include "ofMain.h"
 #include "ofxGui.h"
 
+enum class VectorPrimitiveType { none, pixel, point, line, rectangle, ellipse };
+
+struct VectorPrimitive
+{
+	VectorPrimitiveType type;            // 1 * 4 = 4  octets
+	float                  position1[2];    // 2 * 4 = 8  octets
+	float                  position2[2];    // 2 * 4 = 8  octets
+	float                  stroke_width;    // 1 * 4 = 4  octets
+	unsigned char          stroke_color[4]; // 4 * 1 = 4  octets
+	unsigned char          fill_color[4];   // 4 * 1 = 4  octets
+};
+
 class Renderer
 {
 public:
+	VectorPrimitiveType draw_mode;
+	VectorPrimitive* shapes;
+
 	ofxButton ExportBut;
 	void Export();
 	ofxLabel Lmport;
+	ofxButton CleanBut;
+	void Clean();
 
 
 
@@ -37,11 +54,15 @@ public:
   int offset_vertical;
   int offset_horizontal;
 
+  int mouse_current_x;
+  int mouse_current_y;
+
   bool filter;
 
   void setup();
   void draw();
   void image_export(const string name, const string extension) const;
+  void dragEvent(ofDragInfo dragInfo);
 
 
 };
