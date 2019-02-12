@@ -82,14 +82,21 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
+	renderer.is_mouse_button_pressed = true;
 	renderer.mouse_current_x = x;
 	renderer.mouse_current_y = y;
+	renderer.mouse_press_x = x;
+	renderer.mouse_press_y = y;
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
+	renderer.is_mouse_button_pressed = false;
+
 	renderer.mouse_current_x = x;
 	renderer.mouse_current_y = y;
+
+	renderer.add_PVector();
 }
 
 //--------------------------------------------------------------
