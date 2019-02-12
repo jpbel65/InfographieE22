@@ -1,5 +1,6 @@
-﻿  renderer.cpp
-src\renderer.cpp(80): warning C4018: '<' : incompatibilité signed/unsigned
+﻿  ofApp.cpp
+  renderer.cpp
+src\renderer.cpp(85): warning C4018: '<' : incompatibilité signed/unsigned
 src\renderer.cpp(179): warning C4996: 'ofRectRounded': Use ofDrawRectRounded instead
   c:\users\belan\desktop\code\of_v0.10.1_vs2017_release\libs\openframeworks\graphics\ofGraphics.h(519): note: voir la déclaration de 'ofRectRounded'
 src\renderer.cpp(186): warning C4996: 'ofRectRounded': Use ofDrawRectRounded instead
