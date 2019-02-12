@@ -18,7 +18,7 @@ void Renderer::setup()
   offset_horizontal = 80;
 
   // importer l'image source
-  image_source.load("2003.png");
+  image_source.load("");
 
   // définir la résolution des images de destination
   image_width = image_source.getWidth();
@@ -27,18 +27,13 @@ void Renderer::setup()
   
 
   ExportBut.addListener(this, &Renderer::Export);
-    returnBut.addListener(this, &Renderer::setup);
-  // RGB/HSV picker
-  RGBsaveBut.addListener(this, &Renderer::RGBsave);
-  HSVsaveBut.addListener(this, &Renderer::HSVsave);
+  CleanBut.addListener(this, &Renderer::Clean);
+
 
   gui.setup("Panel");
   gui.add(Lmport.setup("Drag for Import", "Picture"));
   gui.add(ExportBut.setup("Export"));
-  gui.add(ColorRGB.setup("Color : ", 0, 0, 255));
-  gui.add(RGBsaveBut.setup("Save RGB Color"));
-  gui.add(HSVsaveBut.setup("Save HSV Color"));
- 
+  gui.add(CleanBut.setup("Clean"));
   
 
   gui.draw();
@@ -94,19 +89,18 @@ void Renderer::Export() {
 	ofLogNotice() << "export: true" << endl;
 }
 
-void Renderer::RGBsave() {
-    colorFromPicker = ColorRGB;
-    ofLog() << "<RGB Value: " << ColorRGB.getParameter().toString() << ">";
+void Renderer::Clean() {
+
+	//image_source.load("");
+	ofLogNotice() << "clean: true" << endl;
 }
 
-void Renderer::HSVsave() {
-    colorFromPicker = ColorRGB;
-    colorFromPicker.getHsb(H, S, V);
-    
-    ofLog() << "<H Value: " << colorFromPicker.getHue() << ">";
-    ofLog() << "<S Value: " << colorFromPicker.getSaturation() << ">";
-    ofLog() << "<V Value: " << colorFromPicker.getBrightness() << ">";
-    ofLog() << "<H: " << H << " S: " << S << " V: " << V << ">";
-    
- 
+void Renderer::dragEvent(ofDragInfo dragInfo) {
+	image_source.load(dragInfo.files.at(0));
+	image_width = image_source.getWidth();
+	image_height = image_source.getHeight();
+	// redimensionner la fenêtre selon la résolution de l'image
+	if (image_source.getWidth() > 0 && image_source.getHeight() > 0)
+		ofSetWindowShape(image_source.getWidth() + offset_horizontal * 2, image_source.getHeight() + offset_vertical * 2);
 }
+
