@@ -96,7 +96,7 @@ void ofApp::mouseReleased(int x, int y, int button){
 	renderer.mouse_current_x = x;
 	renderer.mouse_current_y = y;
 
-	renderer.add_PVector();
+	if (renderer.text_fonction == "2.3")renderer.add_PVector();
 }
 
 //--------------------------------------------------------------
