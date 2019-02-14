@@ -50,8 +50,18 @@ public:
 	ofParameter<string> textbox_pv;
 	string text_pv = "line";
 
-
 	ofxPanel gui;
+
+	ofParameter<string> textbox_selected_PV;
+	string text_selected_PV;
+	ofxGuiGroup group_Pv_line;
+	ofxGuiGroup group_Pv_carre;
+	ofxGuiGroup group_Pv_ellipse;
+	ofxGuiGroup group_Pv_triangle; 
+	ofxGuiGroup group_Pv_point;
+	ofxGuiGroup group_Pv_other;
+
+	ofxGuiGroup arborescence;
 
   ofImage image_source;
   ofImage image_source1;
