@@ -51,8 +51,30 @@ void Renderer::setup()
   textbox_pv.set("Forme Primitive", text_pv);
   gui.add(textbox_pv);
   
+  //gui.draw();
+
+  arborescence.setup("Graphe de scene");
+  textbox_selected_PV.set("PV actif No:", "-1");
+	arborescence.add(textbox_selected_PV);
+	group_Pv_line.setup("line");
+	group_Pv_carre.setup("carre");
+	group_Pv_ellipse.setup("ellipse");
+	group_Pv_triangle.setup("triangle"); 
+	group_Pv_point.setup("point");
+	group_Pv_other.setup("autre");
+
+	
+
+  arborescence.add(&group_Pv_line);
+  arborescence.add(&group_Pv_carre);
+  arborescence.add(&group_Pv_ellipse);
+  arborescence.add(&group_Pv_triangle);
+  arborescence.add(&group_Pv_point);
+  arborescence.add(&group_Pv_other);
+  gui.add(&arborescence);
 
   gui.draw();
+
 
   // ajuster la résolution de la fenêtre en fonction de la résolution de l'image source et des espacements
   ofSetWindowShape(
@@ -157,6 +179,34 @@ void Renderer::add_PVector() {
 	PVector pv = PVector(text_pv, mouse_press_x, mouse_press_y, mouse_current_x, mouse_current_y, 10, 0, 255);
 	Pvector.push_back(pv);
 	std::cout << Pvector.size() <<std::endl;
+	if (text_pv == "line") {
+		ofParameter<string> line;
+		group_Pv_line.add(line.set("line",to_string(Pvector.size()-1)));
+	}
+	if (text_pv == "carre") {
+		ofParameter<string> line;
+		group_Pv_carre.add(line.set("carre", to_string(Pvector.size() - 1)));
+	}
+	if (text_pv == "ellipse") {
+		ofParameter<string> line;
+		group_Pv_ellipse.add(line.set("ellipse", to_string(Pvector.size() - 1)));
+		std::cout << "line" << endl;
+	}
+	if (text_pv == "triangle") {
+		ofParameter<string> line;
+		group_Pv_triangle.add(line.set("triangle", to_string(Pvector.size() - 1)));
+		std::cout << "line" << endl;
+	}
+	if (text_pv == "point") {
+		ofParameter<string> line;
+		group_Pv_point.add(line.set("point", to_string(Pvector.size() - 1)));
+		std::cout << "line" << endl;
+	}
+	if (text_pv == "other") {
+		ofParameter<string> line;
+		group_Pv_other.add(line.set("autre", to_string(Pvector.size() - 1)));
+		std::cout << "line" << endl;
+	}
 }
 
 void Renderer::draw_PVector(PVector pv) {
