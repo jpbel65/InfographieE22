@@ -2,8 +2,10 @@
 
 #include "ofMain.h"
 #include "renderer.h"
+#include "InputEvent.h"
 
 class ofApp : public ofBaseApp{
+    InputEvent *event;
 
 	public:
 		Renderer renderer;
