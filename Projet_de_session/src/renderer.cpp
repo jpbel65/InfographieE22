@@ -33,6 +33,8 @@ void Renderer::setup()
 	PV3.addListener(this, &Renderer::pv3_ellipse);
 	PV4.addListener(this, &Renderer::pv4_triangle);
 	PV5.addListener(this, &Renderer::pv5_point);
+	Forme_3D_1.addListener(this, &Renderer::Forme3D_De_4);
+	Forme_3D_2.addListener(this, &Renderer::Forme3D_De_6);
 
 
   gui.setup("Panel");
@@ -45,7 +47,7 @@ void Renderer::setup()
   gui.add(Lmport.setup("Drag for Import", "Picture"));
   gui.add(ExportBut.setup("Export"));
   gui.add(CleanBut.setup("Clean"));
-  textbox_fonction.set("Fonction active", "2.3");
+  textbox_fonction.set("Fonction active", "4.2");
   gui.add(textbox_fonction);
   gui.add(&group_Pvector);
   textbox_pv.set("Forme Primitive", text_pv);
@@ -72,6 +74,12 @@ void Renderer::setup()
   arborescence.add(&group_Pv_point);
   arborescence.add(&group_Pv_other);
   gui.add(&arborescence);
+
+  Forme3D_groupe.setup("Type de P.Geometrique");
+  Forme3D_groupe.add(Forme_3D_1.setup("De 4"));
+  Forme3D_groupe.add(Forme_3D_2.setup("De 6"));
+  gui.add(&Forme3D_groupe);
+
 
   gui.draw();
 
@@ -108,6 +116,10 @@ void Renderer::draw()
 		draw_PVector(Pvector[i]);
 	}
 	gui.draw();
+	ofTranslate(ofGetWidth() / 2, ofGetHeight() / 2, 100);
+	ofRotate(ofGetElapsedTimef() * 20.0, 1, 1, 0);
+	glPointSize(10.f);
+	VBO.drawElements(GL_TRIANGLES, 36);
 }
 
 void Renderer::image_export(const string name, const string extension) const
@@ -278,5 +290,101 @@ void Renderer::draw_PVector(PVector pv) {
 			pv.m_stroke_color);
 		ofDrawEllipse(pv.m_position2_x, pv.m_position2_y, pv.m_stroke_width, pv.m_stroke_width);
 	}
-	
+}
+
+void Renderer::Forme3D_De_4() {
+	Forme3D = "De 4";
+	cout << "De 4" << endl;
+}
+
+void Renderer::Forme3D_De_6() {
+	Forme3D = "De 6";
+	cout << "De 6" << endl;
+}
+
+void Renderer::Add_forme_vbo() {
+	if (Forme3D == "De 4") {
+		cout << "vbo add d4" << endl;
+		const ofIndexType Faces[] = {
+			0, 1, 2,
+			2, 3, 0,
+			0, 4, 1,
+			1, 4, 2,
+			2, 3, 4,
+			4, 0, 3,
+		};
+		const float Verts[] = {
+			-0.500f,  -0.500f,  -0.500f,
+			0.500f,  -0.500f,  -0.500f,
+			0.500f,  -0.500f,  0.500f,
+			-0.500f,  -0.500f,  0.500f,
+			0.000f,  0.500f,  0.000f,
+		};
+		ofVec3f v[5];
+		ofVec3f n[12];
+		ofFloatColor c[5];
+		int i, j = 0;
+		for (i = 0; i < 5; i++)
+		{
+
+			c[i].r = ofRandom(1.0);
+			c[i].g = ofRandom(1.0);
+			c[i].b = ofRandom(1.0);
+
+			v[i][0] = Verts[j] * 100.f;
+			j++;
+			v[i][1] = Verts[j] * 100.f;
+			j++;
+			v[i][2] = Verts[j] * 100.f;
+			j++;
+
+		}
+
+		VBO.setVertexData(&v[0], 5, GL_STATIC_DRAW);
+		VBO.setColorData(&c[0], 5, GL_STATIC_DRAW);
+		VBO.setIndexData(&Faces[0], 18, GL_STATIC_DRAW);
+		//mouse_current_x, mouse_current_y}
+	}
+	if (Forme3D == "De 6") {
+		cout << "vbo add d6" << endl;
+		const ofIndexType Faces[] = {
+			0, 1, 2,   2, 3, 0,    // v0-v1-v2, v2-v3-v0 (front)
+			4, 5, 6,   6, 7, 4,    // v0-v3-v4, v4-v5-v0 (right)
+			8, 9,10,  10,11, 8,    // v0-v5-v6, v6-v1-v0 (top)
+			12,13,14,  14,15,12,    // v1-v6-v7, v7-v2-v1 (left)
+			16,17,18,  18,19,16,    // v7-v4-v3, v3-v2-v7 (bottom)
+			20,21,22,  22,23,20     // v4-v7-v6, v6-v5-v4 (back)
+		};
+		const float Verts[] = {
+			.5f, .5f, .5f,  -.5f, .5f, .5f,  -.5f,-.5f, .5f,  .5f,-.5f, .5f, // v0,v1,v2,v3 (front)
+			.5f, .5f, .5f,   .5f,-.5f, .5f,   .5f,-.5f,-.5f,  .5f, .5f,-.5f, // v0,v3,v4,v5 (right)
+			.5f, .5f, .5f,   .5f, .5f,-.5f,  -.5f, .5f,-.5f, -.5f, .5f, .5f, // v0,v5,v6,v1 (top)
+			-.5f, .5f, .5f,  -.5f, .5f,-.5f,  -.5f,-.5f,-.5f, -.5f,-.5f, .5f, // v1,v6,v7,v2 (left)
+			-.5f,-.5f,-.5f,   .5f,-.5f,-.5f,   .5f,-.5f, .5f, -.5f,-.5f, .5f, // v7,v4,v3,v2 (bottom)
+			.5f,-.5f,-.5f,  -.5f,-.5f,-.5f,  -.5f, .5f,-.5f,  .5f, .5f,-.5f  // v4,v7,v6,v5 (back)
+		};
+		ofVec3f v[24];
+		ofVec3f n[12];
+		ofFloatColor c[24];
+		int i, j = 0;
+		for (i = 0; i < 24; i++)
+		{
+
+			c[i].r = ofRandom(1.0);
+			c[i].g = ofRandom(1.0);
+			c[i].b = ofRandom(1.0);
+
+			v[i][0] = Verts[j] * 100.f;
+			j++;
+			v[i][1] = Verts[j] * 100.f;
+			j++;
+			v[i][2] = Verts[j] * 100.f;
+			j++;
+
+		}
+
+		VBO.setVertexData(&v[0], 24, GL_STATIC_DRAW);
+		VBO.setColorData(&c[0], 24, GL_STATIC_DRAW);
+		VBO.setIndexData(&Faces[0], 36, GL_STATIC_DRAW);
+	}
 }

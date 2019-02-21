@@ -1,8 +1,10 @@
 ﻿  renderer.cpp
-src\renderer.cpp(107): warning C4018: '<' : incompatibilité signed/unsigned
-src\renderer.cpp(229): warning C4996: 'ofRectRounded': Use ofDrawRectRounded instead
+src\renderer.cpp(115): warning C4018: '<' : incompatibilité signed/unsigned
+src\renderer.cpp(120): warning C4996: 'ofRotate': Use ofRotateDeg or ofRotateRad
+  c:\users\belan\desktop\code\of_v0.10.1_vs2017_release\libs\openframeworks\graphics\ofGraphics.h(1008): note: voir la déclaration de 'ofRotate'
+src\renderer.cpp(241): warning C4996: 'ofRectRounded': Use ofDrawRectRounded instead
   c:\users\belan\desktop\code\of_v0.10.1_vs2017_release\libs\openframeworks\graphics\ofGraphics.h(519): note: voir la déclaration de 'ofRectRounded'
-src\renderer.cpp(236): warning C4996: 'ofRectRounded': Use ofDrawRectRounded instead
+src\renderer.cpp(248): warning C4996: 'ofRectRounded': Use ofDrawRectRounded instead
   c:\users\belan\desktop\code\of_v0.10.1_vs2017_release\libs\openframeworks\graphics\ofGraphics.h(519): note: voir la déclaration de 'ofRectRounded'
   Projet de session.vcxproj -> C:\Users\belan\Desktop\code\InfographieE22\Projet de session\bin\Projet de session_debug.exe
   
