@@ -35,7 +35,7 @@ public:
 	ofParameter<string> textbox_fonction;
 	string text_fonction;
 
-
+	//2.3
 	ofxGuiGroup group_Pvector;
 	ofxButton PV1;
 	void pv1_line();
@@ -51,7 +51,7 @@ public:
 	string text_pv = "line";
 
 	ofxPanel gui;
-
+	//3.1
 	ofParameter<string> textbox_selected_PV;
 	string text_selected_PV;
 	ofxGuiGroup group_Pv_line;
@@ -76,6 +76,16 @@ public:
   ofShader shader;
   ofShader shader_tint;
   ofShader shader_invert;
+
+  //4.2
+  ofVbo VBO;
+  ofxGuiGroup Forme3D_groupe;
+  ofxButton Forme_3D_1;
+  void Forme3D_De_4();
+  ofxButton Forme_3D_2;
+  void Forme3D_De_6();
+  string Forme3D = "De 4";
+  void Add_forme_vbo();
 
   int image_width;
   int image_height;
