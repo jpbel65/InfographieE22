@@ -5,7 +5,7 @@
 #include "InputEvent.h"
 
 class ofApp : public ofBaseApp{
-        InputEvent *event;
+    InputEvent *event;
 
 	public:
 		Renderer renderer;
