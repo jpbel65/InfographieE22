@@ -1,1 +1,4 @@
 .vs
+Projet_de_session/obj
+Projet_de_session/bin
+!Projet_de_session/bin/data
