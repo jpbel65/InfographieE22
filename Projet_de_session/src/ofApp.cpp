@@ -6,6 +6,7 @@ void ofApp::setup(){
 
 	ofLog() << "<app::setup>";
 
+	InputEvent *event = InputEvent::getInstance();
 	renderer.setup();
     
 }
@@ -60,28 +61,31 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    event->updateKeyPressed(key);
 }
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
-	
+    event->updateKeyReleased(key);
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
+    event->updateMouseMoved(x, y);
 	renderer.mouse_current_x = x;
 	renderer.mouse_current_y = y;
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
+    event->updateMouseDragged(x, y, button);
 	renderer.mouse_current_x = x;
 	renderer.mouse_current_y = y;
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
+    event->updateMousePressed(x, y, button);
 	renderer.is_mouse_button_pressed = true;
 	renderer.mouse_current_x = x;
 	renderer.mouse_current_y = y;
@@ -91,6 +95,7 @@ void ofApp::mousePressed(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
+    event->updateMouseReleased(x, y, button);
 	renderer.is_mouse_button_pressed = false;
 
 	renderer.mouse_current_x = x;
@@ -102,17 +107,21 @@ void ofApp::mouseReleased(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mouseEntered(int x, int y){
-
+    event->updateMouseEntered(x, y);
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseExited(int x, int y){
-
+    event->updateMouseExited(x, y);
 }
 
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h){
-
+    if (event == nullptr)
+	{
+		event = InputEvent::getInstance();
+	}
+	event->updateWindowResized(w, h);
 }
 
 //--------------------------------------------------------------

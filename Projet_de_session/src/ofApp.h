@@ -5,11 +5,11 @@
 #include "InputEvent.h"
 
 class ofApp : public ofBaseApp{
-    InputEvent *event;
+        InputEvent *event;
 
 	public:
 		Renderer renderer;
-        ofImage mouseDrawing;
+        	ofImage mouseDrawing;
 
 		void setup();
 		void update();
