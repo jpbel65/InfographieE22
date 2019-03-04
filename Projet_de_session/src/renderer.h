@@ -6,6 +6,7 @@
 #include "ofMain.h"
 #include "ofxGui.h"
 #include "PVector.h"
+#include <string>
 
 enum class VectorPrimitiveType { none, pixel, point, line, rectangle, ellipse };
 
@@ -22,6 +23,8 @@ struct VectorPrimitive
 class Renderer
 {
 public:
+	int appFunction = 101;
+	string appMode = "normal";
 	vector<PVector> Pvector;
 	VectorPrimitiveType draw_mode;
 	VectorPrimitive* shapes;
