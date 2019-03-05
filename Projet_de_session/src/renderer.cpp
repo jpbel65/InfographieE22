@@ -1,10 +1,14 @@
 // IFT3100H19_Triptyque/renderer.cpp
 // Classe responsable du rendu de l'application.
-
+#include <glm/glm.hpp>
 #include "renderer.h"
+
 
 void Renderer::setup()
 {
+	Actor *child = new Actor(0.1, 0.1);
+	root.adopt(child);
+
   ofSetFrameRate(60);
 
   // couleur de l'arrière-plan
@@ -106,6 +110,7 @@ void Renderer::update() {
 
 void Renderer::draw()
 {
+# if 0
 	ofSetColor(255,255,255);
 	image_source.draw(
 		offset_horizontal,
@@ -120,6 +125,17 @@ void Renderer::draw()
 	ofRotate(ofGetElapsedTimef() * 20.0, 1, 1, 0);
 	glPointSize(10.f);
 	VBO.drawElements(GL_TRIANGLES, 36);
+#endif
+	ofSetColor(255, 0, 0);
+	ofSetLineWidth(5);
+	glm::vec4 origin(0.5, 0.5, 0.0, 1.0);
+	glm::vec4 posRoot;
+	posRoot = 255 * root.applyTransform(origin);
+	glm::vec4 posChild;
+	for(auto it = root.childrens.begin(); it != root.childrens.end(); ++it)
+		posChild = 255 * (*it)->applyTransform(origin);
+	ofDrawCircle(posRoot.x, posRoot.y, 10);
+	ofDrawCircle(posChild.x, posChild.y, 10);
 }
 
 void Renderer::image_export(const string name, const string extension) const
@@ -387,4 +403,9 @@ void Renderer::Add_forme_vbo() {
 		VBO.setColorData(&c[0], 24, GL_STATIC_DRAW);
 		VBO.setIndexData(&Faces[0], 36, GL_STATIC_DRAW);
 	}
+
+}
+
+Renderer::Renderer() {
+	//setup();
 }

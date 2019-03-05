@@ -6,7 +6,7 @@ void ofApp::setup(){
 
 	ofLog() << "<app::setup>";
 
-	InputEvent *event = InputEvent::getInstance();
+	event = InputEvent::getInstance();
 	renderer.setup();
     
 }
@@ -57,6 +57,10 @@ void ofApp::draw(){
     else{
         ofLog() << "<app::WARNING APPMODE INVALID: " << renderer.appMode << ">";
     }
+}
+
+ofApp::ofApp() {
+	//setup();
 }
 
 //--------------------------------------------------------------

@@ -4,18 +4,10 @@
 Actor::Actor(float x, float y, float z, float w) {
 	parent = nullptr;
 	glm::mat4 origin(1.0);
-	origin[0][3] = x;
-	origin[1][3] = y;
-	origin[2][3] = z;
-	origin[3][3] = w;
-	transform(origin);
-	transformHeritage = glm::mat4(1.0f);
-}
-
-Actor::Actor()
-{
-	parent = nullptr;
-	glm::mat4 origin(1.0);
+	origin[0].w = x;
+	origin[1].w = y;
+	origin[2].w = z;
+	origin[3].w = w;
 	transform(origin);
 	transformHeritage = glm::mat4(1.0f);
 }
@@ -27,6 +19,8 @@ Actor::~Actor()
 
 void Actor::adopt(Actor *newChild) {
 	childrens.emplace_back(newChild);
+	newChild->parent = this;
+	newChild->transformHeritage = this->transformStack.top() * transformHeritage;
 }
 
 void Actor::transform(glm::mat4 matrix) {
@@ -44,10 +38,11 @@ void Actor::transform(glm::mat4 matrix) {
 
 glm::vec4 Actor::applyTransform(glm::vec4 point) {
 	if (this->parent != nullptr) {
-		return this->transformStack.top() * transformHeritage * point;
+		glm::mat4 tmp = (this->transformStack.top() * transformHeritage);
+		return point * tmp;
 	}
 	else {
-		return this->transformStack.top() * point;
+		return point * this->transformStack.top();
 	}
 }
 

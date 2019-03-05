@@ -5,7 +5,7 @@
 #include "InputEvent.h"
 
 class ofApp : public ofBaseApp{
-    InputEvent *event;
+    InputEvent *event = nullptr;
 
 	public:
 		Renderer renderer;
@@ -15,6 +15,8 @@ class ofApp : public ofBaseApp{
 		void update();
 		void draw();
 		void exit();
+
+		ofApp();
 
 		void keyPressed(int key);
 		void keyReleased(int key);

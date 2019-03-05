@@ -7,6 +7,7 @@
 #include "ofxGui.h"
 #include "PVector.h"
 #include <string>
+#include "Actor.h"
 
 enum class VectorPrimitiveType { none, pixel, point, line, rectangle, ellipse };
 
@@ -23,6 +24,8 @@ struct VectorPrimitive
 class Renderer
 {
 public:
+	Actor root;
+
 	int appFunction = 101;
 	string appMode = "normal";
 	vector<PVector> Pvector;
@@ -112,5 +115,6 @@ public:
   void add_PVector();
   void draw_PVector(PVector pv);
 
+  Renderer();
 
 };

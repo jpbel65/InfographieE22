@@ -2,7 +2,6 @@
 
 #include "Object.h"
 #include <list>
-#include "vec.h"
 #include <stack>
 #include <glm/glm.hpp>
 
@@ -21,7 +20,6 @@ public:
 	
 
 	Actor(float x= 0.0f, float y=0.0f, float z=0.0f, float w=1.0f);
-	Actor();
 	~Actor();
 
 	void adopt(Actor *newChild);
