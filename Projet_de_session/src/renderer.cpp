@@ -24,8 +24,6 @@ void Renderer::setup()
   image_width = image_source.getWidth();
   image_height = image_source.getHeight();
 
-  
-
   ExportBut.addListener(this, &Renderer::Export);
   CleanBut.addListener(this, &Renderer::Clean);
 	PV1.addListener(this, &Renderer::pv1_line);
@@ -33,9 +31,13 @@ void Renderer::setup()
 	PV3.addListener(this, &Renderer::pv3_ellipse);
 	PV4.addListener(this, &Renderer::pv4_triangle);
 	PV5.addListener(this, &Renderer::pv5_point);
+    FV1.addListener(this, &Renderer::fv1_maison);
+    FV2.addListener(this, &Renderer::fv2_fleche);
 	Forme_3D_1.addListener(this, &Renderer::Forme3D_De_4);
 	Forme_3D_2.addListener(this, &Renderer::Forme3D_De_6);
-
+    
+    HSVpick.addListener(this, &Renderer::saveHSV);
+    RGBpick.addListener(this, &Renderer::saveRGB);
 
   gui.setup("Panel");
 	  group_Pvector.setup("Type de forme");
@@ -44,6 +46,8 @@ void Renderer::setup()
 	  group_Pvector.add(PV3.setup("ellipse"));
 	  group_Pvector.add(PV4.setup("triangle"));
 	  group_Pvector.add(PV5.setup("point"));
+      group_Pvector.add(FV1.setup("maison"));
+      group_Pvector.add(FV2.setup("bonhomme"));
   gui.add(Lmport.setup("Drag for Import", "Picture"));
   gui.add(ExportBut.setup("Export"));
   gui.add(CleanBut.setup("Clean"));
@@ -52,6 +56,21 @@ void Renderer::setup()
   gui.add(&group_Pvector);
   textbox_pv.set("Forme Primitive", text_pv);
   gui.add(textbox_pv);
+    
+  // selection couleur RGB HSV
+    groupeCouleur.setup("Selection de couleur");
+    // RGB
+    groupeCouleur.add(Rslider.setup("R",1, 0, 255));
+    groupeCouleur.add(Gslider.setup("G",1, 0, 255));
+    groupeCouleur.add(Bslider.setup("B",1, 0, 255));
+    groupeCouleur.add(RGBpick.setup("Save RGB"));
+    // HSV
+    groupeCouleur.add(Hslider.setup("Hue",1, 0, 360));
+    groupeCouleur.add(Sslider.setup("Saturation",1, 0, 100));
+    groupeCouleur.add(Vslider.setup("Value",1, 0, 100));
+    groupeCouleur.add(HSVpick.setup("Save HSV"));
+    
+    gui.add(&groupeCouleur);
   
   //gui.draw();
 
@@ -64,8 +83,6 @@ void Renderer::setup()
 	group_Pv_triangle.setup("triangle"); 
 	group_Pv_point.setup("point");
 	group_Pv_other.setup("autre");
-
-	
 
   arborescence.add(&group_Pv_line);
   arborescence.add(&group_Pv_carre);
@@ -99,6 +116,23 @@ void Renderer::setup()
     "image_tint_330_fs.glsl");
 
 	histogramme.calculateHistograms(image_source);
+}
+void Renderer::saveHSV() {
+    
+    int Hvalue = stoi(Hslider.getParameter().toString())*255/360;
+    int Svalue = stoi(Sslider.getParameter().toString())*255/100;
+    int Vvalue = stoi(Vslider.getParameter().toString())*255/100;
+    pickedColor.setHsb(Hvalue,Svalue,Vvalue);
+    ofSetColor(pickedColor);
+    
+
+}
+void Renderer::saveRGB() {
+    int Rvalue = stoi(Rslider.getParameter().toString());
+    int Gvalue = stoi(Gslider.getParameter().toString());
+    int Bvalue = stoi(Bslider.getParameter().toString());
+    pickedColor.set(Rvalue, Gvalue, Bvalue);
+    ofSetColor(pickedColor);
 }
 
 void Renderer::update() {
@@ -190,6 +224,14 @@ void Renderer::pv5_point() {
 	text_pv = "point";
 	textbox_pv.set("Forme Primitive", text_pv);
 }
+void Renderer::fv1_maison() {
+    text_pv = "maison";
+    textbox_pv.set("Forme Vectorielle", text_pv);
+}
+void Renderer::fv2_fleche() {
+    text_pv = "bonhomme";
+    textbox_pv.set("Forme Vectorielle", text_pv);
+}
 
 void Renderer::add_PVector() {
 	PVector pv = PVector(text_pv, mouse_press_x, mouse_press_y, mouse_current_x, mouse_current_y, 10, 0, 255);
@@ -218,6 +260,16 @@ void Renderer::add_PVector() {
 		group_Pv_point.add(line.set("point", to_string(Pvector.size() - 1)));
 		std::cout << "line" << endl;
 	}
+    if (text_pv == "maison") {
+        ofParameter<string> line;
+        group_Pv_other.add(line.set("maison", to_string(Pvector.size() - 1)));
+        std::cout << "line" << endl;
+    }
+    if (text_pv == "bonhomme") {
+        ofParameter<string> line;
+        group_Pv_other.add(line.set("bonhomme", to_string(Pvector.size() - 1)));
+        std::cout << "line" << endl;
+    }
 	if (text_pv == "other") {
 		ofParameter<string> line;
 		group_Pv_other.add(line.set("autre", to_string(Pvector.size() - 1)));
@@ -294,6 +346,44 @@ void Renderer::draw_PVector(PVector pv) {
 			pv.m_stroke_color);
 		ofDrawEllipse(pv.m_position2_x, pv.m_position2_y, pv.m_stroke_width, pv.m_stroke_width);
 	}
+    else if ((pv.m_name == "maison")){
+        float rectLarg = pv.m_position2_x - pv.m_position1_x;
+        float rectHaut = pv.m_position2_y - pv.m_position1_y;
+        float topmaisonY = pv.m_position1_y - rectLarg/4;
+        float topmaisonX = pv.m_position1_x + rectLarg/2;
+        
+        ofFill();
+        ofSetLineWidth(0);
+        ofSetColor(150,75,0);
+        ofDrawRectangle(pv.m_position1_x, pv.m_position1_y, rectLarg, rectHaut);
+        ofSetColor(77, 40, 0);
+        ofDrawTriangle(pv.m_position1_x, pv.m_position1_y, pv.m_position1_x + rectLarg, pv.m_position1_y, topmaisonX, topmaisonY);
+    }
+    else if ((pv.m_name == "bonhomme")){
+        ofFill();
+        ofSetLineWidth(0);
+        ofSetColor(255,255,255);
+        float diameter_x = pv.m_position2_x - pv.m_position1_x;
+        float diameter_y = pv.m_position2_y - pv.m_position1_y;
+        float diameter = 0;
+        if (diameter_x > diameter_y){diameter = diameter_x;}
+        if (diameter_y > diameter_x){diameter = diameter_y;}
+        
+        ofDrawCircle(pv.m_position1_x, pv.m_position1_y, diameter);
+        ofDrawCircle(pv.m_position1_x, pv.m_position1_y - diameter, diameter/1.5);
+        ofDrawCircle(pv.m_position1_x, pv.m_position1_y - diameter - diameter/1.5, diameter/3);
+        
+        float posHeadY = pv.m_position1_y - diameter - diameter/1.5;
+        // nez
+        ofSetColor(255, 128, 0);
+        ofDrawCircle(pv.m_position1_x, posHeadY, diameter/12);
+        
+        // yeux
+        ofSetColor(0, 0, 0);
+        ofDrawCircle(pv.m_position1_x-diameter/12, posHeadY-diameter/15, diameter/18);
+        ofDrawCircle(pv.m_position1_x+diameter/12, posHeadY-diameter/15, diameter/18);
+        
+    }
 }
 
 void Renderer::Forme3D_De_4() {

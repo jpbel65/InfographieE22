@@ -102,6 +102,7 @@ void ofApp::mouseReleased(int x, int y, int button){
 	renderer.mouse_current_y = y;
 
 	if (renderer.text_fonction == "2.3")renderer.add_PVector();
+    if (renderer.text_fonction == "2.4")renderer.add_PVector();
 	if (renderer.text_fonction == "4.2")renderer.Add_forme_vbo();
 }
 

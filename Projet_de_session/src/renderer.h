@@ -54,10 +54,24 @@ public:
 	void pv4_triangle();
 	ofxButton PV5;
 	void pv5_point();
+    ofxButton FV1;
+    void fv1_maison();
+    ofxButton FV2;
+    void fv2_fleche();
 	ofParameter<string> textbox_pv;
 	string text_pv = "line";
 
 	ofxPanel gui;
+    
+    //1.4
+    ofxGuiGroup groupeCouleur;
+    ofColor pickedColor = (0,0,0);
+    ofxIntSlider Rslider,Gslider,Bslider,Hslider,Sslider,Vslider;
+    ofxButton HSVpick;
+    ofxButton RGBpick;
+    void saveRGB();
+    void saveHSV();
+    
 	//3.1
 	ofParameter<string> textbox_selected_PV;
 	string text_selected_PV;
