@@ -97,6 +97,8 @@ void Renderer::setup()
   shader.load(
     "image_tint_330_vs.glsl",
     "image_tint_330_fs.glsl");
+
+	histogramme.calculateHistograms(image_source);
 }
 
 void Renderer::update() {
@@ -120,6 +122,7 @@ void Renderer::draw()
 	ofRotate(ofGetElapsedTimef() * 20.0, 1, 1, 0);
 	glPointSize(10.f);
 	VBO.drawElements(GL_TRIANGLES, 36);
+	histogramme.draw();
 }
 
 void Renderer::image_export(const string name, const string extension) const
@@ -160,6 +163,7 @@ void Renderer::dragEvent(ofDragInfo dragInfo) {
 	// redimensionner la fenêtre selon la résolution de l'image
 	if (image_source.getWidth() > 0 && image_source.getHeight() > 0)
 		ofSetWindowShape(image_source.getWidth() + offset_horizontal * 2, image_source.getHeight() + offset_vertical * 2);
+	histogramme.calculateHistograms(image_source);
 }
 
 void Renderer::pv1_line() {

@@ -6,6 +6,7 @@
 #include "ofMain.h"
 #include "ofxGui.h"
 #include "PVector.h"
+#include "Histogramme.h"
 #include <string>
 
 enum class VectorPrimitiveType { none, pixel, point, line, rectangle, ellipse };
@@ -23,6 +24,9 @@ struct VectorPrimitive
 class Renderer
 {
 public:
+	//1.5
+	Histogramme histogramme;
+
 	int appFunction = 101;
 	string appMode = "normal";
 	vector<PVector> Pvector;
