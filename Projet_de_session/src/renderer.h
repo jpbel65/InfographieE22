@@ -167,6 +167,18 @@ public:
   
   ofLight light;
 
+  //5.2
+  ofxGuiGroup group_filtrage;
+	ofxButton bilineaire;
+	void filtrage_bilineaire();
+	ofxButton trilineaire;
+	void filtrage_trilineaire();
+	ofxButton convolution;
+	void filtrage_convolution();
+	ofParameter<string> textbox_filtrage;
+	string type_filtrage = "Bilinéaire";
+
+	void filtrer(ofImage img_filtre);
 
   int image_width;
   int image_height;

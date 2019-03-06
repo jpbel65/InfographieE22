@@ -63,6 +63,10 @@ void Renderer::setup()
     HSVpickFill.addListener(this, &Renderer::saveHSVFill);
     RGBpickStroke.addListener(this, &Renderer::saveRGBStroke);
     RGBpickFill.addListener(this, &Renderer::saveRGBFill);
+	bilineaire.addListener(this, &Renderer::filtrage_bilineaire);
+	trilineaire.addListener(this, &Renderer::filtrage_trilineaire);
+	convolution.addListener(this, &Renderer::filtrage_convolution);
+
 
   gui.setup("Panel");
 	  group_Pvector.setup("Type de forme");
@@ -126,6 +130,14 @@ void Renderer::setup()
   Forme3D_groupe.add(Forme_3D_1.setup("De 4"));
   Forme3D_groupe.add(Forme_3D_2.setup("De 6"));
   gui.add(&Forme3D_groupe);
+
+	group_filtrage.setup("Type de filtrage");
+	group_filtrage.add(bilineaire.setup("Bilineaire"));
+	group_filtrage.add(trilineaire.setup("Trilineaire"));
+	group_filtrage.add(convolution.setup("Convolution"));
+	gui.add(&group_filtrage);
+	textbox_filtrage.set("Filtrage ", type_filtrage);
+  gui.add(textbox_filtrage);
 
 
   group_tran.setup("Transformation Geometrique");
@@ -302,12 +314,16 @@ void Renderer::draw()
 	}
     
 	if (image_source.getHeight() > 0 && image_source.getWidth() > 0)  {
+	shader.begin();
+	shader.setUniformTexture("image_filtre", image_source.getTexture(), 1.0);
+		// filtrer(image_source);
 		image_source.draw(
 			offset_horizontal,
 			offset_vertical,
 			image_width,
 			image_height);
-		histogramme.draw();
+		// histogramme.draw();
+	shader.end();
 	}
 	for (int i = 0; i < Pvector.size(); i++) {
 		draw_PVector(Pvector[i]);
@@ -549,6 +565,39 @@ void Renderer::fv4_bateau() {
     text_pv = "bateau";
     appMode = "bateau";
     textbox_pv.set("Forme Vectorielle", text_pv);
+}
+
+void Renderer::filtrage_bilineaire() {
+	type_filtrage = "Bilinéaire";
+	textbox_filtrage.set("Filtrage ", type_filtrage);
+}
+
+void Renderer::filtrage_trilineaire() {
+	type_filtrage = "Trilinéaire";
+	textbox_filtrage.set("Filtrage ", type_filtrage);
+}
+
+void Renderer::filtrage_convolution() {
+	type_filtrage = "Convolution";
+	textbox_filtrage.set("Filtrage ", type_filtrage);
+}
+
+void Renderer::filtrer(ofImage img_filtre) {
+	shader.begin();
+
+	shader.setUniformTexture("image_filtre", image_source.getTexture(), 1.0);
+	// shader.setUniformTexture("image", image_source.getTexture(), 1);
+	// shader.setUniform4f("tint", 1.0f, 0.0f, 0.0f, 1.0f);
+
+	image_source.draw(
+		offset_horizontal,
+		offset_vertical,
+		image_width,
+		image_height);
+
+	shader.end();
+	
+		// img_filtre.draw(img_filtre.getWidth() + offset_horizontal * 2, offset_vertical, img_filtre.getWidth(), img_filtre.getHeight());
 }
 
 void Renderer::add_PVector() {
