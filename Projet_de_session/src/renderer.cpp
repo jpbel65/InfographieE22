@@ -2,12 +2,74 @@
 // Classe responsable du rendu de l'application.
 #include <glm/glm.hpp>
 #include "renderer.h"
+#include "Shader.h"
 
+static unsigned shader0;
+static unsigned shader1;
+static bool altern = false;
 
 void Renderer::setup()
 {
+	//Antho test. delete.
 	Actor *child = new Actor(0.1, 0.1);
 	root.adopt(child);
+
+	float positions[12] = {
+	  -0.5f, -0.5f,
+	  0.0f, 0.5f,
+	  0.5f, -0.5f,
+	  -0.4f, -0.4f,
+	  0.0f, 0.4f,
+	  0.4f, -0.4f
+	};
+
+	unsigned int gpu_buffer;
+	glGenBuffers(1, &gpu_buffer);			// declare buffer
+	glBindBuffer(GL_ARRAY_BUFFER, gpu_buffer);  // select buffer
+	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), positions, GL_STATIC_DRAW); // transfert data to it (type, size, data*, ???) 6
+
+	glEnableVertexAttribArray(0); // (index)
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+	// (index of attribute, component count, type, normalise it?, stride between vertex, pointer inside vertex)
+	// (index, count, type, normalise?, stride, pointer (offsetof fonctionne bien pour les struct))
+
+	std::string vertexShader =
+		"#version 330 core\n"
+		"\n"
+		"layout(location=0) in vec4 position;\n" // location = index specifier plus haut
+		"\n"
+		"void main(){\n"
+		"gl_Position = position;\n"
+		"}\n";
+
+	std::string fragmentShader =
+		"#version 330 core\n"
+		"\n"
+		"layout(location=0) out vec4 color;\n" // location = index specifier plus haut
+		"\n"
+		"void main(){\n"
+		"color = vec4(1.0, 0.0, 0.0, 1.0);\n"
+		"}\n";
+
+	std::string fragmentShader2 =
+		"#version 330 core\n"
+		"\n"
+		"layout(location=0) out vec4 color;\n" // location = index specifier plus haut
+		"\n"
+		"void main(){\n"
+		"color = vec4(0.0, 1.0, 0.0, 1.0);\n"
+		"}\n";
+
+	unsigned int shader = Shader::CreateShader(vertexShader, fragmentShader);
+	shader1 = Shader::CreateShader(vertexShader, fragmentShader2);
+	glUseProgram(shader);
+	shader0 = shader;
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0); //unselect
+
+#if 0
+
+	//===================================
 
   ofSetFrameRate(60);
 
@@ -98,9 +160,12 @@ void Renderer::setup()
   image_right.cropFrom(image_source, image_width * 2, 0, image_width, image_height);*/
 
   // chargement du code source des shaders
-  shader.load(
-    "image_tint_330_vs.glsl",
-    "image_tint_330_fs.glsl");
+  //shader.load(
+  //  "image_tint_330_vs.glsl",
+  //  "image_tint_330_fs.glsl");
+
+#endif
+
 }
 
 void Renderer::update() {
@@ -110,6 +175,12 @@ void Renderer::update() {
 
 void Renderer::draw()
 {
+	glUseProgram(shader0);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glUseProgram(shader1);
+	glDrawArrays(GL_TRIANGLES, 3, 3);
+
+
 # if 0
 	ofSetColor(255,255,255);
 	image_source.draw(
@@ -126,16 +197,9 @@ void Renderer::draw()
 	glPointSize(10.f);
 	VBO.drawElements(GL_TRIANGLES, 36);
 #endif
-	ofSetColor(255, 0, 0);
-	ofSetLineWidth(5);
-	glm::vec4 origin(0.5, 0.5, 0.0, 1.0);
-	glm::vec4 posRoot;
-	posRoot = 255 * root.applyTransform(origin);
-	glm::vec4 posChild;
-	for(auto it = root.childrens.begin(); it != root.childrens.end(); ++it)
-		posChild = 255 * (*it)->applyTransform(origin);
-	ofDrawCircle(posRoot.x, posRoot.y, 10);
-	ofDrawCircle(posChild.x, posChild.y, 10);
+	
+
+
 }
 
 void Renderer::image_export(const string name, const string extension) const
