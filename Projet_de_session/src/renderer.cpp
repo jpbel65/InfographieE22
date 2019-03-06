@@ -103,8 +103,8 @@ void Renderer::setup()
 
   // ajuster la résolution de la fenêtre en fonction de la résolution de l'image source et des espacements
   ofSetWindowShape(
-    image_source.getWidth() + offset_horizontal * 2,
-    image_source.getHeight() + offset_vertical * 2);
+    1200,
+    900);
   // copier les pixels de la section de l'image source vers les images de destination
   /*image_left.cropFrom(image_source, image_width * 0, 0, image_width, image_height);
   image_center.cropFrom(image_source, image_width * 1, 0, image_width, image_height);
@@ -143,20 +143,23 @@ void Renderer::update() {
 void Renderer::draw()
 {
 	ofSetColor(255,255,255);
-	image_source.draw(
-		offset_horizontal,
-		offset_vertical,
-		image_width,
-		image_height);
+	if (image_source.getHeight() > 0 && image_source.getWidth() > 0)  {
+		image_source.draw(
+			offset_horizontal,
+			offset_vertical,
+			image_width,
+			image_height);
+		histogramme.draw();
+	}
 	for (int i = 0; i < Pvector.size(); i++) {
 		draw_PVector(Pvector[i]);
 	}
 	gui.draw();
+	
 	ofTranslate(ofGetWidth() / 2, ofGetHeight() / 2, 100);
 	ofRotate(ofGetElapsedTimef() * 20.0, 1, 1, 0);
 	glPointSize(10.f);
 	VBO.drawElements(GL_TRIANGLES, 36);
-	histogramme.draw();
 }
 
 void Renderer::image_export(const string name, const string extension) const
