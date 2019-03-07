@@ -42,6 +42,9 @@ public:
 
 	ofParameter<string> textbox_fonction;
 	string text_fonction;
+    
+    //2.2
+    ofImage mouseDrawing;
 
 	//2.3
 	ofxGuiGroup group_Pvector;
@@ -55,10 +58,40 @@ public:
 	void pv4_triangle();
 	ofxButton PV5;
 	void pv5_point();
+    ofxButton FV1;
+    void fv1_maison();
+    ofxButton FV2;
+    void fv2_fleche();
+    ofxButton FV3;
+    void fv3_sapin();
+    ofxButton FV4;
+    void fv4_bateau();
 	ofParameter<string> textbox_pv;
 	string text_pv = "line";
 
 	ofxPanel gui;
+    
+    //1.4
+    ofxGuiGroup groupeCouleur;
+    ofxIntSlider strokeSize;
+    ofColor pickedColor = (0,0,0);
+    ofColor pickedColor2 = (0,0,0);
+    ofxIntSlider Rslider,Gslider,Bslider,Hslider,Sslider,Vslider;
+    ofxButton HSVpickStroke;
+    ofxButton HSVpickFill;
+    ofxButton RGBpickStroke;
+    ofxButton RGBpickFill;
+    void saveRGBStroke();
+    void saveRGBFill();
+    void saveHSVStroke();
+    void saveHSVFill();
+    
+    // gui pour antho
+    ofxGuiGroup groupeCercleA,groupeCercleB;
+    ofxFloatSlider cercleAx,cercleAy,cercleAz,cercleAdist,cercleAz2;
+    ofxFloatSlider cercleBx,cercleBy,cercleBz,cercleBdist,cercleBz2;
+    ofxFloatSlider cercleAangle,cercleBangle;
+    
 	//3.1
 	ofParameter<string> textbox_selected_PV;
 	string text_selected_PV;

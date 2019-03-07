@@ -4,3 +4,9 @@ Projet_de_session/bin/*
 !Projet_de_session/bin/data
 .vscode
 Projet_de_session/Projet de session.xcodeproj
+Projet_de_session/Projet_de_session.xcodeproj/project.pbxproj
+Projet_de_session/Projet_de_session.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+Projet_de_session/Projet_de_session.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+Projet_de_session/Projet_de_session.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+Projet_de_session/Projet_de_session.xcodeproj/xcshareddata/xcschemes/Projet_de_session Debug.xcscheme
+Projet_de_session/Projet_de_session.xcodeproj/xcshareddata/xcschemes/Projet_de_session Release.xcscheme

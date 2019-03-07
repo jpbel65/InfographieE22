@@ -11,6 +11,7 @@ public:
 
 	ofxGPlot plot;
 	ofImage img;
+	ofImage gradient;
 	vector<ofxGPoint> redHistPoints;
 	ofPoint imgPos;
 	ofRectangle rect;
