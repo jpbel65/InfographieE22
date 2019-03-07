@@ -33,14 +33,19 @@ void Renderer::setup()
 	PV5.addListener(this, &Renderer::pv5_point);
     FV1.addListener(this, &Renderer::fv1_maison);
     FV2.addListener(this, &Renderer::fv2_fleche);
+    FV3.addListener(this, &Renderer::fv3_sapin);
+    FV4.addListener(this, &Renderer::fv4_bateau);
 	Forme_3D_1.addListener(this, &Renderer::Forme3D_De_4);
 	Forme_3D_2.addListener(this, &Renderer::Forme3D_De_6);
     
-    HSVpick.addListener(this, &Renderer::saveHSV);
-    RGBpick.addListener(this, &Renderer::saveRGB);
+    HSVpickStroke.addListener(this, &Renderer::saveHSVStroke);
+    HSVpickFill.addListener(this, &Renderer::saveHSVFill);
+    RGBpickStroke.addListener(this, &Renderer::saveRGBStroke);
+    RGBpickFill.addListener(this, &Renderer::saveRGBFill);
 
   gui.setup("Panel");
 	  group_Pvector.setup("Type de forme");
+      group_Pvector.add(strokeSize.setup("Stroke Size",1,0,100));
 	  group_Pvector.add(PV1.setup("line"));
 	  group_Pvector.add(PV2.setup("carre"));
 	  group_Pvector.add(PV3.setup("ellipse"));
@@ -48,6 +53,8 @@ void Renderer::setup()
 	  group_Pvector.add(PV5.setup("point"));
       group_Pvector.add(FV1.setup("maison"));
       group_Pvector.add(FV2.setup("bonhomme"));
+      group_Pvector.add(FV3.setup("sapin"));
+      group_Pvector.add(FV4.setup("bateau"));
   gui.add(Lmport.setup("Drag for Import", "Picture"));
   gui.add(ExportBut.setup("Export"));
   gui.add(CleanBut.setup("Clean"));
@@ -63,12 +70,14 @@ void Renderer::setup()
     groupeCouleur.add(Rslider.setup("R",1, 0, 255));
     groupeCouleur.add(Gslider.setup("G",1, 0, 255));
     groupeCouleur.add(Bslider.setup("B",1, 0, 255));
-    groupeCouleur.add(RGBpick.setup("Save RGB"));
+    groupeCouleur.add(RGBpickStroke.setup("Save stroke RGB"));
+    groupeCouleur.add(RGBpickFill.setup("Save fill RGB"));
     // HSV
     groupeCouleur.add(Hslider.setup("Hue",1, 0, 360));
     groupeCouleur.add(Sslider.setup("Saturation",1, 0, 100));
     groupeCouleur.add(Vslider.setup("Value",1, 0, 100));
-    groupeCouleur.add(HSVpick.setup("Save HSV"));
+    groupeCouleur.add(HSVpickStroke.setup("Save stroke HSV"));
+    groupeCouleur.add(HSVpickFill.setup("Save fill HSV"));
     
     gui.add(&groupeCouleur);
   
@@ -117,21 +126,34 @@ void Renderer::setup()
 
 	histogramme.calculateHistograms(image_source);
 }
-void Renderer::saveHSV() {
+void Renderer::saveHSVStroke() {
     
     int Hvalue = stoi(Hslider.getParameter().toString())*255/360;
     int Svalue = stoi(Sslider.getParameter().toString())*255/100;
     int Vvalue = stoi(Vslider.getParameter().toString())*255/100;
     pickedColor.setHsb(Hvalue,Svalue,Vvalue);
-    ofSetColor(pickedColor);
-    
-
+    ofSetColor(pickedColor2);
 }
-void Renderer::saveRGB() {
+void Renderer::saveRGBStroke() {
     int Rvalue = stoi(Rslider.getParameter().toString());
     int Gvalue = stoi(Gslider.getParameter().toString());
     int Bvalue = stoi(Bslider.getParameter().toString());
     pickedColor.set(Rvalue, Gvalue, Bvalue);
+    ofSetColor(pickedColor2);
+}
+void Renderer::saveHSVFill() {
+    
+    int Hvalue = stoi(Hslider.getParameter().toString())*255/360;
+    int Svalue = stoi(Sslider.getParameter().toString())*255/100;
+    int Vvalue = stoi(Vslider.getParameter().toString())*255/100;
+    pickedColor2.setHsb(Hvalue,Svalue,Vvalue);
+    ofSetColor(pickedColor);
+}
+void Renderer::saveRGBFill() {
+    int Rvalue = stoi(Rslider.getParameter().toString());
+    int Gvalue = stoi(Gslider.getParameter().toString());
+    int Bvalue = stoi(Bslider.getParameter().toString());
+    pickedColor2.set(Rvalue, Gvalue, Bvalue);
     ofSetColor(pickedColor);
 }
 
@@ -156,10 +178,59 @@ void Renderer::draw()
 	}
 	gui.draw();
 	
-	ofTranslate(ofGetWidth() / 2, ofGetHeight() / 2, 100);
-	ofRotate(ofGetElapsedTimef() * 20.0, 1, 1, 0);
+	//ofTranslate(ofGetWidth() / 2, ofGetHeight() / 2, 100);
+	//ofRotate(ofGetElapsedTimef() * 20.0, 1, 1, 0);
 	glPointSize(10.f);
 	VBO.drawElements(GL_TRIANGLES, 36);
+    
+    
+    // if case pour mode (curseur de l'utilisateur)
+    if (appMode == "normal"){
+        ofShowCursor();
+        mouseDrawing.clear();
+        
+    }
+    else if (appMode == "drawing"){
+        ofHideCursor();
+        ofSetColor(255,255,255);
+        mouseDrawing.load("cursor_drawing.png");
+        mouseDrawing.draw(ofGetMouseX(),ofGetMouseY(),30,30);
+        
+    }
+    else if (appMode == "bonhomme"){
+        ofHideCursor();
+        ofSetColor(255,255,255);
+        mouseDrawing.load("cursor_bonhomme.png");
+        mouseDrawing.draw(ofGetMouseX(),ofGetMouseY(),30,30);
+        
+    }
+    else if (appMode == "maison"){
+        ofHideCursor();
+        ofSetColor(204,136,0);
+        mouseDrawing.load("cursor_maison.png");
+        mouseDrawing.draw(ofGetMouseX(),ofGetMouseY(),30,30);
+        
+    }
+    else if (appMode == "sapin"){
+        ofHideCursor();
+        ofSetColor(51,153,0);
+        mouseDrawing.load("cursor_sapin.png");
+        mouseDrawing.draw(ofGetMouseX(),ofGetMouseY(),30,30);
+        
+    }
+    else if (appMode == "bateau"){
+        ofHideCursor();
+        ofSetColor(102,179,255);
+        mouseDrawing.load("cursor_bateau.png");
+        mouseDrawing.draw(ofGetMouseX(),ofGetMouseY(),30,30);
+        
+    }
+    else{
+        ofLog() << "<app::WARNING APPMODE INVALID: " << appMode << ">";
+    }
+    
+    
+    
 }
 
 void Renderer::image_export(const string name, const string extension) const
@@ -205,39 +276,56 @@ void Renderer::dragEvent(ofDragInfo dragInfo) {
 
 void Renderer::pv1_line() {
 	text_pv = "line";
+    appMode = "drawing";
 	textbox_pv.set("Forme Primitive", text_pv);
 }
 
 void Renderer::pv2_square() {
 	text_pv = "carre";
+    appMode = "drawing";
 	textbox_pv.set("Forme Primitive", text_pv);
 }
 
 void Renderer::pv3_ellipse() {
 	text_pv = "ellipse";
+    appMode = "drawing";
 	textbox_pv.set("Forme Primitive", text_pv);
 }
 
 void Renderer::pv4_triangle() {
 	text_pv = "triangle";
+    appMode = "drawing";
 	textbox_pv.set("Forme Primitive", text_pv);
 }
 
 void Renderer::pv5_point() {
 	text_pv = "point";
+    appMode = "drawing";
 	textbox_pv.set("Forme Primitive", text_pv);
 }
 void Renderer::fv1_maison() {
     text_pv = "maison";
+    appMode = "maison";
     textbox_pv.set("Forme Vectorielle", text_pv);
 }
 void Renderer::fv2_fleche() {
     text_pv = "bonhomme";
+    appMode = "bonhomme";
+    textbox_pv.set("Forme Vectorielle", text_pv);
+}
+void Renderer::fv3_sapin() {
+    text_pv = "sapin";
+    appMode = "sapin";
+    textbox_pv.set("Forme Vectorielle", text_pv);
+}
+void Renderer::fv4_bateau() {
+    text_pv = "bateau";
+    appMode = "bateau";
     textbox_pv.set("Forme Vectorielle", text_pv);
 }
 
 void Renderer::add_PVector() {
-	PVector pv = PVector(text_pv, mouse_press_x, mouse_press_y, mouse_current_x, mouse_current_y, 10, 0, 255);
+	PVector pv = PVector(text_pv, mouse_press_x, mouse_press_y, mouse_current_x, mouse_current_y, stoi(strokeSize.getParameter().toString()), 0, 255,pickedColor2,pickedColor);
 	Pvector.push_back(pv);
 	std::cout << Pvector.size() <<std::endl;
 	if (text_pv == "line") {
@@ -273,6 +361,16 @@ void Renderer::add_PVector() {
         group_Pv_other.add(line.set("bonhomme", to_string(Pvector.size() - 1)));
         std::cout << "line" << endl;
     }
+    if (text_pv == "sapin") {
+        ofParameter<string> line;
+        group_Pv_other.add(line.set("sapin", to_string(Pvector.size() - 1)));
+        std::cout << "line" << endl;
+    }
+    if (text_pv == "bateau") {
+        ofParameter<string> line;
+        group_Pv_other.add(line.set("bateau", to_string(Pvector.size() - 1)));
+        std::cout << "line" << endl;
+    }
 	if (text_pv == "other") {
 		ofParameter<string> line;
 		group_Pv_other.add(line.set("autre", to_string(Pvector.size() - 1)));
@@ -284,26 +382,17 @@ void Renderer::draw_PVector(PVector pv) {
 	if (pv.m_name == "line") {
 		ofNoFill();
 		ofSetLineWidth(pv.m_stroke_width);
-		ofSetColor(
-			pv.m_stroke_color,
-			pv.m_stroke_color,
-			pv.m_stroke_color);
+		ofSetColor(pv.m_fill_color_rgb);
 		ofDrawLine(pv.m_position1_x, pv.m_position1_y, pv.m_position2_x, pv.m_position2_y);
 	}
 	else if ((pv.m_name == "carre")){
 		ofFill();
 		ofSetLineWidth(0);
-		ofSetColor(
-			pv.m_fill_color,
-			pv.m_fill_color,
-			pv.m_fill_color);
+		ofSetColor(pv.m_fill_color_rgb);
 		ofRectRounded(pv.m_position1_x, pv.m_position1_y, pv.m_position2_x-pv.m_position1_x, pv.m_position2_y-pv.m_position1_y,pv.m_stroke_width/2);
 		ofNoFill();
 		ofSetLineWidth(pv.m_stroke_width);
-		ofSetColor(
-			pv.m_stroke_color,
-			pv.m_stroke_color,
-			pv.m_stroke_color);
+		ofSetColor(pv.m_stroke_color_rgb);
 		ofRectRounded(pv.m_position1_x, pv.m_position1_y, pv.m_position2_x - pv.m_position1_x, pv.m_position2_y - pv.m_position1_y, pv.m_stroke_width / 2);
 	}
 	else if ((pv.m_name == "ellipse")) {
@@ -311,42 +400,27 @@ void Renderer::draw_PVector(PVector pv) {
 		float diameter_y = pv.m_position2_y - pv.m_position1_y;
 		ofFill();
 		ofSetLineWidth(0);
-		ofSetColor(
-			pv.m_fill_color,
-			pv.m_fill_color,
-			pv.m_fill_color);
+		ofSetColor(pv.m_fill_color_rgb);
 		ofDrawEllipse(pv.m_position1_x + diameter_x / 2.0f, pv.m_position1_y + diameter_y / 2.0f, diameter_x, diameter_y);
 		ofNoFill();
 		ofSetLineWidth(pv.m_stroke_width);
-		ofSetColor(
-			pv.m_stroke_color,
-			pv.m_stroke_color,
-			pv.m_stroke_color);
+		ofSetColor(pv.m_stroke_color_rgb);
 		ofDrawEllipse(pv.m_position1_x + diameter_x / 2.0f, pv.m_position1_y + diameter_y / 2.0f, diameter_x, diameter_y);
 	}
 	else if ((pv.m_name == "triangle")) {
 		ofFill();
 		ofSetLineWidth(0);
-		ofSetColor(
-			pv.m_fill_color,
-			pv.m_fill_color,
-			pv.m_fill_color);
+		ofSetColor(pv.m_fill_color_rgb);
 		ofDrawTriangle(pv.m_position1_x, pv.m_position1_y,pv.m_position1_x, pv.m_position2_y,pv.m_position2_x,pv.m_position2_y);
 		ofNoFill();
 		ofSetLineWidth(pv.m_stroke_width);
-		ofSetColor(
-			pv.m_stroke_color,
-			pv.m_stroke_color,
-			pv.m_stroke_color);
+		ofSetColor(pv.m_stroke_color_rgb);
 		ofDrawTriangle(pv.m_position1_x, pv.m_position1_y, pv.m_position1_x, pv.m_position2_y, pv.m_position2_x, pv.m_position2_y);
 	}
 	else if ((pv.m_name == "point")) {
 		ofNoFill();
 		ofSetLineWidth(pv.m_stroke_width);
-		ofSetColor(
-			pv.m_stroke_color,
-			pv.m_stroke_color,
-			pv.m_stroke_color);
+		ofSetColor(pv.m_stroke_color_rgb);
 		ofDrawEllipse(pv.m_position2_x, pv.m_position2_y, pv.m_stroke_width, pv.m_stroke_width);
 	}
     else if ((pv.m_name == "maison")){
@@ -385,6 +459,58 @@ void Renderer::draw_PVector(PVector pv) {
         ofSetColor(0, 0, 0);
         ofDrawCircle(pv.m_position1_x-diameter/12, posHeadY-diameter/15, diameter/18);
         ofDrawCircle(pv.m_position1_x+diameter/12, posHeadY-diameter/15, diameter/18);
+        ofSetColor(255, 255, 255);
+    }
+    else if ((pv.m_name == "bateau")){
+        ofFill();
+        ofSetLineWidth(0);
+        float diameter_x = pv.m_position2_x - pv.m_position1_x;
+        float diameter_y = pv.m_position2_y - pv.m_position1_y;
+        float diameter = 0;
+        if (diameter_x > diameter_y){diameter = diameter_x;}
+        if (diameter_y > diameter_x){diameter = diameter_y;}
+        
+        ofSetColor(77, 40, 0);
+        ofDrawTriangle(pv.m_position1_x-diameter*2, pv.m_position1_y+diameter, pv.m_position1_x+diameter*2, pv.m_position1_y+diameter, pv.m_position1_x, pv.m_position1_y+diameter*2);
+        ofDrawRectangle(pv.m_position1_x-diameter/8, pv.m_position1_y-diameter/8, diameter/4, diameter*2);
+        
+        ofSetColor(255,255,255);
+        ofDrawTriangle(pv.m_position1_x-diameter, pv.m_position1_y, pv.m_position1_x+diameter, pv.m_position1_y, pv.m_position1_x, pv.m_position1_y-diameter);
+
+    }
+    else if ((pv.m_name == "sapin")){
+        ofFill();
+        ofSetLineWidth(0);
+        float diameter_x = pv.m_position2_x - pv.m_position1_x;
+        float diameter_y = pv.m_position2_y - pv.m_position1_y;
+        float diameter = 0;
+        if (diameter_x > diameter_y){diameter = diameter_x;}
+        if (diameter_y > diameter_x){diameter = diameter_y;}
+        
+        //tronc
+        ofSetColor(77, 40, 0);
+        ofDrawRectangle(pv.m_position1_x-diameter/8, pv.m_position1_y-diameter/8, diameter/4, diameter*2.5);
+        
+        // gros
+        ofSetColor(51,77,0);
+        ofDrawTriangle(pv.m_position1_x-diameter*2, pv.m_position1_y+diameter*2, pv.m_position1_x+diameter*2, pv.m_position1_y+diameter*2, pv.m_position1_x, pv.m_position1_y+2*diameter/3);
+        
+        //moyen
+        ofSetColor(68,102,0);
+        ofDrawTriangle(pv.m_position1_x-diameter*1.5, pv.m_position1_y+diameter, pv.m_position1_x+diameter*1.5, pv.m_position1_y+diameter, pv.m_position1_x, pv.m_position1_y-diameter/3);
+        
+        //petit
+        ofSetColor(85,128,0);
+        ofDrawTriangle(pv.m_position1_x-diameter, pv.m_position1_y, pv.m_position1_x+diameter, pv.m_position1_y, pv.m_position1_x, pv.m_position1_y-diameter);
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
     }
 }

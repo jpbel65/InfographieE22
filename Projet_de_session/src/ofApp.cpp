@@ -20,43 +20,7 @@ void ofApp::update(){
 void ofApp::draw(){
 	renderer.draw();
     
-    // if case pour fonction en cours
-    if (renderer.appFunction == 0){
-        // pas de fonction en particulier
-        
-    }
-    else if (renderer.appFunction == 101){
-        
-    }
-    else if (renderer.appFunction == 102){
-        
-    }
-    else if (renderer.appFunction == 103){
-        
-    }
-    else if (renderer.appFunction == 104){
-        
-    }
-    else{
-        ofLog() << "<app::ERROR APPFUNCTION INVALID: " << renderer.appFunction << ">";
-    }
     
-    // if case pour mode (curseur de l'utilisateur)
-    if (renderer.appMode == "normal"){
-        ofShowCursor();
-        mouseDrawing.clear();
-        
-        
-    }
-    else if (renderer.appMode == "drawing"){
-        ofHideCursor();
-        mouseDrawing.load("cursor_drawing.png");
-        mouseDrawing.draw(ofGetMouseX(),ofGetMouseY(),30,30);
-        
-    }
-    else{
-        ofLog() << "<app::WARNING APPMODE INVALID: " << renderer.appMode << ">";
-    }
 }
 
 //--------------------------------------------------------------

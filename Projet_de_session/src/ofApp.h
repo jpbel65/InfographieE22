@@ -9,7 +9,7 @@ class ofApp : public ofBaseApp{
 
 	public:
 		Renderer renderer;
-		ofImage mouseDrawing;
+		
 
 		void setup();
 		void update();
