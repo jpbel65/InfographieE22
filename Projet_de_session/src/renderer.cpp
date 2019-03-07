@@ -106,7 +106,29 @@ void Renderer::setup()
   Forme3D_groupe.add(Forme_3D_2.setup("De 6"));
   gui.add(&Forme3D_groupe);
 
-
+    
+    //gui pour antho
+    groupeCercleA.setup("Cercle A");
+    groupeCercleA.add(cercleAx.setup("x", 0, 0, 1));
+    groupeCercleA.add(cercleAy.setup("y", 0, 0, 1));
+    groupeCercleA.add(cercleAz.setup("z", 0, 0, 1));
+    groupeCercleA.add(cercleAz2.setup("z cylindrical", 0, 0, 1));
+    groupeCercleA.add(cercleAdist.setup("distance", 0, 0, 1));
+    groupeCercleA.add(cercleAangle.setup("angle",0,0,360));
+    
+    groupeCercleB.setup("Cercle B");
+    groupeCercleB.add(cercleBx.setup("x", 0, 0, 1));
+    groupeCercleB.add(cercleBy.setup("y", 0, 0, 1));
+    groupeCercleB.add(cercleBz.setup("z", 0, 0, 1));
+    groupeCercleB.add(cercleBz2.setup("z cylindrical", 0, 0, 1));
+    groupeCercleB.add(cercleBdist.setup("distance", 0, 0, 1));
+    groupeCercleB.add(cercleBangle.setup("angle",0,0,360));
+    
+    
+    
+    gui.add(&groupeCercleA);
+    gui.add(&groupeCercleB);
+    
   gui.draw();
 
 

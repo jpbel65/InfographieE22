@@ -85,6 +85,12 @@ public:
     void saveHSVStroke();
     void saveHSVFill();
     
+    // gui pour antho
+    ofxGuiGroup groupeCercleA,groupeCercleB;
+    ofxFloatSlider cercleAx,cercleAy,cercleAz,cercleAdist,cercleAz2;
+    ofxFloatSlider cercleBx,cercleBy,cercleBz,cercleBdist,cercleBz2;
+    ofxFloatSlider cercleAangle,cercleBangle;
+    
 	//3.1
 	ofParameter<string> textbox_selected_PV;
 	string text_selected_PV;
