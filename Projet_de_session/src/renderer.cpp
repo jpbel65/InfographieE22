@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include "renderer.h"
 #include "Shader.h"
+#include <stdlib.h>
 
 static unsigned shader0;
 static unsigned shader1;
@@ -23,32 +24,71 @@ void Renderer::setup()
 	  0.4f, -0.4f
 	};
 
+	struct verticies {
+		float position[3];
+		float textureCoordinate[2] = {0.0f, 0.0f};
+		float normal[3] = {0.0f, 0.0f, 0.0f};
+	};
+
+	struct verticies triangle[3];
+	triangle[0].position[0] = -0.5f;
+	triangle[0].position[1] = -0.5f;
+	triangle[0].position[2] = 0.0f;
+	triangle[1].position[0] = -0.0f;
+	triangle[1].position[1] = 0.5f;
+	triangle[1].position[2] = 0.0f;
+	triangle[2].position[0] = 0.5f;
+	triangle[2].position[1] = -0.5f;
+	triangle[2].position[2] = 0.5f;
+	triangle[0].normal[2] = 1.0f;
+	triangle[1].normal[2] = 1.0f;
+	triangle[2].normal[2] = 1.0f;
+	triangle[0].textureCoordinate[0] = 1.0f;
+	triangle[1].textureCoordinate[0] = 0.5f;
+	triangle[2].textureCoordinate[0] = 0.0f;
+
 	unsigned int gpu_buffer;
 	glGenBuffers(1, &gpu_buffer);			// declare buffer
 	glBindBuffer(GL_ARRAY_BUFFER, gpu_buffer);  // select buffer
-	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), positions, GL_STATIC_DRAW); // transfert data to it (type, size, data*, ???) 6
+	//glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), positions, GL_STATIC_DRAW); // transfert data to it (type, size, data*, hint) 6
+	glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(struct verticies), triangle, GL_DYNAMIC_DRAW);
 
-	glEnableVertexAttribArray(0); // (index)
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+	//glEnableVertexAttribArray(0); // (index)
+	//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
 	// (index of attribute, component count, type, normalise it?, stride between vertex, pointer inside vertex)
 	// (index, count, type, normalise?, stride, pointer (offsetof fonctionne bien pour les struct))
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *)offsetof(struct verticies, position));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *) offsetof(struct verticies, normal));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *)offsetof(struct verticies, textureCoordinate));
+
+	/*
 
 	std::string vertexShader =
 		"#version 330 core\n"
 		"\n"
 		"layout(location=0) in vec4 position;\n" // location = index specifier plus haut
+		"layout(location=2) in vec2 tex;\n" // location = index specifier plus haut
+		"out vec2 textureCoord;\n" // location = index specifier plus haut
 		"\n"
 		"void main(){\n"
 		"gl_Position = position;\n"
+		"textureCoord = tex;\n"
 		"}\n";
 
 	std::string fragmentShader =
 		"#version 330 core\n"
 		"\n"
+		"//uniform sampler1D texturel;\n"
+		"\n"
 		"layout(location=0) out vec4 color;\n" // location = index specifier plus haut
+		"in vec2 g_textureCoord;\n"
 		"\n"
 		"void main(){\n"
-		"color = vec4(1.0, 0.0, 0.0, 1.0);\n"
+		"color = vec4(g_textureCoord.x, 0.0, 0.0, 1.0);\n"
 		"}\n";
 
 	std::string fragmentShader2 =
@@ -57,15 +97,70 @@ void Renderer::setup()
 		"layout(location=0) out vec4 color;\n" // location = index specifier plus haut
 		"\n"
 		"void main(){\n"
-		"color = vec4(0.0, 1.0, 0.0, 1.0);\n"
+		"vec4 color0 = vec4(0.0, 1.0, 0.0, 1.0);\n"
+		"vec4 color1 = vec4(0.0, 0.0, 1.0, 1.0);\n"
+		"color = vec4(mix(color0, color1, gl_FragCoord.y / 1024));\n"
 		"}\n";
 
-	unsigned int shader = Shader::CreateShader(vertexShader, fragmentShader);
-	shader1 = Shader::CreateShader(vertexShader, fragmentShader2);
-	glUseProgram(shader);
-	shader0 = shader;
+	std::string geometryShader = 
+		"#version 330 core\n"
+		"\n"
+		"uniform float amplitude;\n"
+		"layout(triangles) in;\n" // take triangle
+		"layout(triangle_strip, max_vertices=9) out;\n" // give 3 triangles
+		"in vec2 textureCoord[3];\n"
+		"out vec2 g_textureCoord;\n"
+		"\n"
+		"void main(){\n"
+		"vec3 normal = cross(vec3(gl_in[0].gl_Position), vec3(gl_in[2].gl_Position));\n"
+		"//normal = normalize(normal);\n"
+		"vec4 center = (gl_in[0].gl_Position + gl_in[1].gl_Position + gl_in[2].gl_Position) + amplitude*vec4(normal, 0.0);\n"
+		"gl_Position = gl_in[0].gl_Position;\n"
+		"g_textureCoord = textureCoord[0];\n"
+		"EmitVertex();\n"
+		"gl_Position = center;\n"
+		"g_textureCoord = textureCoord[2];\n"
+		"EmitVertex();\n"
+		"gl_Position = gl_in[1].gl_Position;\n"
+		"g_textureCoord = textureCoord[0];\n"
+		"EmitVertex();\n"
+		"EndPrimitive();\n"
+
+		"gl_Position = gl_in[1].gl_Position;\n"
+		"g_textureCoord = textureCoord[0];\n"
+		"EmitVertex();\n"
+		"gl_Position = center;\n"
+		"g_textureCoord = textureCoord[2];\n"
+		"EmitVertex();\n"
+		"gl_Position = gl_in[2].gl_Position;\n"
+		"g_textureCoord = textureCoord[0];\n"
+		"EmitVertex();\n"
+		"EndPrimitive();\n"
+
+		"gl_Position = gl_in[2].gl_Position;\n"
+		"g_textureCoord = textureCoord[0];\n"
+		"EmitVertex();\n"
+		"gl_Position = center;\n"
+		"g_textureCoord = textureCoord[2];\n"
+		"EmitVertex();\n"
+		"gl_Position = gl_in[0].gl_Position;\n"
+		"g_textureCoord = textureCoord[0];\n"
+		"EmitVertex();\n"
+		"EndPrimitive();\n"
+		"}\n";
+		*/
+	//unsigned int shader = Shader::CreateShader(vertexShader, fragmentShader, geometryShader);
+	//shader1 = Shader::CreateShader(vertexShader, fragmentShader2, geometryShader);
+	//glUseProgram(shader);
+	//shader0 = shader;
+
+	vibrationShader = Shader("./data/passVertex.glsl", "./data/simpleGradientFragmentShader.glsl", "./data/vibrationGeometryShader.glsl");
+	glUseProgram(vibrationShader.getProgramID());
+	shader0 = vibrationShader.getProgramID();
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0); //unselect
+
+	srand(time(NULL));
 
 #if 0
 
@@ -175,10 +270,15 @@ void Renderer::update() {
 
 void Renderer::draw()
 {
-	glUseProgram(shader0);
+	glUseProgram(vibrationShader.getProgramID());
+	GLint loc = glGetUniformLocation(vibrationShader.getProgramID(), "amplitude");
+	if (loc != -1)
+	{
+		glUniform1f(loc, sinf( ofGetElapsedTimef() ));
+	}
 	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glUseProgram(shader1);
-	glDrawArrays(GL_TRIANGLES, 3, 3);
+	//glUseProgram(shader1);
+	//glDrawArrays(GL_TRIANGLES, 3, 3);
 
 
 # if 0

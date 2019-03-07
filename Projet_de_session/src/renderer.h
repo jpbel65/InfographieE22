@@ -8,6 +8,8 @@
 #include "PVector.h"
 #include <string>
 #include "Actor.h"
+#include "Shader.h"
+#include "ofxAssimpModelLoader.h"
 
 enum class VectorPrimitiveType { none, pixel, point, line, rectangle, ellipse };
 
@@ -25,6 +27,7 @@ class Renderer
 {
 public:
 	Actor root;
+	Shader vibrationShader;
 
 	int appFunction = 101;
 	string appMode = "normal";
