@@ -63,8 +63,10 @@ void Renderer::setup()
     HSVpickFill.addListener(this, &Renderer::saveHSVFill);
     RGBpickStroke.addListener(this, &Renderer::saveRGBStroke);
     RGBpickFill.addListener(this, &Renderer::saveRGBFill);
+	sans_filtre_bouton.addListener(this, &Renderer::sans_filtre);
+	generer_noise_bouton.addListener(this, &Renderer::generer_noise_texture);
 	bilineaire.addListener(this, &Renderer::filtrage_bilineaire);
-	trilineaire.addListener(this, &Renderer::filtrage_trilineaire);
+	trilineaire.addListener(this, &Renderer::mix_noise);
 	convolution.addListener(this, &Renderer::filtrage_convolution);
 
 
@@ -132,12 +134,14 @@ void Renderer::setup()
   gui.add(&Forme3D_groupe);
 
 	group_filtrage.setup("Type de filtrage");
+	group_filtrage.add(sans_filtre_bouton.setup("Sans filtre"));
 	group_filtrage.add(bilineaire.setup("Bilineaire"));
-	group_filtrage.add(trilineaire.setup("Trilineaire"));
+	group_filtrage.add(trilineaire.setup("Mix avec une texture"));
 	group_filtrage.add(convolution.setup("Convolution"));
 	gui.add(&group_filtrage);
 	textbox_filtrage.set("Filtrage ", type_filtrage);
   gui.add(textbox_filtrage);
+	gui.add(generer_noise_bouton.setup("Générer une texture"));
 
 
   group_tran.setup("Transformation Geometrique");
@@ -188,11 +192,8 @@ void Renderer::setup()
   ofSetWindowShape(
     1200,
     900);
-  // copier les pixels de la section de l'image source vers les images de destination
-  /*image_left.cropFrom(image_source, image_width * 0, 0, image_width, image_height);
-  image_center.cropFrom(image_source, image_width * 1, 0, image_width, image_height);
-  image_right.cropFrom(image_source, image_width * 2, 0, image_width, image_height);*/
-
+	filteredImage = image_source;
+	histogramme.calculateHistograms(image_source);
   // chargement du code source des shaders
   shader.load(
     "image_tint_330_vs.glsl",
@@ -312,18 +313,15 @@ void Renderer::draw()
 		obj3.draw(OF_MESH_FILL);
 		ofPopMatrix();
 	}
-    
-	if (image_source.getHeight() > 0 && image_source.getWidth() > 0)  {
-	shader.begin();
-	shader.setUniformTexture("image_filtre", image_source.getTexture(), 1.0);
-		// filtrer(image_source);
-		image_source.draw(
+
+	// ofSetColor(255,255,255);
+	if (filteredImage.getHeight() > 0 && filteredImage.getWidth() > 0)  {
+		filteredImage.draw(
 			offset_horizontal,
 			offset_vertical,
-			image_width,
-			image_height);
-		// histogramme.draw();
-	shader.end();
+			filteredImage.getWidth(),
+			filteredImage.getHeight());
+		histogramme.draw();
 	}
 	for (int i = 0; i < Pvector.size(); i++) {
 		draw_PVector(Pvector[i]);
@@ -509,8 +507,11 @@ void Renderer::Clean() {
 
 void Renderer::dragEvent(ofDragInfo dragInfo) {
 	image_source.load(dragInfo.files.at(0));
-	image_width = image_source.getWidth();
-	image_height = image_source.getHeight();
+	sans_filtre();
+	image_width = filteredImage.getWidth();
+	image_height = filteredImage.getHeight();
+	texture_width = image_width;
+	texture_height = image_height;
 	// redimensionner la fenêtre selon la résolution de l'image
 	if (image_source.getWidth() > 0 && image_source.getHeight() > 0)
 		ofSetWindowShape(image_source.getWidth() + offset_horizontal * 2, image_source.getHeight() + offset_vertical * 2);
@@ -567,37 +568,130 @@ void Renderer::fv4_bateau() {
     textbox_pv.set("Forme Vectorielle", text_pv);
 }
 
+void Renderer::generer_noise_texture() {
+	ofPixels noise_base;
+	ofPixels noise_blur;
+	ofColor gh;
+	ofColor dh;
+	ofColor gb;
+	ofColor db;
+	float factx;
+	float facty;
+	noise_base.allocate(floor(texture_width / 10), floor(texture_height / 10), OF_PIXELS_MONO);
+	noise_blur.allocate(texture_width, texture_height, OF_PIXELS_MONO);
+	for(size_t x = 0; x < floor(texture_width / 10); x++)
+	{
+		for(size_t y = 0; y < floor(texture_height / 10); y++)
+		{
+			noise_base.setColor(x, y, rand() % 255);
+		}
+	}
+
+	for(size_t x = 0; x < texture_width; x++)
+	{
+		for(size_t y = 0; y < texture_height; y++)
+		{
+			gh = noise_base.getColor(floor(x/10),floor(y/10) + 1);
+			dh = noise_base.getColor(floor(x/10) + 1,floor(y/10) + 1);
+			gb = noise_base.getColor(floor(x/10),floor(y/10));
+			db = noise_base.getColor(floor(x/10) + 1,floor(y/10));
+			factx = (x % 10) / 9.0;
+			facty = (y % 10) / 9.0;
+			noise_blur.setColor(x, y, dh * factx * facty + gh * (1-factx) * facty + db * factx * (1 - facty) + gb * (1-factx) * (1 - facty));
+		}
+		
+	}
+	
+	noise.setFromPixels(noise_blur);
+	filteredImage = noise;
+}
+
+void Renderer::sans_filtre() {
+	filteredImage = image_source;
+}
+
 void Renderer::filtrage_bilineaire() {
 	type_filtrage = "Bilinéaire";
 	textbox_filtrage.set("Filtrage ", type_filtrage);
+	ofColor chg;
+	ofColor chd;
+	ofColor cbg;
+	ofColor cbd;
+	ofPixels pixels;
+	int width = image_source.getWidth()/1.5;
+	int height = image_source.getHeight()/1.5;
+	pixels.allocate(width, height, OF_IMAGE_COLOR);
+	for(size_t x = 0; x < width; x++)
+	{
+		pixels.setColor(x, 0, image_source.getColor(x * 1.5, 0));
+	}
+	for(size_t y = 0; y < width; y++)
+	{
+		pixels.setColor(0, y, image_source.getColor(0, y * 1.5));
+	}
+	
+	for(size_t x = 1; x < width; x++)
+	{
+		for(size_t y = 1; y < height; y++)
+		{
+			cbg = image_source.getColor(x * 1.5 - 1, y * 1.5 - 1);
+			cbd = image_source.getColor(x * 1.5, y * 1.5 - 1);
+			chd = image_source.getColor(x * 1.5, y * 1.5);
+			chg = image_source.getColor(x * 1.5 - 1, y * 1.5);
+			pixels.setColor(x,y, cbg / 4 + cbd / 4 + chd / 4 + chg / 4);
+		}
+	}
+	filteredImage.setFromPixels(pixels);
 }
 
-void Renderer::filtrage_trilineaire() {
-	type_filtrage = "Trilinéaire";
+void Renderer::mix_noise() {
+	type_filtrage = "Mix avec une texture";
 	textbox_filtrage.set("Filtrage ", type_filtrage);
+	generer_noise_texture();
+	filteredImage = image_source;
+	ofColor c1;
+	ofColor c2;
+	ofPixels pixels;
+	int width = image_source.getWidth();
+	int height = image_source.getHeight();
+	pixels.allocate(width, height, OF_IMAGE_COLOR);
+	for(size_t x = 1; x < width; x++)
+	{
+		for(size_t y = 1; y < height; y++)
+		{
+			c1 = image_source.getColor(x, y);
+			c2 = noise.getColor(x, y);
+			pixels.setColor(x,y, c1 * 0.5 + c2 * 0.5);
+		}
+	}
+	filteredImage.setFromPixels(pixels);
 }
 
 void Renderer::filtrage_convolution() {
 	type_filtrage = "Convolution";
 	textbox_filtrage.set("Filtrage ", type_filtrage);
-}
-
-void Renderer::filtrer(ofImage img_filtre) {
-	shader.begin();
-
-	shader.setUniformTexture("image_filtre", image_source.getTexture(), 1.0);
-	// shader.setUniformTexture("image", image_source.getTexture(), 1);
-	// shader.setUniform4f("tint", 1.0f, 0.0f, 0.0f, 1.0f);
-
-	image_source.draw(
-		offset_horizontal,
-		offset_vertical,
-		image_width,
-		image_height);
-
-	shader.end();
-	
-		// img_filtre.draw(img_filtre.getWidth() + offset_horizontal * 2, offset_vertical, img_filtre.getWidth(), img_filtre.getHeight());
+	ofColor ch;
+	ofColor cd;
+	ofColor cg;
+	ofColor cb;
+	ofColor cc;
+	ofPixels pixels;
+	int width = image_source.getWidth();
+	int height = image_source.getHeight();
+	pixels.allocate(width, height, OF_IMAGE_COLOR);
+	for(size_t x = 1; x < width; x++)
+	{
+		for(size_t y = 1; y < height; y++)
+		{
+			cc = image_source.getColor(x, y);
+			cg = image_source.getColor(x - 1, y);
+			cd = image_source.getColor(x + 1, y);
+			ch = image_source.getColor(x, y + 1);
+			cb = image_source.getColor(x, y - 1);
+			pixels.setColor(x,y, (cc - cg) + (cc - cd) + (cc - ch) + (cc - cb) + cc );
+		}
+	}
+	filteredImage.setFromPixels(pixels);
 }
 
 void Renderer::add_PVector() {

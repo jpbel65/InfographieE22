@@ -169,16 +169,25 @@ public:
 
   //5.2
   ofxGuiGroup group_filtrage;
+  	ofxButton generer_noise_bouton;
+  	ofxButton sans_filtre_bouton;
+	void sans_filtre();
 	ofxButton bilineaire;
 	void filtrage_bilineaire();
 	ofxButton trilineaire;
-	void filtrage_trilineaire();
+	void mix_noise();
 	ofxButton convolution;
 	void filtrage_convolution();
 	ofParameter<string> textbox_filtrage;
 	string type_filtrage = "Bilinéaire";
 
-	void filtrer(ofImage img_filtre);
+	ofImage filteredImage;
+
+	//5.5
+	void generer_noise_texture();
+	int texture_width = 500;
+	int texture_height = 500;
+	ofImage noise;
 
   int image_width;
   int image_height;
