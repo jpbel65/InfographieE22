@@ -5,6 +5,7 @@
 
 #include "ofMain.h"
 #include "ofxGui.h"
+#include "ofxAssimpModelLoader.h"
 #include "PVector.h"
 #include "Histogramme.h"
 #include <string>
@@ -126,6 +127,35 @@ public:
   void Forme3D_De_6();
   string Forme3D = "De 4";
   void Add_forme_vbo();
+
+  //4.3 et 4.1
+  ofxAssimpModelLoader obj1;
+  ofxAssimpModelLoader obj2;
+  ofxAssimpModelLoader obj3;
+  void find_bound_mesh(ofxAssimpModelLoader obj, vector<GLfloat> A);
+
+  //3.3
+  ofxGuiGroup group_tran;
+  ofParameter<string> textbox_transfo;
+  string text_transfo;
+  ofxButton transfo_transation;
+  void func_transation();
+  ofxButton transfo_rotation;
+  void func_rotation();
+  ofxButton transfo_scale;
+  void func_scale();
+  struct transfo{
+	  string type;
+	  ofDefaultVec3 effect;
+  }; 
+  vector<transfo> Vector_tranfo;
+
+
+
+  
+  
+  ofLight light;
+
 
   int image_width;
   int image_height;
