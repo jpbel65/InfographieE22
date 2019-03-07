@@ -6,6 +6,7 @@
 void Renderer::setup()
 {
   ofSetFrameRate(60);
+  ofEnableLighting();
 
   // couleur de l'arrière-plan
   ofSetBackgroundColor(31);
@@ -19,6 +20,26 @@ void Renderer::setup()
 
   // importer l'image source
   image_source.load("");
+  obj1.loadModel("bunny.obj");
+  obj2.loadModel("buddha.obj");
+  obj3.loadModel("dragon.obj");
+  find_bound_mesh(obj1, Vobj1);
+  //find_bound_mesh(obj2, Vobj2);
+  //find_bound_mesh(obj3, Vobj3);
+  cout << "max_x:= " << Vobj1[0] << endl;
+  cout << "min_x:= " << Vobj1[1] << endl;
+  cout << "max_y:= " << Vobj1[2] << endl;
+  cout << "min_y:= " << Vobj1[3] << endl;
+  cout << "max_z:= " << Vobj1[4] << endl;
+  cout << "min_z:= " << Vobj1[5] << endl;
+
+  light.setAmbientColor(ofColor(255, 255, 255));
+  light.setDiffuseColor(ofColor(255, 255, 255));
+  light.setPosition(0.0f, 0.0f, 1000.0f);
+  light.enable();
+
+
+  
 
   // définir la résolution des images de destination
   image_width = image_source.getWidth();
@@ -47,7 +68,7 @@ void Renderer::setup()
   gui.add(Lmport.setup("Drag for Import", "Picture"));
   gui.add(ExportBut.setup("Export"));
   gui.add(CleanBut.setup("Clean"));
-  textbox_fonction.set("Fonction active", "4.2");
+  textbox_fonction.set("Fonction active", "4.3");
   gui.add(textbox_fonction);
   gui.add(&group_Pvector);
   textbox_pv.set("Forme Primitive", text_pv);
@@ -104,6 +125,12 @@ void Renderer::setup()
 void Renderer::update() {
 	text_fonction = textbox_fonction;
 	textbox_pv = text_pv;
+	//obj1.setPosition(ofGetWidth() / 4, 3 * ofGetHeight() / 4, 0);
+	//obj2.setPosition(ofGetWidth() / 2, 3 * ofGetHeight() / 4, 0);
+	//obj3.setPosition(3 * ofGetWidth() / 4, 3 * ofGetHeight() / 4, 0);
+	
+
+	
 }
 
 void Renderer::draw()
@@ -114,15 +141,35 @@ void Renderer::draw()
 		offset_vertical,
 		image_width,
 		image_height);
+
+	if (text_fonction == "4.3") {
+		ofPushMatrix();
+		ofScale(0.3f);
+		ofTranslate(ofGetWidth() / 2, 6 * ofGetHeight() / 3, 0);
+		obj1.draw(OF_MESH_FILL);
+		ofPopMatrix();
+		ofPushMatrix();
+		ofScale(0.5f);
+		ofTranslate(ofGetWidth(), 6 * ofGetHeight() / 4, 0);
+		obj2.draw(OF_MESH_FILL);
+		ofPopMatrix();
+		ofPushMatrix();
+		ofScale(0.5f);
+		ofTranslate(6 * ofGetWidth() / 4, 6 * ofGetHeight() / 4, 0);
+		obj3.draw(OF_MESH_FILL);
+		ofPopMatrix();
+	}
 	for (int i = 0; i < Pvector.size(); i++) {
 		draw_PVector(Pvector[i]);
 	}
 	gui.draw();
-	ofTranslate(ofGetWidth() / 2, ofGetHeight() / 2, 100);
-	ofRotate(ofGetElapsedTimef() * 20.0, 1, 1, 0);
-	glPointSize(10.f);
-	VBO.drawElements(GL_TRIANGLES, 36);
-	histogramme.draw();
+	if (text_fonction == "4.2") {
+		ofTranslate(mouse_press_x, mouse_press_y, 100);
+		ofRotate(ofGetElapsedTimef() * 20.0, 1, 1, 0);
+		glPointSize(10.f);
+		VBO.drawElements(GL_TRIANGLES, 36);
+	}
+	//histogramme.draw();
 }
 
 void Renderer::image_export(const string name, const string extension) const
@@ -391,4 +438,41 @@ void Renderer::Add_forme_vbo() {
 		VBO.setColorData(&c[0], 24, GL_STATIC_DRAW);
 		VBO.setIndexData(&Faces[0], 36, GL_STATIC_DRAW);
 	}
+}
+
+void Renderer::find_bound_mesh(ofxAssimpModelLoader obj, vector<GLfloat> A) {
+	GLfloat
+		min_x, max_x,
+		min_y, max_y,
+		min_z, max_z;
+	min_x = max_x = obj.getMesh(0).getVertex(0).x;
+	min_y = max_y = obj.getMesh(0).getVertex(0).y;
+	min_z = max_z = obj.getMesh(0).getVertex(0).z;
+	for (int i = 0; i < obj.getMesh(0).getNumVertices(); i++) {
+		ofDefaultVec3 test = obj.getMesh(0).getVertex(i);
+		if (test.x < min_x) {
+			min_x = test.x;
+		}
+		else if (test.x > max_x) {
+			max_x = test.x;
+		}
+		if (test.y < min_y) {
+			min_y = test.y;
+		}
+		else if (test.y > max_y) {
+			max_y = test.y;
+		}
+		if (test.z < min_z) {
+			min_z = test.z;
+		}
+		else if (test.z > max_z) {
+			max_z = test.z;
+		}
+	}
+	A.push_back(max_x);
+	A.push_back(min_x);
+	A.push_back(max_y);
+	A.push_back(min_y);
+	A.push_back(max_z);
+	A.push_back(min_z);
 }

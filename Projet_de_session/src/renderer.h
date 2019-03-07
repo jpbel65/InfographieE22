@@ -5,6 +5,7 @@
 
 #include "ofMain.h"
 #include "ofxGui.h"
+#include "ofxAssimpModelLoader.h"
 #include "PVector.h"
 #include "Histogramme.h"
 #include <string>
@@ -93,6 +94,19 @@ public:
   void Forme3D_De_6();
   string Forme3D = "De 4";
   void Add_forme_vbo();
+
+  //4.3 et 4.1
+  ofxAssimpModelLoader obj1;
+  ofxAssimpModelLoader obj2;
+  ofxAssimpModelLoader obj3;
+  void find_bound_mesh(ofxAssimpModelLoader obj, vector<GLfloat> A);
+  vector<GLfloat> Vobj1;
+  vector<GLfloat> Vobj2;
+  vector<GLfloat> Vobj3;
+  
+  
+  ofLight light;
+
 
   int image_width;
   int image_height;

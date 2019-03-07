@@ -1,3 +1,3 @@
 ofxAssimpModelLoader
-ofxGui
 ofxGrafica
+ofxGui
