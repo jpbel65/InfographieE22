@@ -100,9 +100,25 @@ public:
   ofxAssimpModelLoader obj2;
   ofxAssimpModelLoader obj3;
   void find_bound_mesh(ofxAssimpModelLoader obj, vector<GLfloat> A);
-  vector<GLfloat> Vobj1;
-  vector<GLfloat> Vobj2;
-  vector<GLfloat> Vobj3;
+
+  //3.3
+  ofxGuiGroup group_tran;
+  ofParameter<string> textbox_transfo;
+  string text_transfo;
+  ofxButton transfo_transation;
+  void func_transation();
+  ofxButton transfo_rotation;
+  void func_rotation();
+  ofxButton transfo_scale;
+  void func_scale();
+  struct transfo{
+	  string type;
+	  ofDefaultVec3 effect;
+  }; 
+  vector<transfo> Vector_tranfo;
+
+
+
   
   
   ofLight light;

@@ -23,15 +23,7 @@ void Renderer::setup()
   obj1.loadModel("bunny.obj");
   obj2.loadModel("buddha.obj");
   obj3.loadModel("dragon.obj");
-  find_bound_mesh(obj1, Vobj1);
-  //find_bound_mesh(obj2, Vobj2);
-  //find_bound_mesh(obj3, Vobj3);
-  cout << "max_x:= " << Vobj1[0] << endl;
-  cout << "min_x:= " << Vobj1[1] << endl;
-  cout << "max_y:= " << Vobj1[2] << endl;
-  cout << "min_y:= " << Vobj1[3] << endl;
-  cout << "max_z:= " << Vobj1[4] << endl;
-  cout << "min_z:= " << Vobj1[5] << endl;
+
 
   light.setAmbientColor(ofColor(255, 255, 255));
   light.setDiffuseColor(ofColor(255, 255, 255));
@@ -101,6 +93,16 @@ void Renderer::setup()
   Forme3D_groupe.add(Forme_3D_2.setup("De 6"));
   gui.add(&Forme3D_groupe);
 
+  group_tran.setup("Transformation Geometrique");
+  textbox_transfo.set("Effect de transformation:", "0,0,0");
+  group_tran.add(textbox_transfo);
+  transfo_transation.addListener(this, &Renderer::func_transation);
+  transfo_rotation.addListener(this, &Renderer::func_rotation);
+  transfo_scale.addListener(this, &Renderer::func_scale);
+  group_tran.add(transfo_transation.setup("Translation"));
+  group_tran.add(transfo_rotation.setup("Rotation de 45"));
+  group_tran.add(transfo_scale.setup("Proportion"));
+  gui.add(&group_tran);
 
   gui.draw();
 
@@ -125,6 +127,7 @@ void Renderer::setup()
 void Renderer::update() {
 	text_fonction = textbox_fonction;
 	textbox_pv = text_pv;
+	text_transfo = textbox_transfo;
 	//obj1.setPosition(ofGetWidth() / 4, 3 * ofGetHeight() / 4, 0);
 	//obj2.setPosition(ofGetWidth() / 2, 3 * ofGetHeight() / 4, 0);
 	//obj3.setPosition(3 * ofGetWidth() / 4, 3 * ofGetHeight() / 4, 0);
@@ -141,6 +144,14 @@ void Renderer::draw()
 		offset_vertical,
 		image_width,
 		image_height);
+
+	ofPushMatrix();
+	for (int i = 0; i < Vector_tranfo.size(); i++) {
+		transfo trans = Vector_tranfo[i];
+		if (trans.type == "t")ofTranslate(trans.effect);
+		if (trans.type == "r")ofRotate(ofGetElapsedTimef() * 45.0, trans.effect.x, trans.effect.y, trans.effect.z);
+		if (trans.type == "s")ofScale(trans.effect);
+	}
 
 	if (text_fonction == "4.3") {
 		ofPushMatrix();
@@ -162,13 +173,17 @@ void Renderer::draw()
 	for (int i = 0; i < Pvector.size(); i++) {
 		draw_PVector(Pvector[i]);
 	}
-	gui.draw();
+	
 	if (text_fonction == "4.2") {
+		ofPushMatrix();
 		ofTranslate(mouse_press_x, mouse_press_y, 100);
 		ofRotate(ofGetElapsedTimef() * 20.0, 1, 1, 0);
 		glPointSize(10.f);
 		VBO.drawElements(GL_TRIANGLES, 36);
+		ofPopMatrix();
 	}
+	ofPopMatrix();
+	gui.draw();
 	//histogramme.draw();
 }
 
@@ -476,3 +491,63 @@ void Renderer::find_bound_mesh(ofxAssimpModelLoader obj, vector<GLfloat> A) {
 	A.push_back(max_z);
 	A.push_back(min_z);
 }
+
+void Renderer::func_transation() {
+	string cuter = text_transfo;
+	vector<string>vtoken;
+	string delimiter = ",";
+	size_t pos = 0;
+	string token;
+	while ((pos = cuter.find(delimiter)) != string::npos) {
+		token = cuter.substr(0, pos);
+		vtoken.push_back(token);
+		cuter.erase(0, pos + delimiter.length());
+	}
+	vtoken.push_back(cuter);
+	transfo trans;
+	trans.effect.x = stof(vtoken[0]);
+	trans.effect.y = stof(vtoken[1]);
+	trans.effect.z = stof(vtoken[2]);
+	trans.type = "t";
+	Vector_tranfo.push_back(trans);
+};
+
+void Renderer::func_rotation() {
+	string cuter = text_transfo;
+	vector<string>vtoken;
+	string delimiter = ",";
+	size_t pos = 0;
+	string token;
+	while ((pos = cuter.find(delimiter)) != string::npos) {
+		token = cuter.substr(0, pos);
+		vtoken.push_back(token);
+		cuter.erase(0, pos + delimiter.length());
+	}
+	vtoken.push_back(cuter);
+	transfo trans;
+	trans.effect.x = stof(vtoken[0]);
+	trans.effect.y = stof(vtoken[1]);
+	trans.effect.z = stof(vtoken[2]);
+	trans.type = "r";
+	Vector_tranfo.push_back(trans);
+};
+
+void Renderer::func_scale() {
+	string cuter = text_transfo;
+	vector<string>vtoken;
+	string delimiter = ",";
+	size_t pos = 0;
+	string token;
+	while ((pos = cuter.find(delimiter)) != string::npos) {
+		token = cuter.substr(0, pos);
+		vtoken.push_back(token);
+		cuter.erase(0, pos + delimiter.length());
+	}
+	vtoken.push_back(cuter);
+	transfo trans;
+	trans.effect.x = stof(vtoken[0]);
+	trans.effect.y = stof(vtoken[1]);
+	trans.effect.z = stof(vtoken[2]);
+	trans.type = "s";
+	Vector_tranfo.push_back(trans);
+}; 
