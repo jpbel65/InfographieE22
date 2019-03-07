@@ -245,6 +245,7 @@ void Renderer::draw()
 		ofTranslate(6 * ofGetWidth() / 4, 6 * ofGetHeight() / 4, 0);
 		obj3.draw(OF_MESH_FILL);
 		ofPopMatrix();
+	}
     
 	if (image_source.getHeight() > 0 && image_source.getWidth() > 0)  {
 		image_source.draw(

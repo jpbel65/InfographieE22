@@ -27,6 +27,7 @@ class Renderer
 public:
 	//1.5
 	Histogramme histogramme;
+	
 
 	int appFunction = 101;
 	string appMode = "normal";
