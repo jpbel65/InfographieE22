@@ -2,6 +2,10 @@
 // Classe responsable du rendu de l'application.
 
 #include "renderer.h"
+#include "CoordinateSystem.h"
+#include "InputEvent.h"
+
+static bool selectDynamic = false;
 
 void Renderer::setup()
 {
@@ -135,25 +139,31 @@ void Renderer::setup()
     
     //gui pour antho
     groupeCercleA.setup("Cercle A");
-    groupeCercleA.add(cercleAx.setup("x", 0, 0, 1));
-    groupeCercleA.add(cercleAy.setup("y", 0, 0, 1));
-    groupeCercleA.add(cercleAz.setup("z", 0, 0, 1));
-    groupeCercleA.add(cercleAz2.setup("z cylindrical", 0, 0, 1));
-    groupeCercleA.add(cercleAdist.setup("distance", 0, 0, 1));
+    groupeCercleA.add(cercleAx.setup("x", 0, -1, 1));
+    groupeCercleA.add(cercleAy.setup("y", 0, -1, 1));
+    groupeCercleA.add(cercleAz.setup("z", 0, -1, 1));
+    groupeCercleA.add(cercleAz2.setup("z cylindrical", 0, -1, 1));
+    groupeCercleA.add(cercleAdist.setup("distance", 0, -1, 1));
     groupeCercleA.add(cercleAangle.setup("angle",0,0,360));
     
     groupeCercleB.setup("Cercle B");
-    groupeCercleB.add(cercleBx.setup("x", 0, 0, 1));
-    groupeCercleB.add(cercleBy.setup("y", 0, 0, 1));
-    groupeCercleB.add(cercleBz.setup("z", 0, 0, 1));
-    groupeCercleB.add(cercleBz2.setup("z cylindrical", 0, 0, 1));
-    groupeCercleB.add(cercleBdist.setup("distance", 0, 0, 1));
+    groupeCercleB.add(cercleBx.setup("x", 0, -1, 1));
+    groupeCercleB.add(cercleBy.setup("y", 0, -1, 1));
+    groupeCercleB.add(cercleBz.setup("z", 0, -1, 1));
+    groupeCercleB.add(cercleBz2.setup("z cylindrical", 0, -1, 1));
+    groupeCercleB.add(cercleBdist.setup("distance", 0, -1, 1));
     groupeCercleB.add(cercleBangle.setup("angle",0,0,360));
     
     
     
     gui.add(&groupeCercleA);
     gui.add(&groupeCercleB);
+
+	applyCartesian.addListener(this, &Renderer::CartesianUpdate);
+    applyCylindrical.addListener(this, &Renderer::CylindricalUpdate);
+
+	gui.add(applyCartesian.setup("apply cartesian"));
+	gui.add(applyCylindrical.setup("apply cylindrical"));
 
   gui.draw();
 
@@ -173,7 +183,43 @@ void Renderer::setup()
     "image_tint_330_fs.glsl");
 
 	histogramme.calculateHistograms(image_source);
+
+  // cercles de demonstrationn de 3.1 et 3.5
+  cercles.c0.transform(cercles.translate);
+  cercles.c0.adopt(&cercles.c1);
+
 }
+
+void Renderer::CartesianUpdate(){
+	
+	glm::vec4 positionC0 = glm::vec4(stof(cercleAx.getParameter().toString()),stof(cercleAy.getParameter().toString()) , stof(cercleAz.getParameter().toString()) , 1.0);
+	glm::vec4 positionC1 = glm::vec4(stof(cercleBx.getParameter().toString()),stof(cercleBy.getParameter().toString()) , stof(cercleBz.getParameter().toString()), 1.0);
+	glm::vec4 cylindricalC0 = CoordinateSystem::cartesian2Cylindrical(positionC0);
+	glm::vec4 cylindricalC1 = CoordinateSystem::cartesian2Cylindrical(positionC1);
+	cercleAdist = cylindricalC0.x;
+	cercleAangle = cylindricalC0.y *180/M_PI;
+	cercleAz2 = cylindricalC0.z;
+	cercleBdist = cylindricalC1.x;
+	cercleBangle = cylindricalC1.y *180/M_PI;
+	cercleBz2 = cylindricalC1.z;
+	selectDynamic = true;
+}
+
+void Renderer::CylindricalUpdate(){
+	
+	glm::vec4 cylindricalC0 = glm::vec4(stof(cercleAdist.getParameter().toString()),stof(cercleAangle.getParameter().toString()) * M_PI/180 , stof(cercleAz2.getParameter().toString()) , 1.0);
+	glm::vec4 cylindricalC1 = glm::vec4(stof(cercleBdist.getParameter().toString()),stof(cercleBangle.getParameter().toString()) * M_PI/180 , stof(cercleBz2.getParameter().toString()), 1.0);
+	glm::vec4 positionC0 = CoordinateSystem::cylindrical2Cartesian(cylindricalC0);
+	glm::vec4 positionC1 = CoordinateSystem::cylindrical2Cartesian(cylindricalC1);
+	cercleAx = positionC0.x;
+	cercleAy = positionC0.y;
+	cercleAz = positionC0.z;
+	cercleBx = positionC1.x;
+	cercleBy = positionC1.y;
+	cercleBz = positionC1.z;
+	selectDynamic = false;
+}
+
 void Renderer::saveHSVStroke() {
     
     int Hvalue = stoi(Hslider.getParameter().toString())*255/360;
@@ -315,9 +361,27 @@ void Renderer::draw()
         ofLog() << "<app::WARNING APPMODE INVALID: " << appMode << ">";
     }
     
-    
-    
+	if(text_fonction == "3.5"){
+		if(selectDynamic){
+			CartesianUpdate();
+		} else {
+			CylindricalUpdate();
+		}
 
+		//cercles.c0[0] = 255*glm::vec4(stof(cercleAx.getParameter().toString()),stof(cercleAy.getParameter().toString()) , stof(cercleAz.getParameter().toString()) , 1.0);
+		cercles.c0.transformStack.top()[0].w = (stof(cercleAx.getParameter().toString()) + 1) * InputEvent::getInstance()->windowSize.w/2;
+		cercles.c0.transformStack.top()[1].w = (stof(cercleAy.getParameter().toString()) + 1) * InputEvent::getInstance()->windowSize.h/2;
+		cercles.c0.transformStack.top()[2].w = stof(cercleAz.getParameter().toString());
+		cercles.c0.transform(glm::mat4(1.0));
+		cercles.c1[0] = 255*glm::vec4(stof(cercleBx.getParameter().toString()),stof(cercleBy.getParameter().toString()) , stof(cercleBz.getParameter().toString()), 1.0);
+		cercles.c0[0].w = 1.0;
+		cercles.c1[0].w = 1.0;
+		ofSetColor(255, 0, 0);
+		cercles.c0.draw();
+		ofSetColor(0, 255, 0);
+		cercles.c1.draw();
+		cercles.c0.undoTransform();
+	}
 }
 
 void Renderer::image_export(const string name, const string extension) const

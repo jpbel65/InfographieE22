@@ -9,6 +9,7 @@
 #include "PVector.h"
 #include "Histogramme.h"
 #include <string>
+#include "test.h"
 
 enum class VectorPrimitiveType { none, pixel, point, line, rectangle, ellipse };
 
@@ -28,6 +29,7 @@ public:
 	//1.5
 	Histogramme histogramme;
 	
+    Test cercles;
 
 	int appFunction = 101;
 	string appMode = "normal";
@@ -92,6 +94,10 @@ public:
     ofxFloatSlider cercleAx,cercleAy,cercleAz,cercleAdist,cercleAz2;
     ofxFloatSlider cercleBx,cercleBy,cercleBz,cercleBdist,cercleBz2;
     ofxFloatSlider cercleAangle,cercleBangle;
+    void CartesianUpdate();
+    void CylindricalUpdate();
+    ofxButton applyCartesian;
+    ofxButton applyCylindrical;
     
 	//3.1
 	ofParameter<string> textbox_selected_PV;
