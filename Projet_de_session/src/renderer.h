@@ -189,6 +189,9 @@ public:
 	int texture_height = 500;
 	ofImage noise;
 
+    ofxButton mappage_tonal_bouton;
+	void mappage_tonal();
+
   int image_width;
   int image_height;
 

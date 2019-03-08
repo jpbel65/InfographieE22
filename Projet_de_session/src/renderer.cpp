@@ -27,7 +27,7 @@ void Renderer::setup()
   offset_horizontal = 80;
 
   // importer l'image source
-  image_source.load("");
+  image_source.load("plage.jpg");
   obj1.loadModel("bunny.obj");
   obj2.loadModel("buddha.obj");
   obj3.loadModel("dragon.obj");
@@ -193,6 +193,7 @@ void Renderer::setup()
     1200,
     900);
 	filteredImage = image_source;
+	mappage_tonal();
 	histogramme.calculateHistograms(image_source);
   // chargement du code source des shaders
   shader.load(
@@ -315,7 +316,7 @@ void Renderer::draw()
 	}
 
 	// ofSetColor(255,255,255);
-	if (filteredImage.getHeight() > 0 && filteredImage.getWidth() > 0)  {
+	if (filteredImage.getHeight() > 0 && filteredImage.getWidth() > 0 && text_fonction == "5")  {
 		filteredImage.draw(
 			offset_horizontal,
 			offset_vertical,
@@ -508,6 +509,7 @@ void Renderer::Clean() {
 void Renderer::dragEvent(ofDragInfo dragInfo) {
 	image_source.load(dragInfo.files.at(0));
 	sans_filtre();
+	mappage_tonal();
 	image_width = filteredImage.getWidth();
 	image_height = filteredImage.getHeight();
 	texture_width = image_width;
@@ -569,6 +571,7 @@ void Renderer::fv4_bateau() {
 }
 
 void Renderer::generer_noise_texture() {
+	text_fonction == "5";
 	ofPixels noise_base;
 	ofPixels noise_blur;
 	ofColor gh;
@@ -606,8 +609,35 @@ void Renderer::generer_noise_texture() {
 	filteredImage = noise;
 }
 
+void Renderer::mappage_tonal() {
+	ofColor c;
+	ofColor c2;
+	ofPixels pixels;
+	int width = filteredImage.getWidth();
+	int height = filteredImage.getHeight();
+	pixels.allocate(width, height, OF_IMAGE_COLOR);
+	float r,g,b;
+	
+
+	for(size_t x = 0; x < width; x++)
+	{
+		for(size_t y = 0; y < height; y++)
+		{
+			c = filteredImage.getColor(x, y);
+			r = c.r;
+			g = c.g;
+			b = c.b;
+			c2.set(255*r/(r + 255), 255*g/(g+255), 255*b/(b+255));
+			pixels.setColor(x,y, c2);
+		}
+	}
+	filteredImage.setFromPixels(pixels);
+}
+
 void Renderer::sans_filtre() {
 	filteredImage = image_source;
+	type_filtrage = "Sans filtrage";
+	textbox_filtrage.set("Filtrage ", type_filtrage);
 }
 
 void Renderer::filtrage_bilineaire() {
@@ -679,9 +709,9 @@ void Renderer::filtrage_convolution() {
 	int width = image_source.getWidth();
 	int height = image_source.getHeight();
 	pixels.allocate(width, height, OF_IMAGE_COLOR);
-	for(size_t x = 1; x < width; x++)
+	for(size_t x = 1; x < width-1; x++)
 	{
-		for(size_t y = 1; y < height; y++)
+		for(size_t y = 1; y < height-1; y++)
 		{
 			cc = image_source.getColor(x, y);
 			cg = image_source.getColor(x - 1, y);
