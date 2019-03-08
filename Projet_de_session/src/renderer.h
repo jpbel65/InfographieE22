@@ -11,6 +11,7 @@
 #include <string>
 #include "test.h"
 #include "Shader.h"
+#include "InputEvent.h"
 
 enum class VectorPrimitiveType { none, pixel, point, line, rectangle, ellipse };
 
@@ -31,10 +32,12 @@ public:
 	Histogramme histogramme;
 	
     Test cercles;
+	ofxAssimpModelLoader drone;
 
 	int appFunction = 101;
 	string appMode = "normal";
 	vector<PVector> Pvector;
+	vector<PVector> PvectorRedo;
 	VectorPrimitiveType draw_mode;
 	VectorPrimitive* shapes;
 
@@ -145,6 +148,10 @@ public:
   //4.5
   Shader vibrationShader;
 
+  Shader skyBox;
+  ofImage skyBoxTexture;
+
+
   //3.3
   ofxGuiGroup group_tran;
   ofParameter<string> textbox_transfo;
@@ -161,8 +168,8 @@ public:
   }; 
   vector<transfo> Vector_tranfo;
 
-
-
+  //version of du shader de géométrie. Inutilisable parce qu'il enlève ceux par défaut qui sont nécéssaires pour voir les surfaces. Mais on voit bien l'ombre.
+  ofShader s;
   
   
   ofLight light;
@@ -190,5 +197,29 @@ public:
   void add_PVector();
   void draw_PVector(PVector pv);
 
+  static void undoCallback(void *param) {
+	  std::cout << "key "   << " pressed" << std::endl;
 
+	  if ( InputEvent::getInstance()->keyState['z'] == 1) {
+
+		  Renderer *renderer = (Renderer*)param;
+		  if (renderer->Pvector.size() > 0) {
+			  renderer->PvectorRedo.push_back(renderer->Pvector.back());
+			  renderer->Pvector.pop_back();
+		  }
+
+	  }
+  };
+
+  static void redoCallback(void *param) {
+	  if ( InputEvent::getInstance()->keyState['y'] == 1) {
+
+		  Renderer *renderer = (Renderer *)param;
+		  if (renderer->PvectorRedo.size() > 0) {
+			  renderer->Pvector.push_back(renderer->PvectorRedo.back());
+			  renderer->PvectorRedo.pop_back();
+		  }
+
+	  }
+  };
 };

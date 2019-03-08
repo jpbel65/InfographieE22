@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<Panel>
+	<Fonction_active>5.4</Fonction_active>
+	<Type_de_forme>
+		<Stroke_Size>1</Stroke_Size>
+	</Type_de_forme>
+	<Forme_Primitive>line</Forme_Primitive>
+	<Selection_de_couleur>
+		<R>1</R>
+		<G>1</G>
+		<B>1</B>
+		<Hue>1</Hue>
+		<Saturation>1</Saturation>
+		<Value>1</Value>
+	</Selection_de_couleur>
+	<Graphe_de_scene>
+		<line />
+		<carre />
+		<ellipse />
+		<triangle />
+		<point />
+		<autre />
+	</Graphe_de_scene>
+	<Type_de_P_Geometrique />
+	<Transformation_Geometrique />
+	<Cercle_A>
+		<x>0</x>
+		<y>0</y>
+		<z>0</z>
+		<z_cylindrical>0</z_cylindrical>
+		<distance>0</distance>
+		<angle>0</angle>
+	</Cercle_A>
+	<Cercle_B>
+		<x>0</x>
+		<y>0</y>
+		<z>0</z>
+		<z_cylindrical>0</z_cylindrical>
+		<distance>0</distance>
+		<angle>0</angle>
+	</Cercle_B>
+</Panel>
+<RGB-Picker>
+	<Color:_>255, 255, 255, 255</Color:_>
+</RGB-Picker>
