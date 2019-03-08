@@ -1,11 +1,13 @@
 // IFT3100H19_Triptyque/renderer.cpp
 // Classe responsable du rendu de l'application.
 
+#define _USE_MATH_DEFINES
 #include "renderer.h"
 #include "CoordinateSystem.h"
 #include "InputEvent.h"
 #include "Shader.h"
 #include <stdlib.h>
+#include <math.h>
 
 static bool selectDynamic = false;
 
@@ -190,52 +192,7 @@ void Renderer::setup()
   cercles.c0.transform(cercles.translate);
   cercles.c0.adopt(&cercles.c1);
 
-  // Setup de 4.5
-  	struct verticies {
-		float position[3];
-		float textureCoordinate[2] = {0.0f, 0.0f};
-		float normal[3] = {0.0f, 0.0f, 0.0f};
-	};
 
-	struct verticies triangle[3];
-	triangle[0].position[0] = -0.5f;
-	triangle[0].position[1] = -0.5f;
-	triangle[0].position[2] = 0.0f;
-	triangle[1].position[0] = -0.0f;
-	triangle[1].position[1] = 0.5f;
-	triangle[1].position[2] = 0.0f;
-	triangle[2].position[0] = 0.5f;
-	triangle[2].position[1] = -0.5f;
-	triangle[2].position[2] = 0.5f;
-	triangle[0].normal[2] = 1.0f;
-	triangle[1].normal[2] = 1.0f;
-	triangle[2].normal[2] = 1.0f;
-	triangle[0].textureCoordinate[0] = 1.0f;
-	triangle[1].textureCoordinate[0] = 0.5f;
-	triangle[2].textureCoordinate[0] = 0.0f;
-
-	unsigned int gpu_buffer;
-	glGenBuffers(1, &gpu_buffer);			// declare buffer
-	glBindBuffer(GL_ARRAY_BUFFER, gpu_buffer);  // select buffer
-	//glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), positions, GL_STATIC_DRAW); // transfert data to it (type, size, data*, hint) 6
-	glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(struct verticies), triangle, GL_DYNAMIC_DRAW);
-
-	//glEnableVertexAttribArray(0); // (index)
-	//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
-	// (index of attribute, component count, type, normalise it?, stride between vertex, pointer inside vertex)
-	// (index, count, type, normalise?, stride, pointer (offsetof fonctionne bien pour les struct))
-
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *)offsetof(struct verticies, position));
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *) offsetof(struct verticies, normal));
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *)offsetof(struct verticies, textureCoordinate));
-
-	vibrationShader = Shader("./data/passVertex.glsl", "./data/simpleGradientFragmentShader.glsl", "./data/vibrationGeometryShader.glsl");
-	glUseProgram(vibrationShader.getProgramID());
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0); //unselect
 
 	srand(time(NULL));
 
@@ -435,6 +392,55 @@ void Renderer::draw()
 	}
 
 	if(text_fonction == "4.5"){
+		// Setup de 4.5
+		struct verticies {
+			float position[3];
+			float textureCoordinate[2] = { 0.0f, 0.0f };
+			float normal[3] = { 0.0f, 0.0f, 0.0f };
+		};
+
+		struct verticies triangle[3];
+		triangle[0].position[0] = -0.5f;
+		triangle[0].position[1] = -0.5f;
+		triangle[0].position[2] = 0.0f;
+		triangle[1].position[0] = -0.0f;
+		triangle[1].position[1] = 0.5f;
+		triangle[1].position[2] = 0.0f;
+		triangle[2].position[0] = 0.5f;
+		triangle[2].position[1] = -0.5f;
+		triangle[2].position[2] = 0.5f;
+		triangle[0].normal[2] = 1.0f;
+		triangle[1].normal[2] = 1.0f;
+		triangle[2].normal[2] = 1.0f;
+		triangle[0].textureCoordinate[0] = 1.0f;
+		triangle[1].textureCoordinate[0] = 0.5f;
+		triangle[2].textureCoordinate[0] = 0.0f;
+
+		unsigned int gpu_buffer;
+		glGenBuffers(1, &gpu_buffer);			// declare buffer
+		glBindBuffer(GL_ARRAY_BUFFER, gpu_buffer);  // select buffer
+		//glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), positions, GL_STATIC_DRAW); // transfert data to it (type, size, data*, hint) 6
+		glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(struct verticies), triangle, GL_DYNAMIC_DRAW);
+
+		//glEnableVertexAttribArray(0); // (index)
+		//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+		// (index of attribute, component count, type, normalise it?, stride between vertex, pointer inside vertex)
+		// (index, count, type, normalise?, stride, pointer (offsetof fonctionne bien pour les struct))
+
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *)offsetof(struct verticies, position));
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *)offsetof(struct verticies, normal));
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *)offsetof(struct verticies, textureCoordinate));
+
+		vibrationShader = Shader("./data/passVertex.glsl", "./data/simpleGradientFragmentShader.glsl", "./data/vibrationGeometryShader.glsl");
+		//glUseProgram(vibrationShader.getProgramID());
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0); //unselect
+
+		GLuint previousProgram;
+
 		glUseProgram(vibrationShader.getProgramID());
 		GLint loc = glGetUniformLocation(vibrationShader.getProgramID(), "amplitude");
 		if (loc != -1)
@@ -443,6 +449,14 @@ void Renderer::draw()
 		}
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
+
+		shader.begin();
+		shader.end();
+
+		gui.draw();
 	}
 }
 
