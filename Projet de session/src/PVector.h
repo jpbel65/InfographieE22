@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "ofMain.h"
 
 class PVector
 {
@@ -12,7 +13,9 @@ public:
 		float p_position2_y,
 		float p_stroke_width,
 		unsigned char p_stroke_color,
-		unsigned char p_fill_color);
+		unsigned char p_fill_color,
+        ofColor p_fill_color_rgb,
+        ofColor p_stroke_color_rgb);
 	~PVector();
 
 	std::string m_name;
@@ -23,5 +26,7 @@ public:
 	float m_stroke_width;
 	unsigned char m_stroke_color;
 	unsigned char m_fill_color;
+    ofColor m_fill_color_rgb;
+    ofColor m_stroke_color_rgb;
 };
 

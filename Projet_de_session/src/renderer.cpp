@@ -8,11 +8,26 @@
 #include "Shader.h"
 #include <stdlib.h>
 #include <math.h>
+#include <thread>
 
 static bool selectDynamic = false;
 
+void scanComponent(void *param) {
+
+}
+
 void Renderer::setup()
 {
+	Function undo;
+	Function redo;
+	undo.function = Renderer::undoCallback;
+	undo.param = this;
+	redo.function = Renderer::redoCallback;
+	redo.param = this;
+
+	InputEvent::getInstance()->onKeyPressed('z', undo);
+	InputEvent::getInstance()->onKeyPressed('y', redo);
+
   ofSetFrameRate(60);
   ofEnableLighting();
 
@@ -32,14 +47,10 @@ void Renderer::setup()
   obj2.loadModel("buddha.obj");
   obj3.loadModel("dragon.obj");
 
-
   light.setAmbientColor(ofColor(255, 255, 255));
   light.setDiffuseColor(ofColor(255, 255, 255));
   light.setPosition(0.0f, 0.0f, 1000.0f);
   light.enable();
-
-
-  
 
   // définir la résolution des images de destination
   image_width = image_source.getWidth();
@@ -200,16 +211,29 @@ void Renderer::setup()
     "image_tint_330_vs.glsl",
     "image_tint_330_fs.glsl");
 
+
+  s.load("passVertex.glsl", "simpleGradientFragmentShader.glsl", "vibrationGeometryShader.glsl");
+
 	histogramme.calculateHistograms(image_source);
 
   // cercles de demonstrationn de 3.1 et 3.5
   cercles.c0.transform(cercles.translate);
   cercles.c0.adopt(&cercles.c1);
 
-
+	vibrationShader = Shader("./data/passVertex.glsl", "./data/simpleGradientFragmentShader.glsl", "./data/vibrationGeometryShader.glsl");
+	skyBox = Shader("./data/passVertex.glsl", "./data/textureFragmentShader.glsl");
+	skyBoxTexture.load("./data/skybox.png");
 
 	srand(time(NULL));
 
+	drone.disableTextures();
+	drone.loadModel("AirDronefbx.fbx");
+	//wolf.calculateDimensions();
+	std::cout << "animation count : " << drone.getAnimationCount();
+	drone.setLoopStateForAllAnimations(OF_LOOP_NONE);
+	drone.setRotation(drone.getNumRotations(), 90, 0.0, 0.0, 1.0);
+	drone.setRotation(drone.getNumRotations(), 90, 1.0, 0.0, 0.0);
+	drone.playAllAnimations();
 }
 
 void Renderer::CartesianUpdate(){
@@ -219,18 +243,18 @@ void Renderer::CartesianUpdate(){
 	glm::vec4 cylindricalC0 = CoordinateSystem::cartesian2Cylindrical(positionC0);
 	glm::vec4 cylindricalC1 = CoordinateSystem::cartesian2Cylindrical(positionC1);
 	cercleAdist = cylindricalC0.x;
-	cercleAangle = cylindricalC0.y *180/M_PI;
+	cercleAangle = cylindricalC0.y *180/M_PI - 90;
 	cercleAz2 = cylindricalC0.z;
 	cercleBdist = cylindricalC1.x;
-	cercleBangle = cylindricalC1.y *180/M_PI;
+	cercleBangle = cylindricalC1.y *180/M_PI - 90;
 	cercleBz2 = cylindricalC1.z;
 	selectDynamic = true;
 }
 
 void Renderer::CylindricalUpdate(){
 	
-	glm::vec4 cylindricalC0 = glm::vec4(stof(cercleAdist.getParameter().toString()),stof(cercleAangle.getParameter().toString()) * M_PI/180 , stof(cercleAz2.getParameter().toString()) , 1.0);
-	glm::vec4 cylindricalC1 = glm::vec4(stof(cercleBdist.getParameter().toString()),stof(cercleBangle.getParameter().toString()) * M_PI/180 , stof(cercleBz2.getParameter().toString()), 1.0);
+	glm::vec4 cylindricalC0 = glm::vec4(stof(cercleAdist.getParameter().toString()),stof(cercleAangle.getParameter().toString()) * M_PI/180, stof(cercleAz2.getParameter().toString()) , 1.0);
+	glm::vec4 cylindricalC1 = glm::vec4(stof(cercleBdist.getParameter().toString()),stof(cercleBangle.getParameter().toString()) * M_PI/180, stof(cercleBz2.getParameter().toString()), 1.0);
 	glm::vec4 positionC0 = CoordinateSystem::cylindrical2Cartesian(cylindricalC0);
 	glm::vec4 positionC1 = CoordinateSystem::cylindrical2Cartesian(cylindricalC1);
 	cercleAx = positionC0.x;
@@ -285,11 +309,27 @@ void Renderer::update() {
 	
 }
 
+static int countys = 0;
+
 void Renderer::draw()
 {
 	ofSetColor(255,255,255);
 
-	ofPushMatrix();
+
+
+
+	if (text_fonction == "4.4") {
+		ofPushMatrix();
+		ofScale(0.3f);
+		ofTranslate(ofGetWidth() / 2, 6 * ofGetHeight() / 3, 0);
+		if (drone.getAnimation(countys).isFinished()) {
+			drone.getAnimation(countys++ % 128).play();
+		}
+		drone.update();
+		drone.draw(OF_MESH_FILL);
+		ofPopMatrix();
+	}
+
 	for (int i = 0; i < Vector_tranfo.size(); i++) {
 		transfo trans = Vector_tranfo[i];
 		if (trans.type == "t")ofTranslate(trans.effect);
@@ -449,7 +489,6 @@ void Renderer::draw()
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *)offsetof(struct verticies, normal));
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *)offsetof(struct verticies, textureCoordinate));
 
-		vibrationShader = Shader("./data/passVertex.glsl", "./data/simpleGradientFragmentShader.glsl", "./data/vibrationGeometryShader.glsl");
 		//glUseProgram(vibrationShader.getProgramID());
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0); //unselect
@@ -472,6 +511,110 @@ void Renderer::draw()
 		shader.end();
 
 		gui.draw();
+	}
+
+	if (text_fonction == "5.4")
+	{
+		// Setup de 5.4 .... fail
+
+		struct verticies {
+			glm::vec3 position;
+			glm::vec2 textureCoordinate;
+			glm::vec3 normal;
+		};
+
+		struct face {
+			struct verticies points[4];
+		};
+
+		struct face faceCourante;
+
+		float scaleX = ofGetWindowWidth()/2;
+		float scaleY = ofGetWindowHeight()/2;
+
+
+		faceCourante.points[0].position = glm::vec3(-1.0f, 1.0f, 1.0f);
+		faceCourante.points[1].position = glm::vec3(1.0f, 1.0f, 1.0f);
+		faceCourante.points[2].position = glm::vec3(1.0f, -1.0f, 1.0f);
+		faceCourante.points[3].position = glm::vec3(-1.0f, -1.0f, 1.0f);
+
+		for (int i = 0; i < 4; i++){ 
+			faceCourante.points[i].position.x *= scaleX;
+			faceCourante.points[i].position.y *= scaleY;
+		}
+
+		//faceCourante.points[0].textureCoordinate = glm::vec2(0.25f, 0.66f);
+		//faceCourante.points[1].textureCoordinate = glm::vec2(0.5f, 0.66f);
+		//faceCourante.points[2].textureCoordinate = glm::vec2(0.5f, 0.33f);
+		//faceCourante.points[3].textureCoordinate = glm::vec2(0.25f, 0.33f);
+
+		faceCourante.points[0].textureCoordinate = glm::vec2(0.0f, 0.0f);
+		faceCourante.points[1].textureCoordinate = glm::vec2(1.0f, 0.0f);
+		faceCourante.points[2].textureCoordinate = glm::vec2(1.0f, 1.0f);
+		faceCourante.points[3].textureCoordinate = glm::vec2(0.0f, 1.0f);
+
+		for (int i = 0; i < 4; i++) {
+			//faceCourante.points[i].textureCoordinate.s *= skyBoxTexture.getWidth();
+			//faceCourante.points[i].textureCoordinate.t *= skyBoxTexture.getHeight();
+		}
+
+
+		unsigned int gpu_buffer;
+		glGenBuffers(1, &gpu_buffer);			// declare buffer
+		glBindBuffer(GL_ARRAY_BUFFER, gpu_buffer);  // select buffer
+		//glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), positions, GL_STATIC_DRAW); // transfert data to it (type, size, data*, hint) 6
+		glBufferData(GL_ARRAY_BUFFER,  sizeof(struct face), &faceCourante, GL_DYNAMIC_DRAW);
+
+		//glEnableVertexAttribArray(0); // (index)
+		//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+		// (index of attribute, component count, type, normalise it?, stride between vertex, pointer inside vertex)
+		// (index, count, type, normalise?, stride, pointer (offsetof fonctionne bien pour les struct))
+
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *)offsetof(struct verticies, position));
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *)offsetof(struct verticies, normal));
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *)offsetof(struct verticies, textureCoordinate));
+
+		//vibrationShader = Shader("./data/passVertex.glsl", "./data/simpleGradientFragmentShader.glsl", "./data/vibrationGeometryShader.glsl");
+		//glUseProgram(vibrationShader.getProgramID());
+
+
+
+		GLuint previousProgram;
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+		unsigned int texture;
+		//glGenTextures(1, &texture);
+		texture = glGetUniformLocation(skyBox.getProgramID(), "texture0");
+
+		unsigned char textureA[3 * 3] = { 1.0,0.0,0.0 ,0.0,1.0,0.0, 0.0,0.0,1.0 };
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 3/*skyBoxTexture.getWidth(), skyBoxTexture.getHeight()*/,1 , 0, GL_RGB, GL_UNSIGNED_BYTE, textureA);//skyBoxTexture.getPixels().getPixels()
+
+		//glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
+		//glBindTexture(GL_TEXTURE_2D, texture);
+
+
+		glUseProgram(skyBox.getProgramID());
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0); //unselect
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
+
+
+		shader.begin();
+		shader.end();
+
+		gui.draw();
+	}
+
+	if (text_fonction == "4.1") {
+	
 	}
 }
 
@@ -725,6 +868,7 @@ void Renderer::filtrage_convolution() {
 }
 
 void Renderer::add_PVector() {
+	PvectorRedo.clear();
 	PVector pv = PVector(text_pv, mouse_press_x, mouse_press_y, mouse_current_x, mouse_current_y, stoi(strokeSize.getParameter().toString()), 0, 255,pickedColor2,pickedColor);
 	Pvector.push_back(pv);
 	std::cout << Pvector.size() <<std::endl;
