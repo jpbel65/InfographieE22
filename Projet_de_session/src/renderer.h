@@ -10,6 +10,7 @@
 #include "Histogramme.h"
 #include <string>
 #include "test.h"
+#include "Shader.h"
 
 enum class VectorPrimitiveType { none, pixel, point, line, rectangle, ellipse };
 
@@ -140,6 +141,9 @@ public:
   ofxAssimpModelLoader obj2;
   ofxAssimpModelLoader obj3;
   void find_bound_mesh(ofxAssimpModelLoader obj, vector<GLfloat> A);
+
+  //4.5
+  Shader vibrationShader;
 
   //3.3
   ofxGuiGroup group_tran;
