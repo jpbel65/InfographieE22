@@ -74,7 +74,7 @@ void Renderer::setup()
     HSVpickFill.addListener(this, &Renderer::saveHSVFill);
     RGBpickStroke.addListener(this, &Renderer::saveRGBStroke);
     RGBpickFill.addListener(this, &Renderer::saveRGBFill);
-	sans_filtre_bouton.addListener(this, &Renderer::sans_filtre);
+	mappage_tonal_bouton.addListener(this, &Renderer::mappage_tonal);
 	generer_noise_bouton.addListener(this, &Renderer::generer_noise_texture);
 	bilineaire.addListener(this, &Renderer::filtrage_bilineaire);
 	trilineaire.addListener(this, &Renderer::mix_noise);
@@ -145,14 +145,14 @@ void Renderer::setup()
   gui.add(&Forme3D_groupe);
 
 	group_filtrage.setup("Type de filtrage");
-	group_filtrage.add(sans_filtre_bouton.setup("Sans filtre"));
+	group_filtrage.add(mappage_tonal_bouton.setup("Mappage tonal"));
 	group_filtrage.add(bilineaire.setup("Bilineaire"));
 	group_filtrage.add(trilineaire.setup("Mix avec une texture"));
 	group_filtrage.add(convolution.setup("Convolution"));
 	gui.add(&group_filtrage);
 	textbox_filtrage.set("Filtrage ", type_filtrage);
   gui.add(textbox_filtrage);
-	gui.add(generer_noise_bouton.setup("Générer une texture"));
+	gui.add(generer_noise_bouton.setup("Generer une texture"));
 
 
   group_tran.setup("Transformation Geometrique");
@@ -220,9 +220,9 @@ void Renderer::setup()
   cercles.c0.transform(cercles.translate);
   cercles.c0.adopt(&cercles.c1);
 
-	vibrationShader = Shader("./data/passVertex.glsl", "./data/simpleGradientFragmentShader.glsl", "./data/vibrationGeometryShader.glsl");
-	skyBox = Shader("./data/passVertex.glsl", "./data/textureFragmentShader.glsl");
-	skyBoxTexture.load("./data/skybox.png");
+	vibrationShader = Shader(ofToDataPath("passVertex.glsl"), ofToDataPath("simpleGradientFragmentShader.glsl"), ofToDataPath("vibrationGeometryShader.glsl"));
+	skyBox = Shader(ofToDataPath("passVertex.glsl"), ofToDataPath("textureFragmentShader.glsl"));
+	skyBoxTexture.load("skybox.png");
 
 	srand(time(NULL));
 
@@ -590,7 +590,16 @@ void Renderer::draw()
 		//glGenTextures(1, &texture);
 		texture = glGetUniformLocation(skyBox.getProgramID(), "texture0");
 
-		unsigned char textureA[3 * 3] = { 1.0,0.0,0.0 ,0.0,1.0,0.0, 0.0,0.0,1.0 };
+		unsigned char textureA[3 * 3] = { 
+			static_cast<unsigned char>(1.0),
+			static_cast<unsigned char>(0.0),
+			static_cast<unsigned char>(0.0) ,
+			static_cast<unsigned char>(0.0),
+			static_cast<unsigned char>(1.0),
+			static_cast<unsigned char>(0.0), 
+			static_cast<unsigned char>(0.0),
+			static_cast<unsigned char>(0.0),
+			static_cast<unsigned char>(1.0) };
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 3/*skyBoxTexture.getWidth(), skyBoxTexture.getHeight()*/,1 , 0, GL_RGB, GL_UNSIGNED_BYTE, textureA);//skyBoxTexture.getPixels().getPixels()
 
@@ -651,7 +660,6 @@ void Renderer::Clean() {
 
 void Renderer::dragEvent(ofDragInfo dragInfo) {
 	image_source.load(dragInfo.files.at(0));
-	sans_filtre();
 	mappage_tonal();
 	image_width = filteredImage.getWidth();
 	image_height = filteredImage.getHeight();
@@ -753,11 +761,13 @@ void Renderer::generer_noise_texture() {
 }
 
 void Renderer::mappage_tonal() {
+	type_filtrage = "Mappage tonale";
+	textbox_filtrage.set("Filtrage ", type_filtrage);
 	ofColor c;
 	ofColor c2;
 	ofPixels pixels;
-	int width = filteredImage.getWidth();
-	int height = filteredImage.getHeight();
+	int width = image_source.getWidth();
+	int height = image_source.getHeight();
 	pixels.allocate(width, height, OF_IMAGE_COLOR);
 	float r,g,b;
 	
@@ -766,7 +776,7 @@ void Renderer::mappage_tonal() {
 	{
 		for(size_t y = 0; y < height; y++)
 		{
-			c = filteredImage.getColor(x, y);
+			c = image_source.getColor(x, y);
 			r = c.r;
 			g = c.g;
 			b = c.b;
@@ -777,11 +787,11 @@ void Renderer::mappage_tonal() {
 	filteredImage.setFromPixels(pixels);
 }
 
-void Renderer::sans_filtre() {
-	filteredImage = image_source;
-	type_filtrage = "Sans filtrage";
-	textbox_filtrage.set("Filtrage ", type_filtrage);
-}
+// void Renderer::sans_filtre() {
+	
+// 	mappage_tonal();
+	
+// }
 
 void Renderer::filtrage_bilineaire() {
 	type_filtrage = "Bilinéaire";
@@ -798,7 +808,7 @@ void Renderer::filtrage_bilineaire() {
 	{
 		pixels.setColor(x, 0, image_source.getColor(x * 1.5, 0));
 	}
-	for(size_t y = 0; y < width; y++)
+	for(size_t y = 0; y < height; y++)
 	{
 		pixels.setColor(0, y, image_source.getColor(0, y * 1.5));
 	}

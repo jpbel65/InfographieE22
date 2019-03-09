@@ -168,7 +168,7 @@ public:
   }; 
   vector<transfo> Vector_tranfo;
 
-  //version of du shader de géométrie. Inutilisable parce qu'il enlève ceux par défaut qui sont nécéssaires pour voir les surfaces. Mais on voit bien l'ombre.
+  //version of du shader de gï¿½omï¿½trie. Inutilisable parce qu'il enlï¿½ve ceux par dï¿½faut qui sont nï¿½cï¿½ssaires pour voir les surfaces. Mais on voit bien l'ombre.
   ofShader s;
   
   
@@ -177,8 +177,8 @@ public:
   //5.2
   ofxGuiGroup group_filtrage;
   	ofxButton generer_noise_bouton;
-  	ofxButton sans_filtre_bouton;
-	void sans_filtre();
+  	ofxButton mappage_tonal_bouton;
+	// void sans_filtre();
 	ofxButton bilineaire;
 	void filtrage_bilineaire();
 	ofxButton trilineaire;
@@ -196,7 +196,6 @@ public:
 	int texture_height = 500;
 	ofImage noise;
 
-    ofxButton mappage_tonal_bouton;
 	void mappage_tonal();
 
   int image_width;
