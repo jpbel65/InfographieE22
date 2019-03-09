@@ -648,8 +648,8 @@ void Renderer::filtrage_bilineaire() {
 	ofColor cbg;
 	ofColor cbd;
 	ofPixels pixels;
-	int width = image_source.getWidth()/1.5;
-	int height = image_source.getHeight()/1.5;
+	int width = floor(image_source.getWidth()/1.5);
+	int height = floor(image_source.getHeight()/1.5);
 	pixels.allocate(width, height, OF_IMAGE_COLOR);
 	for(size_t x = 0; x < width; x++)
 	{
