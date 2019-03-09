@@ -3,12 +3,12 @@
 void Histogramme::calculateHistograms(ofImage p_img) {
     img = p_img;
 	gradient.load("gradientBW.png"); 
-	vector<int> Hist(255, 0);
+	vector<int> Hist(256, 0);
 	int counter = 0;
     vector<ofxGPoint> points;
 
-	for (int x = 0; x < img.getWidth(); ++x) {
-		for (int y = 0; y < img.getHeight(); ++y) {
+	for (int x = 0; x < img.getWidth(); x++) {
+		for (int y = 0; y < img.getHeight(); y++) {
 			ofColor c = img.getColor(x, y);
             int grey = (c.r + c.g + c.b) / 3;
 			Hist[grey]++;

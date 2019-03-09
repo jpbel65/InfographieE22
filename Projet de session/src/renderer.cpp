@@ -1,11 +1,35 @@
 // IFT3100H19_Triptyque/renderer.cpp
 // Classe responsable du rendu de l'application.
 
+#define _USE_MATH_DEFINES
 #include "renderer.h"
+#include "CoordinateSystem.h"
+#include "InputEvent.h"
+#include "Shader.h"
+#include <stdlib.h>
+#include <math.h>
+#include <thread>
+
+static bool selectDynamic = false;
+
+void scanComponent(void *param) {
+
+}
 
 void Renderer::setup()
 {
+	Function undo;
+	Function redo;
+	undo.function = Renderer::undoCallback;
+	undo.param = this;
+	redo.function = Renderer::redoCallback;
+	redo.param = this;
+
+	InputEvent::getInstance()->onKeyPressed('z', undo);
+	InputEvent::getInstance()->onKeyPressed('y', redo);
+
   ofSetFrameRate(60);
+  ofEnableLighting();
 
   // couleur de l'arrière-plan
   ofSetBackgroundColor(31);
@@ -19,12 +43,18 @@ void Renderer::setup()
 
   // importer l'image source
   image_source.load("");
+  obj1.loadModel("bunny.obj");
+  obj2.loadModel("buddha.obj");
+  obj3.loadModel("dragon.obj");
+
+  light.setAmbientColor(ofColor(255, 255, 255));
+  light.setDiffuseColor(ofColor(255, 255, 255));
+  light.setPosition(0.0f, 0.0f, 1000.0f);
+  light.enable();
 
   // définir la résolution des images de destination
   image_width = image_source.getWidth();
   image_height = image_source.getHeight();
-
-  
 
   ExportBut.addListener(this, &Renderer::Export);
   CleanBut.addListener(this, &Renderer::Clean);
@@ -33,25 +63,55 @@ void Renderer::setup()
 	PV3.addListener(this, &Renderer::pv3_ellipse);
 	PV4.addListener(this, &Renderer::pv4_triangle);
 	PV5.addListener(this, &Renderer::pv5_point);
+    FV1.addListener(this, &Renderer::fv1_maison);
+    FV2.addListener(this, &Renderer::fv2_fleche);
+    FV3.addListener(this, &Renderer::fv3_sapin);
+    FV4.addListener(this, &Renderer::fv4_bateau);
 	Forme_3D_1.addListener(this, &Renderer::Forme3D_De_4);
 	Forme_3D_2.addListener(this, &Renderer::Forme3D_De_6);
-
+    
+    HSVpickStroke.addListener(this, &Renderer::saveHSVStroke);
+    HSVpickFill.addListener(this, &Renderer::saveHSVFill);
+    RGBpickStroke.addListener(this, &Renderer::saveRGBStroke);
+    RGBpickFill.addListener(this, &Renderer::saveRGBFill);
 
   gui.setup("Panel");
 	  group_Pvector.setup("Type de forme");
+      group_Pvector.add(strokeSize.setup("Stroke Size",1,0,100));
 	  group_Pvector.add(PV1.setup("line"));
 	  group_Pvector.add(PV2.setup("carre"));
 	  group_Pvector.add(PV3.setup("ellipse"));
 	  group_Pvector.add(PV4.setup("triangle"));
 	  group_Pvector.add(PV5.setup("point"));
+      group_Pvector.add(FV1.setup("maison"));
+      group_Pvector.add(FV2.setup("bonhomme"));
+      group_Pvector.add(FV3.setup("sapin"));
+      group_Pvector.add(FV4.setup("bateau"));
   gui.add(Lmport.setup("Drag for Import", "Picture"));
   gui.add(ExportBut.setup("Export"));
   gui.add(CleanBut.setup("Clean"));
-  textbox_fonction.set("Fonction active", "4.2");
+  textbox_fonction.set("Fonction active", "4.3");
   gui.add(textbox_fonction);
   gui.add(&group_Pvector);
   textbox_pv.set("Forme Primitive", text_pv);
   gui.add(textbox_pv);
+    
+  // selection couleur RGB HSV
+    groupeCouleur.setup("Selection de couleur");
+    // RGB
+    groupeCouleur.add(Rslider.setup("R",1, 0, 255));
+    groupeCouleur.add(Gslider.setup("G",1, 0, 255));
+    groupeCouleur.add(Bslider.setup("B",1, 0, 255));
+    groupeCouleur.add(RGBpickStroke.setup("Save stroke RGB"));
+    groupeCouleur.add(RGBpickFill.setup("Save fill RGB"));
+    // HSV
+    groupeCouleur.add(Hslider.setup("Hue",1, 0, 360));
+    groupeCouleur.add(Sslider.setup("Saturation",1, 0, 100));
+    groupeCouleur.add(Vslider.setup("Value",1, 0, 100));
+    groupeCouleur.add(HSVpickStroke.setup("Save stroke HSV"));
+    groupeCouleur.add(HSVpickFill.setup("Save fill HSV"));
+    
+    gui.add(&groupeCouleur);
   
   //gui.draw();
 
@@ -64,8 +124,6 @@ void Renderer::setup()
 	group_Pv_triangle.setup("triangle"); 
 	group_Pv_point.setup("point");
 	group_Pv_other.setup("autre");
-
-	
 
   arborescence.add(&group_Pv_line);
   arborescence.add(&group_Pv_carre);
@@ -81,13 +139,54 @@ void Renderer::setup()
   gui.add(&Forme3D_groupe);
 
 
+  group_tran.setup("Transformation Geometrique");
+  textbox_transfo.set("Effect de transformation:", "0,0,0");
+  group_tran.add(textbox_transfo);
+  transfo_transation.addListener(this, &Renderer::func_transation);
+  transfo_rotation.addListener(this, &Renderer::func_rotation);
+  transfo_scale.addListener(this, &Renderer::func_scale);
+  group_tran.add(transfo_transation.setup("Translation"));
+  group_tran.add(transfo_rotation.setup("Rotation de 45"));
+  group_tran.add(transfo_scale.setup("Proportion"));
+  gui.add(&group_tran);
+
+
+    
+    //gui pour antho
+    groupeCercleA.setup("Cercle A");
+    groupeCercleA.add(cercleAx.setup("x", 0, -1, 1));
+    groupeCercleA.add(cercleAy.setup("y", 0, -1, 1));
+    groupeCercleA.add(cercleAz.setup("z", 0, -1, 1));
+    groupeCercleA.add(cercleAz2.setup("z cylindrical", 0, -1, 1));
+    groupeCercleA.add(cercleAdist.setup("distance", 0, -1, 1));
+    groupeCercleA.add(cercleAangle.setup("angle",0,0,360));
+    
+    groupeCercleB.setup("Cercle B");
+    groupeCercleB.add(cercleBx.setup("x", 0, -1, 1));
+    groupeCercleB.add(cercleBy.setup("y", 0, -1, 1));
+    groupeCercleB.add(cercleBz.setup("z", 0, -1, 1));
+    groupeCercleB.add(cercleBz2.setup("z cylindrical", 0, -1, 1));
+    groupeCercleB.add(cercleBdist.setup("distance", 0, -1, 1));
+    groupeCercleB.add(cercleBangle.setup("angle",0,0,360));
+    
+    
+    
+    gui.add(&groupeCercleA);
+    gui.add(&groupeCercleB);
+
+	applyCartesian.addListener(this, &Renderer::CartesianUpdate);
+    applyCylindrical.addListener(this, &Renderer::CylindricalUpdate);
+
+	gui.add(applyCartesian.setup("apply cartesian"));
+	gui.add(applyCylindrical.setup("apply cylindrical"));
+
   gui.draw();
 
 
   // ajuster la résolution de la fenêtre en fonction de la résolution de l'image source et des espacements
   ofSetWindowShape(
-    image_source.getWidth() + offset_horizontal * 2,
-    image_source.getHeight() + offset_vertical * 2);
+    1200,
+    900);
   // copier les pixels de la section de l'image source vers les images de destination
   /*image_left.cropFrom(image_source, image_width * 0, 0, image_width, image_height);
   image_center.cropFrom(image_source, image_width * 1, 0, image_width, image_height);
@@ -97,29 +196,411 @@ void Renderer::setup()
   shader.load(
     "image_tint_330_vs.glsl",
     "image_tint_330_fs.glsl");
+
+
+  s.load("passVertex.glsl", "simpleGradientFragmentShader.glsl", "vibrationGeometryShader.glsl");
+
+	histogramme.calculateHistograms(image_source);
+
+  // cercles de demonstrationn de 3.1 et 3.5
+  cercles.c0.transform(cercles.translate);
+  cercles.c0.adopt(&cercles.c1);
+
+	vibrationShader = Shader("./data/passVertex.glsl", "./data/simpleGradientFragmentShader.glsl", "./data/vibrationGeometryShader.glsl");
+	skyBox = Shader("./data/passVertex.glsl", "./data/textureFragmentShader.glsl");
+	skyBoxTexture.load("./data/skybox.png");
+
+	srand(time(NULL));
+
+	drone.disableTextures();
+	drone.loadModel("AirDronefbx.fbx");
+	//wolf.calculateDimensions();
+	std::cout << "animation count : " << drone.getAnimationCount();
+	drone.setLoopStateForAllAnimations(OF_LOOP_NONE);
+	drone.setRotation(drone.getNumRotations(), 90, 0.0, 0.0, 1.0);
+	drone.setRotation(drone.getNumRotations(), 90, 1.0, 0.0, 0.0);
+	drone.playAllAnimations();
+}
+
+void Renderer::CartesianUpdate(){
+	
+	glm::vec4 positionC0 = glm::vec4(stof(cercleAx.getParameter().toString()),stof(cercleAy.getParameter().toString()) , stof(cercleAz.getParameter().toString()) , 1.0);
+	glm::vec4 positionC1 = glm::vec4(stof(cercleBx.getParameter().toString()),stof(cercleBy.getParameter().toString()) , stof(cercleBz.getParameter().toString()), 1.0);
+	glm::vec4 cylindricalC0 = CoordinateSystem::cartesian2Cylindrical(positionC0);
+	glm::vec4 cylindricalC1 = CoordinateSystem::cartesian2Cylindrical(positionC1);
+	cercleAdist = cylindricalC0.x;
+	cercleAangle = cylindricalC0.y *180/M_PI - 90;
+	cercleAz2 = cylindricalC0.z;
+	cercleBdist = cylindricalC1.x;
+	cercleBangle = cylindricalC1.y *180/M_PI - 90;
+	cercleBz2 = cylindricalC1.z;
+	selectDynamic = true;
+}
+
+void Renderer::CylindricalUpdate(){
+	
+	glm::vec4 cylindricalC0 = glm::vec4(stof(cercleAdist.getParameter().toString()),stof(cercleAangle.getParameter().toString()) * M_PI/180, stof(cercleAz2.getParameter().toString()) , 1.0);
+	glm::vec4 cylindricalC1 = glm::vec4(stof(cercleBdist.getParameter().toString()),stof(cercleBangle.getParameter().toString()) * M_PI/180, stof(cercleBz2.getParameter().toString()), 1.0);
+	glm::vec4 positionC0 = CoordinateSystem::cylindrical2Cartesian(cylindricalC0);
+	glm::vec4 positionC1 = CoordinateSystem::cylindrical2Cartesian(cylindricalC1);
+	cercleAx = positionC0.x;
+	cercleAy = positionC0.y;
+	cercleAz = positionC0.z;
+	cercleBx = positionC1.x;
+	cercleBy = positionC1.y;
+	cercleBz = positionC1.z;
+	selectDynamic = false;
+}
+
+void Renderer::saveHSVStroke() {
+    
+    int Hvalue = stoi(Hslider.getParameter().toString())*255/360;
+    int Svalue = stoi(Sslider.getParameter().toString())*255/100;
+    int Vvalue = stoi(Vslider.getParameter().toString())*255/100;
+    pickedColor.setHsb(Hvalue,Svalue,Vvalue);
+    ofSetColor(pickedColor2);
+}
+void Renderer::saveRGBStroke() {
+    int Rvalue = stoi(Rslider.getParameter().toString());
+    int Gvalue = stoi(Gslider.getParameter().toString());
+    int Bvalue = stoi(Bslider.getParameter().toString());
+    pickedColor.set(Rvalue, Gvalue, Bvalue);
+    ofSetColor(pickedColor2);
+}
+void Renderer::saveHSVFill() {
+    
+    int Hvalue = stoi(Hslider.getParameter().toString())*255/360;
+    int Svalue = stoi(Sslider.getParameter().toString())*255/100;
+    int Vvalue = stoi(Vslider.getParameter().toString())*255/100;
+    pickedColor2.setHsb(Hvalue,Svalue,Vvalue);
+    ofSetColor(pickedColor);
+}
+void Renderer::saveRGBFill() {
+    int Rvalue = stoi(Rslider.getParameter().toString());
+    int Gvalue = stoi(Gslider.getParameter().toString());
+    int Bvalue = stoi(Bslider.getParameter().toString());
+    pickedColor2.set(Rvalue, Gvalue, Bvalue);
+    ofSetColor(pickedColor);
 }
 
 void Renderer::update() {
 	text_fonction = textbox_fonction;
 	textbox_pv = text_pv;
+	text_transfo = textbox_transfo;
+	//obj1.setPosition(ofGetWidth() / 4, 3 * ofGetHeight() / 4, 0);
+	//obj2.setPosition(ofGetWidth() / 2, 3 * ofGetHeight() / 4, 0);
+	//obj3.setPosition(3 * ofGetWidth() / 4, 3 * ofGetHeight() / 4, 0);
+	
+
+	
 }
+
+static int countys = 0;
 
 void Renderer::draw()
 {
 	ofSetColor(255,255,255);
-	image_source.draw(
-		offset_horizontal,
-		offset_vertical,
-		image_width,
-		image_height);
+
+
+
+
+	if (text_fonction == "4.4") {
+		ofPushMatrix();
+		ofScale(0.3f);
+		ofTranslate(ofGetWidth() / 2, 6 * ofGetHeight() / 3, 0);
+		if (drone.getAnimation(countys).isFinished()) {
+			drone.getAnimation(countys++ % 128).play();
+		}
+		drone.update();
+		drone.draw(OF_MESH_FILL);
+		ofPopMatrix();
+	}
+
+	for (int i = 0; i < Vector_tranfo.size(); i++) {
+		transfo trans = Vector_tranfo[i];
+		if (trans.type == "t")ofTranslate(trans.effect);
+		if (trans.type == "r")ofRotate(ofGetElapsedTimef() * 45.0, trans.effect.x, trans.effect.y, trans.effect.z);
+		if (trans.type == "s")ofScale(trans.effect);
+	}
+
+	if (text_fonction == "4.3") {
+		ofPushMatrix();
+		ofScale(0.3f);
+		ofTranslate(ofGetWidth() / 2, 6 * ofGetHeight() / 3, 0);
+		obj1.draw(OF_MESH_FILL);
+		ofPopMatrix();
+		ofPushMatrix();
+		ofScale(0.5f);
+		ofTranslate(ofGetWidth(), 6 * ofGetHeight() / 4, 0);
+		obj2.draw(OF_MESH_FILL);
+		ofPopMatrix();
+		ofPushMatrix();
+		ofScale(0.5f);
+		ofTranslate(6 * ofGetWidth() / 4, 6 * ofGetHeight() / 4, 0);
+		obj3.draw(OF_MESH_FILL);
+		ofPopMatrix();
+	}
+    
+	if (image_source.getHeight() > 0 && image_source.getWidth() > 0)  {
+		image_source.draw(
+			offset_horizontal,
+			offset_vertical,
+			image_width,
+			image_height);
+		histogramme.draw();
+	}
 	for (int i = 0; i < Pvector.size(); i++) {
 		draw_PVector(Pvector[i]);
 	}
+	
+	if (text_fonction == "4.2") {
+		ofPushMatrix();
+		ofTranslate(mouse_press_x, mouse_press_y, 100);
+		ofRotate(ofGetElapsedTimef() * 20.0, 1, 1, 0);
+		glPointSize(10.f);
+		VBO.drawElements(GL_TRIANGLES, 36);
+		ofPopMatrix();
+	}
+	ofPopMatrix();
 	gui.draw();
-	ofTranslate(ofGetWidth() / 2, ofGetHeight() / 2, 100);
-	ofRotate(ofGetElapsedTimef() * 20.0, 1, 1, 0);
-	glPointSize(10.f);
-	VBO.drawElements(GL_TRIANGLES, 36);
+    
+    // if case pour mode (curseur de l'utilisateur)
+    if (appMode == "normal"){
+        ofShowCursor();
+        mouseDrawing.clear();
+        
+    }
+    else if (appMode == "drawing"){
+        ofHideCursor();
+        ofSetColor(255,255,255);
+        mouseDrawing.load("cursor_drawing.png");
+        mouseDrawing.draw(ofGetMouseX(),ofGetMouseY(),30,30);
+        
+    }
+    else if (appMode == "bonhomme"){
+        ofHideCursor();
+        ofSetColor(255,255,255);
+        mouseDrawing.load("cursor_bonhomme.png");
+        mouseDrawing.draw(ofGetMouseX(),ofGetMouseY(),30,30);
+        
+    }
+    else if (appMode == "maison"){
+        ofHideCursor();
+        ofSetColor(204,136,0);
+        mouseDrawing.load("cursor_maison.png");
+        mouseDrawing.draw(ofGetMouseX(),ofGetMouseY(),30,30);
+        
+    }
+    else if (appMode == "sapin"){
+        ofHideCursor();
+        ofSetColor(51,153,0);
+        mouseDrawing.load("cursor_sapin.png");
+        mouseDrawing.draw(ofGetMouseX(),ofGetMouseY(),30,30);
+        
+    }
+    else if (appMode == "bateau"){
+        ofHideCursor();
+        ofSetColor(102,179,255);
+        mouseDrawing.load("cursor_bateau.png");
+        mouseDrawing.draw(ofGetMouseX(),ofGetMouseY(),30,30);
+        
+    }
+    else{
+        ofLog() << "<app::WARNING APPMODE INVALID: " << appMode << ">";
+    }
+    
+	if(text_fonction == "3.5"){
+		if(selectDynamic){
+			CartesianUpdate();
+		} else {
+			CylindricalUpdate();
+		}
+
+		//cercles.c0[0] = 255*glm::vec4(stof(cercleAx.getParameter().toString()),stof(cercleAy.getParameter().toString()) , stof(cercleAz.getParameter().toString()) , 1.0);
+		cercles.c0.transformStack.top()[0].w = (stof(cercleAx.getParameter().toString()) + 1) * InputEvent::getInstance()->windowSize.w/2;
+		cercles.c0.transformStack.top()[1].w = (stof(cercleAy.getParameter().toString()) + 1) * InputEvent::getInstance()->windowSize.h/2;
+		cercles.c0.transformStack.top()[2].w = stof(cercleAz.getParameter().toString());
+		cercles.c0.transform(glm::mat4(1.0));
+		cercles.c1[0] = 255*glm::vec4(stof(cercleBx.getParameter().toString()),stof(cercleBy.getParameter().toString()) , stof(cercleBz.getParameter().toString()), 1.0);
+		cercles.c0[0].w = 1.0;
+		cercles.c1[0].w = 1.0;
+		ofSetColor(255, 0, 0);
+		cercles.c0.draw();
+		ofSetColor(0, 255, 0);
+		cercles.c1.draw();
+		cercles.c0.undoTransform();
+	}
+
+	if(text_fonction == "4.5"){
+		// Setup de 4.5
+		struct verticies {
+			float position[3];
+			float textureCoordinate[2] = { 0.0f, 0.0f };
+			float normal[3] = { 0.0f, 0.0f, 0.0f };
+		};
+
+		struct verticies triangle[3];
+		triangle[0].position[0] = -0.5f;
+		triangle[0].position[1] = -0.5f;
+		triangle[0].position[2] = 0.0f;
+		triangle[1].position[0] = -0.0f;
+		triangle[1].position[1] = 0.5f;
+		triangle[1].position[2] = 0.0f;
+		triangle[2].position[0] = 0.5f;
+		triangle[2].position[1] = -0.5f;
+		triangle[2].position[2] = 0.5f;
+		triangle[0].normal[2] = 1.0f;
+		triangle[1].normal[2] = 1.0f;
+		triangle[2].normal[2] = 1.0f;
+		triangle[0].textureCoordinate[0] = 1.0f;
+		triangle[1].textureCoordinate[0] = 0.5f;
+		triangle[2].textureCoordinate[0] = 0.0f;
+
+		unsigned int gpu_buffer;
+		glGenBuffers(1, &gpu_buffer);			// declare buffer
+		glBindBuffer(GL_ARRAY_BUFFER, gpu_buffer);  // select buffer
+		//glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), positions, GL_STATIC_DRAW); // transfert data to it (type, size, data*, hint) 6
+		glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(struct verticies), triangle, GL_DYNAMIC_DRAW);
+
+		//glEnableVertexAttribArray(0); // (index)
+		//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+		// (index of attribute, component count, type, normalise it?, stride between vertex, pointer inside vertex)
+		// (index, count, type, normalise?, stride, pointer (offsetof fonctionne bien pour les struct))
+
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *)offsetof(struct verticies, position));
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *)offsetof(struct verticies, normal));
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *)offsetof(struct verticies, textureCoordinate));
+
+		//glUseProgram(vibrationShader.getProgramID());
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0); //unselect
+
+		GLuint previousProgram;
+
+		glUseProgram(vibrationShader.getProgramID());
+		GLint loc = glGetUniformLocation(vibrationShader.getProgramID(), "amplitude");
+		if (loc != -1)
+		{
+			glUniform1f(loc, sinf( ofGetElapsedTimef() ));
+		}
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
+
+		shader.begin();
+		shader.end();
+
+		gui.draw();
+	}
+
+	if (text_fonction == "5.4")
+	{
+		// Setup de 5.4 .... fail
+
+		struct verticies {
+			glm::vec3 position;
+			glm::vec2 textureCoordinate;
+			glm::vec3 normal;
+		};
+
+		struct face {
+			struct verticies points[4];
+		};
+
+		struct face faceCourante;
+
+		float scaleX = ofGetWindowWidth()/2;
+		float scaleY = ofGetWindowHeight()/2;
+
+
+		faceCourante.points[0].position = glm::vec3(-1.0f, 1.0f, 1.0f);
+		faceCourante.points[1].position = glm::vec3(1.0f, 1.0f, 1.0f);
+		faceCourante.points[2].position = glm::vec3(1.0f, -1.0f, 1.0f);
+		faceCourante.points[3].position = glm::vec3(-1.0f, -1.0f, 1.0f);
+
+		for (int i = 0; i < 4; i++){ 
+			faceCourante.points[i].position.x *= scaleX;
+			faceCourante.points[i].position.y *= scaleY;
+		}
+
+		//faceCourante.points[0].textureCoordinate = glm::vec2(0.25f, 0.66f);
+		//faceCourante.points[1].textureCoordinate = glm::vec2(0.5f, 0.66f);
+		//faceCourante.points[2].textureCoordinate = glm::vec2(0.5f, 0.33f);
+		//faceCourante.points[3].textureCoordinate = glm::vec2(0.25f, 0.33f);
+
+		faceCourante.points[0].textureCoordinate = glm::vec2(0.0f, 0.0f);
+		faceCourante.points[1].textureCoordinate = glm::vec2(1.0f, 0.0f);
+		faceCourante.points[2].textureCoordinate = glm::vec2(1.0f, 1.0f);
+		faceCourante.points[3].textureCoordinate = glm::vec2(0.0f, 1.0f);
+
+		for (int i = 0; i < 4; i++) {
+			//faceCourante.points[i].textureCoordinate.s *= skyBoxTexture.getWidth();
+			//faceCourante.points[i].textureCoordinate.t *= skyBoxTexture.getHeight();
+		}
+
+
+		unsigned int gpu_buffer;
+		glGenBuffers(1, &gpu_buffer);			// declare buffer
+		glBindBuffer(GL_ARRAY_BUFFER, gpu_buffer);  // select buffer
+		//glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), positions, GL_STATIC_DRAW); // transfert data to it (type, size, data*, hint) 6
+		glBufferData(GL_ARRAY_BUFFER,  sizeof(struct face), &faceCourante, GL_DYNAMIC_DRAW);
+
+		//glEnableVertexAttribArray(0); // (index)
+		//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+		// (index of attribute, component count, type, normalise it?, stride between vertex, pointer inside vertex)
+		// (index, count, type, normalise?, stride, pointer (offsetof fonctionne bien pour les struct))
+
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *)offsetof(struct verticies, position));
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *)offsetof(struct verticies, normal));
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(struct verticies), (void *)offsetof(struct verticies, textureCoordinate));
+
+		//vibrationShader = Shader("./data/passVertex.glsl", "./data/simpleGradientFragmentShader.glsl", "./data/vibrationGeometryShader.glsl");
+		//glUseProgram(vibrationShader.getProgramID());
+
+
+
+		GLuint previousProgram;
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+		unsigned int texture;
+		//glGenTextures(1, &texture);
+		texture = glGetUniformLocation(skyBox.getProgramID(), "texture0");
+
+		unsigned char textureA[3 * 3] = { 1.0,0.0,0.0 ,0.0,1.0,0.0, 0.0,0.0,1.0 };
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 3/*skyBoxTexture.getWidth(), skyBoxTexture.getHeight()*/,1 , 0, GL_RGB, GL_UNSIGNED_BYTE, textureA);//skyBoxTexture.getPixels().getPixels()
+
+		//glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
+		//glBindTexture(GL_TEXTURE_2D, texture);
+
+
+		glUseProgram(skyBox.getProgramID());
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0); //unselect
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
+
+
+		shader.begin();
+		shader.end();
+
+		gui.draw();
+	}
+
+	if (text_fonction == "4.1") {
+	
+	}
 }
 
 void Renderer::image_export(const string name, const string extension) const
@@ -160,35 +641,62 @@ void Renderer::dragEvent(ofDragInfo dragInfo) {
 	// redimensionner la fenêtre selon la résolution de l'image
 	if (image_source.getWidth() > 0 && image_source.getHeight() > 0)
 		ofSetWindowShape(image_source.getWidth() + offset_horizontal * 2, image_source.getHeight() + offset_vertical * 2);
+	histogramme.calculateHistograms(image_source);
 }
 
 void Renderer::pv1_line() {
 	text_pv = "line";
+    appMode = "drawing";
 	textbox_pv.set("Forme Primitive", text_pv);
 }
 
 void Renderer::pv2_square() {
 	text_pv = "carre";
+    appMode = "drawing";
 	textbox_pv.set("Forme Primitive", text_pv);
 }
 
 void Renderer::pv3_ellipse() {
 	text_pv = "ellipse";
+    appMode = "drawing";
 	textbox_pv.set("Forme Primitive", text_pv);
 }
 
 void Renderer::pv4_triangle() {
 	text_pv = "triangle";
+    appMode = "drawing";
 	textbox_pv.set("Forme Primitive", text_pv);
 }
 
 void Renderer::pv5_point() {
 	text_pv = "point";
+    appMode = "drawing";
 	textbox_pv.set("Forme Primitive", text_pv);
+}
+void Renderer::fv1_maison() {
+    text_pv = "maison";
+    appMode = "maison";
+    textbox_pv.set("Forme Vectorielle", text_pv);
+}
+void Renderer::fv2_fleche() {
+    text_pv = "bonhomme";
+    appMode = "bonhomme";
+    textbox_pv.set("Forme Vectorielle", text_pv);
+}
+void Renderer::fv3_sapin() {
+    text_pv = "sapin";
+    appMode = "sapin";
+    textbox_pv.set("Forme Vectorielle", text_pv);
+}
+void Renderer::fv4_bateau() {
+    text_pv = "bateau";
+    appMode = "bateau";
+    textbox_pv.set("Forme Vectorielle", text_pv);
 }
 
 void Renderer::add_PVector() {
-	PVector pv = PVector(text_pv, mouse_press_x, mouse_press_y, mouse_current_x, mouse_current_y, 10, 0, 255);
+	PvectorRedo.clear();
+	PVector pv = PVector(text_pv, mouse_press_x, mouse_press_y, mouse_current_x, mouse_current_y, stoi(strokeSize.getParameter().toString()), 0, 255,pickedColor2,pickedColor);
 	Pvector.push_back(pv);
 	std::cout << Pvector.size() <<std::endl;
 	if (text_pv == "line") {
@@ -214,6 +722,26 @@ void Renderer::add_PVector() {
 		group_Pv_point.add(line.set("point", to_string(Pvector.size() - 1)));
 		std::cout << "line" << endl;
 	}
+    if (text_pv == "maison") {
+        ofParameter<string> line;
+        group_Pv_other.add(line.set("maison", to_string(Pvector.size() - 1)));
+        std::cout << "line" << endl;
+    }
+    if (text_pv == "bonhomme") {
+        ofParameter<string> line;
+        group_Pv_other.add(line.set("bonhomme", to_string(Pvector.size() - 1)));
+        std::cout << "line" << endl;
+    }
+    if (text_pv == "sapin") {
+        ofParameter<string> line;
+        group_Pv_other.add(line.set("sapin", to_string(Pvector.size() - 1)));
+        std::cout << "line" << endl;
+    }
+    if (text_pv == "bateau") {
+        ofParameter<string> line;
+        group_Pv_other.add(line.set("bateau", to_string(Pvector.size() - 1)));
+        std::cout << "line" << endl;
+    }
 	if (text_pv == "other") {
 		ofParameter<string> line;
 		group_Pv_other.add(line.set("autre", to_string(Pvector.size() - 1)));
@@ -225,26 +753,17 @@ void Renderer::draw_PVector(PVector pv) {
 	if (pv.m_name == "line") {
 		ofNoFill();
 		ofSetLineWidth(pv.m_stroke_width);
-		ofSetColor(
-			pv.m_stroke_color,
-			pv.m_stroke_color,
-			pv.m_stroke_color);
+		ofSetColor(pv.m_fill_color_rgb);
 		ofDrawLine(pv.m_position1_x, pv.m_position1_y, pv.m_position2_x, pv.m_position2_y);
 	}
 	else if ((pv.m_name == "carre")){
 		ofFill();
 		ofSetLineWidth(0);
-		ofSetColor(
-			pv.m_fill_color,
-			pv.m_fill_color,
-			pv.m_fill_color);
+		ofSetColor(pv.m_fill_color_rgb);
 		ofRectRounded(pv.m_position1_x, pv.m_position1_y, pv.m_position2_x-pv.m_position1_x, pv.m_position2_y-pv.m_position1_y,pv.m_stroke_width/2);
 		ofNoFill();
 		ofSetLineWidth(pv.m_stroke_width);
-		ofSetColor(
-			pv.m_stroke_color,
-			pv.m_stroke_color,
-			pv.m_stroke_color);
+		ofSetColor(pv.m_stroke_color_rgb);
 		ofRectRounded(pv.m_position1_x, pv.m_position1_y, pv.m_position2_x - pv.m_position1_x, pv.m_position2_y - pv.m_position1_y, pv.m_stroke_width / 2);
 	}
 	else if ((pv.m_name == "ellipse")) {
@@ -252,44 +771,119 @@ void Renderer::draw_PVector(PVector pv) {
 		float diameter_y = pv.m_position2_y - pv.m_position1_y;
 		ofFill();
 		ofSetLineWidth(0);
-		ofSetColor(
-			pv.m_fill_color,
-			pv.m_fill_color,
-			pv.m_fill_color);
+		ofSetColor(pv.m_fill_color_rgb);
 		ofDrawEllipse(pv.m_position1_x + diameter_x / 2.0f, pv.m_position1_y + diameter_y / 2.0f, diameter_x, diameter_y);
 		ofNoFill();
 		ofSetLineWidth(pv.m_stroke_width);
-		ofSetColor(
-			pv.m_stroke_color,
-			pv.m_stroke_color,
-			pv.m_stroke_color);
+		ofSetColor(pv.m_stroke_color_rgb);
 		ofDrawEllipse(pv.m_position1_x + diameter_x / 2.0f, pv.m_position1_y + diameter_y / 2.0f, diameter_x, diameter_y);
 	}
 	else if ((pv.m_name == "triangle")) {
 		ofFill();
 		ofSetLineWidth(0);
-		ofSetColor(
-			pv.m_fill_color,
-			pv.m_fill_color,
-			pv.m_fill_color);
+		ofSetColor(pv.m_fill_color_rgb);
 		ofDrawTriangle(pv.m_position1_x, pv.m_position1_y,pv.m_position1_x, pv.m_position2_y,pv.m_position2_x,pv.m_position2_y);
 		ofNoFill();
 		ofSetLineWidth(pv.m_stroke_width);
-		ofSetColor(
-			pv.m_stroke_color,
-			pv.m_stroke_color,
-			pv.m_stroke_color);
+		ofSetColor(pv.m_stroke_color_rgb);
 		ofDrawTriangle(pv.m_position1_x, pv.m_position1_y, pv.m_position1_x, pv.m_position2_y, pv.m_position2_x, pv.m_position2_y);
 	}
 	else if ((pv.m_name == "point")) {
 		ofNoFill();
 		ofSetLineWidth(pv.m_stroke_width);
-		ofSetColor(
-			pv.m_stroke_color,
-			pv.m_stroke_color,
-			pv.m_stroke_color);
+		ofSetColor(pv.m_stroke_color_rgb);
 		ofDrawEllipse(pv.m_position2_x, pv.m_position2_y, pv.m_stroke_width, pv.m_stroke_width);
 	}
+    else if ((pv.m_name == "maison")){
+        float rectLarg = pv.m_position2_x - pv.m_position1_x;
+        float rectHaut = pv.m_position2_y - pv.m_position1_y;
+        float topmaisonY = pv.m_position1_y - rectLarg/4;
+        float topmaisonX = pv.m_position1_x + rectLarg/2;
+        
+        ofFill();
+        ofSetLineWidth(0);
+        ofSetColor(150,75,0);
+        ofDrawRectangle(pv.m_position1_x, pv.m_position1_y, rectLarg, rectHaut);
+        ofSetColor(77, 40, 0);
+        ofDrawTriangle(pv.m_position1_x, pv.m_position1_y, pv.m_position1_x + rectLarg, pv.m_position1_y, topmaisonX, topmaisonY);
+    }
+    else if ((pv.m_name == "bonhomme")){
+        ofFill();
+        ofSetLineWidth(0);
+        ofSetColor(255,255,255);
+        float diameter_x = pv.m_position2_x - pv.m_position1_x;
+        float diameter_y = pv.m_position2_y - pv.m_position1_y;
+        float diameter = 0;
+        if (diameter_x > diameter_y){diameter = diameter_x;}
+        if (diameter_y > diameter_x){diameter = diameter_y;}
+        
+        ofDrawCircle(pv.m_position1_x, pv.m_position1_y, diameter);
+        ofDrawCircle(pv.m_position1_x, pv.m_position1_y - diameter, diameter/1.5);
+        ofDrawCircle(pv.m_position1_x, pv.m_position1_y - diameter - diameter/1.5, diameter/3);
+        
+        float posHeadY = pv.m_position1_y - diameter - diameter/1.5;
+        // nez
+        ofSetColor(255, 128, 0);
+        ofDrawCircle(pv.m_position1_x, posHeadY, diameter/12);
+        
+        // yeux
+        ofSetColor(0, 0, 0);
+        ofDrawCircle(pv.m_position1_x-diameter/12, posHeadY-diameter/15, diameter/18);
+        ofDrawCircle(pv.m_position1_x+diameter/12, posHeadY-diameter/15, diameter/18);
+        ofSetColor(255, 255, 255);
+    }
+    else if ((pv.m_name == "bateau")){
+        ofFill();
+        ofSetLineWidth(0);
+        float diameter_x = pv.m_position2_x - pv.m_position1_x;
+        float diameter_y = pv.m_position2_y - pv.m_position1_y;
+        float diameter = 0;
+        if (diameter_x > diameter_y){diameter = diameter_x;}
+        if (diameter_y > diameter_x){diameter = diameter_y;}
+        
+        ofSetColor(77, 40, 0);
+        ofDrawTriangle(pv.m_position1_x-diameter*2, pv.m_position1_y+diameter, pv.m_position1_x+diameter*2, pv.m_position1_y+diameter, pv.m_position1_x, pv.m_position1_y+diameter*2);
+        ofDrawRectangle(pv.m_position1_x-diameter/8, pv.m_position1_y-diameter/8, diameter/4, diameter*2);
+        
+        ofSetColor(255,255,255);
+        ofDrawTriangle(pv.m_position1_x-diameter, pv.m_position1_y, pv.m_position1_x+diameter, pv.m_position1_y, pv.m_position1_x, pv.m_position1_y-diameter);
+
+    }
+    else if ((pv.m_name == "sapin")){
+        ofFill();
+        ofSetLineWidth(0);
+        float diameter_x = pv.m_position2_x - pv.m_position1_x;
+        float diameter_y = pv.m_position2_y - pv.m_position1_y;
+        float diameter = 0;
+        if (diameter_x > diameter_y){diameter = diameter_x;}
+        if (diameter_y > diameter_x){diameter = diameter_y;}
+        
+        //tronc
+        ofSetColor(77, 40, 0);
+        ofDrawRectangle(pv.m_position1_x-diameter/8, pv.m_position1_y-diameter/8, diameter/4, diameter*2.5);
+        
+        // gros
+        ofSetColor(51,77,0);
+        ofDrawTriangle(pv.m_position1_x-diameter*2, pv.m_position1_y+diameter*2, pv.m_position1_x+diameter*2, pv.m_position1_y+diameter*2, pv.m_position1_x, pv.m_position1_y+2*diameter/3);
+        
+        //moyen
+        ofSetColor(68,102,0);
+        ofDrawTriangle(pv.m_position1_x-diameter*1.5, pv.m_position1_y+diameter, pv.m_position1_x+diameter*1.5, pv.m_position1_y+diameter, pv.m_position1_x, pv.m_position1_y-diameter/3);
+        
+        //petit
+        ofSetColor(85,128,0);
+        ofDrawTriangle(pv.m_position1_x-diameter, pv.m_position1_y, pv.m_position1_x+diameter, pv.m_position1_y, pv.m_position1_x, pv.m_position1_y-diameter);
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    }
 }
 
 void Renderer::Forme3D_De_4() {
@@ -388,3 +982,100 @@ void Renderer::Add_forme_vbo() {
 		VBO.setIndexData(&Faces[0], 36, GL_STATIC_DRAW);
 	}
 }
+
+void Renderer::find_bound_mesh(ofxAssimpModelLoader obj, vector<GLfloat> A) {
+	GLfloat
+		min_x, max_x,
+		min_y, max_y,
+		min_z, max_z;
+	min_x = max_x = obj.getMesh(0).getVertex(0).x;
+	min_y = max_y = obj.getMesh(0).getVertex(0).y;
+	min_z = max_z = obj.getMesh(0).getVertex(0).z;
+	for (int i = 0; i < obj.getMesh(0).getNumVertices(); i++) {
+		ofDefaultVec3 test = obj.getMesh(0).getVertex(i);
+		if (test.x < min_x) {
+			min_x = test.x;
+		}
+		else if (test.x > max_x) {
+			max_x = test.x;
+		}
+		if (test.y < min_y) {
+			min_y = test.y;
+		}
+		else if (test.y > max_y) {
+			max_y = test.y;
+		}
+		if (test.z < min_z) {
+			min_z = test.z;
+		}
+		else if (test.z > max_z) {
+			max_z = test.z;
+		}
+	}
+	A.push_back(max_x);
+	A.push_back(min_x);
+	A.push_back(max_y);
+	A.push_back(min_y);
+	A.push_back(max_z);
+	A.push_back(min_z);
+}
+
+void Renderer::func_transation() {
+	string cuter = text_transfo;
+	vector<string>vtoken;
+	string delimiter = ",";
+	size_t pos = 0;
+	string token;
+	while ((pos = cuter.find(delimiter)) != string::npos) {
+		token = cuter.substr(0, pos);
+		vtoken.push_back(token);
+		cuter.erase(0, pos + delimiter.length());
+	}
+	vtoken.push_back(cuter);
+	transfo trans;
+	trans.effect.x = stof(vtoken[0]);
+	trans.effect.y = stof(vtoken[1]);
+	trans.effect.z = stof(vtoken[2]);
+	trans.type = "t";
+	Vector_tranfo.push_back(trans);
+};
+
+void Renderer::func_rotation() {
+	string cuter = text_transfo;
+	vector<string>vtoken;
+	string delimiter = ",";
+	size_t pos = 0;
+	string token;
+	while ((pos = cuter.find(delimiter)) != string::npos) {
+		token = cuter.substr(0, pos);
+		vtoken.push_back(token);
+		cuter.erase(0, pos + delimiter.length());
+	}
+	vtoken.push_back(cuter);
+	transfo trans;
+	trans.effect.x = stof(vtoken[0]);
+	trans.effect.y = stof(vtoken[1]);
+	trans.effect.z = stof(vtoken[2]);
+	trans.type = "r";
+	Vector_tranfo.push_back(trans);
+};
+
+void Renderer::func_scale() {
+	string cuter = text_transfo;
+	vector<string>vtoken;
+	string delimiter = ",";
+	size_t pos = 0;
+	string token;
+	while ((pos = cuter.find(delimiter)) != string::npos) {
+		token = cuter.substr(0, pos);
+		vtoken.push_back(token);
+		cuter.erase(0, pos + delimiter.length());
+	}
+	vtoken.push_back(cuter);
+	transfo trans;
+	trans.effect.x = stof(vtoken[0]);
+	trans.effect.y = stof(vtoken[1]);
+	trans.effect.z = stof(vtoken[2]);
+	trans.type = "s";
+	Vector_tranfo.push_back(trans);
+}; 

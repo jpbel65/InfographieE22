@@ -1,4 +1,5 @@
 #include "InputEvent.h"
+#include <iostream>
 
 InputEvent* InputEvent::instance = nullptr;
 
