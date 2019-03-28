@@ -7,6 +7,12 @@
 		<ClCompile Include="src\main.cpp">
 			<Filter>src</Filter>
 		</ClCompile>
+		<ClCompile Include="src\Actor.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="src\CoordinateSystem.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
 		<ClCompile Include="src\Histogramme.cpp">
 			<Filter>src</Filter>
 		</ClCompile>
@@ -16,6 +22,9 @@
 		<ClCompile Include="src\main.cpp">
 			<Filter>src</Filter>
 		</ClCompile>
+		<ClCompile Include="src\Object.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
 		<ClCompile Include="src\ofApp.cpp">
 			<Filter>src</Filter>
 		</ClCompile>
@@ -23,6 +32,15 @@
 			<Filter>src</Filter>
 		</ClCompile>
 		<ClCompile Include="src\renderer.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="src\Shader.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="src\test.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="src\VectorPrimitives.cpp">
 			<Filter>src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\Desktop\of_v0.10.1_vs2017_release\addons\ofxAssimpModelLoader\src\ofxAssimpAnimation.cpp">
@@ -140,10 +158,19 @@
 		<ClInclude Include="src\ofApp.h">
 			<Filter>src</Filter>
 		</ClInclude>
+		<ClInclude Include="src\Actor.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="src\CoordinateSystem.h">
+			<Filter>src</Filter>
+		</ClInclude>
 		<ClInclude Include="src\Histogramme.h">
 			<Filter>src</Filter>
 		</ClInclude>
 		<ClInclude Include="src\InputEvent.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="src\Object.h">
 			<Filter>src</Filter>
 		</ClInclude>
 		<ClInclude Include="src\ofApp.h">
@@ -153,6 +180,15 @@
 			<Filter>src</Filter>
 		</ClInclude>
 		<ClInclude Include="src\renderer.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="src\Shader.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="src\test.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="src\VectorPrimitives.h">
 			<Filter>src</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\Desktop\of_v0.10.1_vs2017_release\addons\ofxAssimpModelLoader\src\ofxAssimpAnimation.h">

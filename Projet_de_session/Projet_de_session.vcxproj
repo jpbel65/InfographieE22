@@ -182,10 +182,16 @@
 	<ItemGroup>
 		<ClCompile Include="src\main.cpp" />
 		<ClCompile Include="src\ofApp.cpp" />
+		<ClCompile Include="src\Actor.cpp" />
+		<ClCompile Include="src\CoordinateSystem.cpp" />
 		<ClCompile Include="src\Histogramme.cpp" />
 		<ClCompile Include="src\InputEvent.cpp" />
+		<ClCompile Include="src\Object.cpp" />
 		<ClCompile Include="src\PVector.cpp" />
 		<ClCompile Include="src\renderer.cpp" />
+		<ClCompile Include="src\Shader.cpp" />
+		<ClCompile Include="src\test.cpp" />
+		<ClCompile Include="src\VectorPrimitives.cpp" />
 		<ClCompile Include="..\..\Desktop\of_v0.10.1_vs2017_release\addons\ofxAssimpModelLoader\src\ofxAssimpAnimation.cpp" />
 		<ClCompile Include="..\..\Desktop\of_v0.10.1_vs2017_release\addons\ofxAssimpModelLoader\src\ofxAssimpMeshHelper.cpp" />
 		<ClCompile Include="..\..\Desktop\of_v0.10.1_vs2017_release\addons\ofxAssimpModelLoader\src\ofxAssimpModelLoader.cpp" />
@@ -210,10 +216,16 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ClInclude Include="src\ofApp.h" />
+		<ClInclude Include="src\Actor.h" />
+		<ClInclude Include="src\CoordinateSystem.h" />
 		<ClInclude Include="src\Histogramme.h" />
 		<ClInclude Include="src\InputEvent.h" />
+		<ClInclude Include="src\Object.h" />
 		<ClInclude Include="src\PVector.h" />
 		<ClInclude Include="src\renderer.h" />
+		<ClInclude Include="src\Shader.h" />
+		<ClInclude Include="src\test.h" />
+		<ClInclude Include="src\VectorPrimitives.h" />
 		<ClInclude Include="..\..\Desktop\of_v0.10.1_vs2017_release\addons\ofxAssimpModelLoader\src\ofxAssimpAnimation.h" />
 		<ClInclude Include="..\..\Desktop\of_v0.10.1_vs2017_release\addons\ofxAssimpModelLoader\src\ofxAssimpMeshHelper.h" />
 		<ClInclude Include="..\..\Desktop\of_v0.10.1_vs2017_release\addons\ofxAssimpModelLoader\src\ofxAssimpModelLoader.h" />
