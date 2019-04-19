@@ -32,7 +32,7 @@ void Application::setup()
 
 void Application::update()
 {
-  ofSetWindowTitle("camera " + renderer.camera_name + " " + renderer.camera_projection + " (1-6 ↑↓←→ wasdqe uhjkyi zx op fgcvb)");
+  ofSetWindowTitle("Projet Session IFT-3100 Version 2");
 
   renderer.is_camera_move_forward = is_key_press_up || is_key_press_w;
   renderer.is_camera_move_backward = is_key_press_down || is_key_press_s;
