@@ -18,7 +18,19 @@ public:
 	ofxPanel gui;
 	ofParameter<string> textbox_fonction;
 	string text_fonction = "6.1";
+    
+    //gestion camera
     ofxGuiGroup group_camera;
+    ofxButton cam1,cam2,cam3,cam4,cam5,cam6,pers,orth;
+    void enableCamFront();
+    void enableCamBack();
+    void enableCamTop();
+    void enableCamDown();
+    void enableCamLeft();
+    void enableCamRight();
+    void enableProjPers();
+    void enableProjOrth();
+    
 
 
 	ofImage image;

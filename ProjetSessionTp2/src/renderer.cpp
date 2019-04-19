@@ -5,6 +5,17 @@
 
 void Renderer::setup()
 {
+    //listener pour boutons
+    cam1.addListener(this, &Renderer::enableCamTop);
+    cam2.addListener(this, &Renderer::enableCamDown);
+    cam3.addListener(this, &Renderer::enableCamFront);
+    cam4.addListener(this, &Renderer::enableCamBack);
+    cam5.addListener(this, &Renderer::enableCamLeft);
+    cam6.addListener(this, &Renderer::enableCamRight);
+    pers.addListener(this, &Renderer::enableProjPers);
+    orth.addListener(this, &Renderer::enableProjOrth);
+    
+    
   ofSetFrameRate(60);
   ofSetBackgroundColor(31);
   //ofEnableDepthTest();
@@ -12,9 +23,24 @@ void Renderer::setup()
   gui.setup("Panel");
   textbox_fonction.set("Fonction active", "6.1");
   gui.add(textbox_fonction);
+  
     
-  //gui pour camera
+    
+    
+    
+    //gui pour camera
     group_camera.setup("Gestion Cam");
+    group_camera.add(cam1.setup("Enable Cam Top"));
+    group_camera.add(cam2.setup("Enable Cam Down"));
+    group_camera.add(cam3.setup("Enable Cam Front"));
+    group_camera.add(cam4.setup("Enable Cam Back"));
+    group_camera.add(cam5.setup("Enable Cam Left"));
+    group_camera.add(cam6.setup("Enable Cam Right"));
+    group_camera.add(pers.setup("Enable Perspective"));
+    group_camera.add(orth.setup("Enable Orthogonale"));
+    
+    
+    gui.add(&group_camera);
  
 
   lapin.loadModel("bunny.obj");
@@ -299,7 +325,42 @@ void Renderer::setup_camera()
   camera->setPosition(camera_position);
   camera->setOrientation(camera_orientation);
 
-  ofLog() << "<setup camera: " << camera_name << ">";
+  
  
 
 }
+
+void Renderer::enableCamFront(){
+    camera_active = Camera::back;
+    setup_camera();
+}
+void Renderer::enableCamBack(){
+    camera_active = Camera::front;
+    setup_camera();
+}
+void Renderer::enableCamTop(){
+    camera_active = Camera::top;
+    setup_camera();
+}
+void Renderer::enableCamDown(){
+    camera_active = Camera::down;
+    setup_camera();
+}
+void Renderer::enableCamLeft(){
+    camera_active = Camera::left;
+    setup_camera();
+}
+void Renderer::enableCamRight(){
+    camera_active = Camera::right;
+    setup_camera();
+}
+void Renderer::enableProjPers(){
+    is_camera_perspective = true;
+    setup_camera();
+}
+void Renderer::enableProjOrth(){
+    is_camera_perspective = false;
+    setup_camera();
+    
+}
+
