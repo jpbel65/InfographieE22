@@ -6,6 +6,7 @@
 #include "ofMain.h"
 #include "ofxAssimpModelLoader.h"
 #include "ofxGui.h"
+#include "ofxDelaunay.h"
 #include <string>
 
 enum class Camera {front, back, left, right, top, down};
@@ -31,7 +32,15 @@ public:
     void enableProjPers();
     void enableProjOrth();
     
-
+    //triangulation
+    
+    bool enableTrig = false;
+    ofImage imageTri;
+    
+    void enableDelaunay();
+    ofxGuiGroup group_triangulation;
+    ofxDelaunay triangulation;
+    ofxButton tria;
 
 	ofImage image;
 	ofImage image2;

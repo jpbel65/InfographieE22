@@ -14,6 +14,7 @@ void Renderer::setup()
     cam6.addListener(this, &Renderer::enableCamRight);
     pers.addListener(this, &Renderer::enableProjPers);
     orth.addListener(this, &Renderer::enableProjOrth);
+    tria.addListener(this, &Renderer::enableDelaunay);
     
     
   ofSetFrameRate(60);
@@ -38,9 +39,12 @@ void Renderer::setup()
     group_camera.add(cam6.setup("Enable Cam Right"));
     group_camera.add(pers.setup("Enable Perspective"));
     group_camera.add(orth.setup("Enable Orthogonale"));
-    
-    
     gui.add(&group_camera);
+    
+    //gui pour triangulation
+    group_triangulation.setup("Triangulation Delaunay");
+    group_triangulation.add(tria.setup("Enable Delaunay"));
+    gui.add(&group_triangulation);
  
 
   lapin.loadModel("bunny.obj");
@@ -184,6 +188,21 @@ void Renderer::update()
 
 void Renderer::draw()
 {
+    // triangulation
+    
+    if (enableTrig) {
+        text_fonction = "9.4";
+        image.load("moi.JPG");
+        image.draw(220, 0);
+        ofSetColor(0,70,255);
+        ofNoFill();
+        triangulation.draw();
+    }
+    else{
+        ofFill();
+        ofSetColor(255,255,255);
+    }
+    
   // activer la caméra
   camera->begin();
 
@@ -362,5 +381,24 @@ void Renderer::enableProjOrth(){
     is_camera_perspective = false;
     setup_camera();
     
+}
+void Renderer::enableDelaunay(){
+    
+    enableTrig = !enableTrig;
+    triangulation.reset();
+    
+    
+    
+    
+    //triangulation.addPoint(3.4537395e+02+220,5.4899386e+02,0);
+    //triangulation.addPoint(2.9883226e+02+220,5.3503135e+02,0);
+    //triangulation.addPoint(2.6252973e+02+220,5.0245217e+02,0);
+    //triangulation.addPoint(2.3367388e+02+220,4.4380963e+02,0);
+    //triangulation.addPoint(2.2343471e+02+220,3.4327957e+02,0);
+    //triangulation.addPoint(2.2622721e+02+220,2.6322786e+02,0);
+    //triangulation.addPoint(2.6625307e+02+220,1.9062282e+02,0);
+    //triangulation.addPoint(3.9750065e+02+220,1.8876115e+02,0);
+    //triangulation.addPoint(4.5148901e+02+220,2.6136619e+02,0);
+    triangulation.triangulate();
 }
 
