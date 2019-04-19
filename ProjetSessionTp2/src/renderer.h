@@ -16,8 +16,8 @@ public:
 
 	//gui
 	ofxPanel gui;
-	//ofParameter<string> textbox_fonction;
-	//string text_fonction = "6.1";
+	ofParameter<string> textbox_fonction;
+	string text_fonction = "6.1";
 
 
 	ofImage image;

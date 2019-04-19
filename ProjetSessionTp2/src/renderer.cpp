@@ -7,10 +7,12 @@ void Renderer::setup()
 {
   ofSetFrameRate(60);
   ofSetBackgroundColor(31);
-  ofEnableDepthTest();
+  //ofEnableDepthTest();
 
   gui.setup("Panel");
-  gui.draw();
+  textbox_fonction.set("Fonction active", "6.1");
+  gui.add(textbox_fonction);
+ 
 
   lapin.loadModel("bunny.obj");
   // paramètres
@@ -197,13 +199,13 @@ void Renderer::draw()
     if (camera_active != Camera::down)
       ofDrawBitmapString(" camera down", camera_down.getPosition());
   }
-  //if (text_fonction == "6.1") {
+  if (text_fonction == "6.1") {
 	  lapin.setPosition(camera_target.x, camera_target.y, camera_target.z);
 	  ofPushMatrix();
 	  ofRotate(180);
 	  lapin.draw(OF_MESH_FILL);
 	  ofPopMatrix();
-  //}
+  }
 
   // dessiner le contenu de la scène
   /*if (is_visible_box)
