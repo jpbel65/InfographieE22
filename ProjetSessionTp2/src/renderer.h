@@ -18,6 +18,7 @@ public:
 	ofxPanel gui;
 	ofParameter<string> textbox_fonction;
 	string text_fonction = "6.1";
+    ofxGuiGroup group_camera;
 
 
 	ofImage image;
