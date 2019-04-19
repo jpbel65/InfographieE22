@@ -5,12 +5,20 @@
 
 #include "ofMain.h"
 #include "ofxAssimpModelLoader.h"
+#include "ofxGui.h"
+#include <string>
 
 enum class Camera {front, back, left, right, top, down};
 
 class Renderer
 {
 public:
+
+	//gui
+	ofxPanel gui;
+	//ofParameter<string> textbox_fonction;
+	//string text_fonction = "6.1";
+
 
 	ofImage image;
 	ofImage image2;

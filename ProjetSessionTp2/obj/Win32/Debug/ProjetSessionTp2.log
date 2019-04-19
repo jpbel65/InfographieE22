@@ -1,38 +1,17 @@
-﻿  main.cpp
-  application.cpp
+﻿  application.cpp
+  main.cpp
   renderer.cpp
-  ofxAssimpAnimation.cpp
-  ofxAssimpMeshHelper.cpp
-c:\users\belan\infographiee22\projetsessiontp2\src\renderer.cpp(197): warning C4996: 'ofRotate': Use ofRotateDeg or ofRotateRad
+c:\users\belan\infographiee22\projetsessiontp2\src\renderer.cpp(203): warning C4996: 'ofRotate': Use ofRotateDeg or ofRotateRad
   c:\users\belan\desktop\of_v0.10.1_vs2017_release\libs\openframeworks\graphics\ofgraphics.h(1011): note: voir la déclaration de 'ofRotate'
-  ofxAssimpModelLoader.cpp
-  ofxAssimpTexture.cpp
-  ofxBaseGui.cpp
-  ofxButton.cpp
-  ofxColorPicker.cpp
-  ofxGuiGroup.cpp
-  ofxInputField.cpp
-  ofxLabel.cpp
-  ofxPanel.cpp
-c:\users\belan\desktop\of_v0.10.1_vs2017_release\addons\ofxgui\src\ofxinputfield.cpp(276): warning C4018: '<' : incompatibilité signed/unsigned
-  c:\users\belan\desktop\of_v0.10.1_vs2017_release\addons\ofxgui\src\ofxinputfield.cpp(265): note: pendant la compilation de la fonction membre '<Inconnu>' (classe <Inconnu>)
-  c:\users\belan\desktop\of_v0.10.1_vs2017_release\addons\ofxgui\src\ofxinputfield.cpp(368): note: voir la référence à l'instanciation de la fonction modèle 'void ofxInputField<float>::moveCursor(int)' en cours de compilation
-  c:\users\belan\desktop\of_v0.10.1_vs2017_release\addons\ofxgui\src\ofxinputfield.cpp(804): note: voir la référence à l'instanciation de classe modèle 'ofxInputField<float>' en cours de compilation
-  ofxSlider.cpp
-  ofxSliderGroup.cpp
-  ofxToggle.cpp
-     Création de la bibliothèque bin\ProjetSessionTp2_debug.lib et de l'objet bin\ProjetSessionTp2_debug.exp
   ProjetSessionTp2.vcxproj -> C:\Users\belan\InfographieE22\ProjetSessionTp2\bin\ProjetSessionTp2_debug.exe
   
   	                   2	C:\Users\belan\Desktop\of_v0.10.1_vs2017_release\libs\fmodex\lib\vs\Win32\
   	  *Fichier SUPPL.		 3506176	C:\Users\belan\InfographieE22\ProjetSessionTp2\bin\assimp32.dll
   	  *Fichier SUPPL.		 4244992	C:\Users\belan\InfographieE22\ProjetSessionTp2\bin\assimp64.dll
-  	  Nouveau fichier		 1266176	C:\Users\belan\Desktop\of_v0.10.1_vs2017_release\libs\fmodex\lib\vs\Win32\fmodex.dll
-  	  Nouveau fichier		 1312768	C:\Users\belan\Desktop\of_v0.10.1_vs2017_release\libs\fmodex\lib\vs\Win32\fmodexL.dll
+  	  *Fichier SUPPL.		 6018560	C:\Users\belan\InfographieE22\ProjetSessionTp2\bin\FreeImage.dll
   
   	                   1	C:\Users\belan\Desktop\of_v0.10.1_vs2017_release\libs\FreeImage\lib\vs\Win32\
   	  *Fichier SUPPL.		 3506176	C:\Users\belan\InfographieE22\ProjetSessionTp2\bin\assimp32.dll
   	  *Fichier SUPPL.		 4244992	C:\Users\belan\InfographieE22\ProjetSessionTp2\bin\assimp64.dll
   	  *Fichier SUPPL.		 1266176	C:\Users\belan\InfographieE22\ProjetSessionTp2\bin\fmodex.dll
   	  *Fichier SUPPL.		 1312768	C:\Users\belan\InfographieE22\ProjetSessionTp2\bin\fmodexL.dll
-  	  Nouveau fichier		 6018560	C:\Users\belan\Desktop\of_v0.10.1_vs2017_release\libs\FreeImage\lib\vs\Win32\FreeImage.dll

@@ -12,6 +12,7 @@ public:
 
   Renderer renderer;
 
+
   bool is_key_press_up;
   bool is_key_press_down;
   bool is_key_press_left;

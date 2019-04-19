@@ -9,6 +9,9 @@ void Renderer::setup()
   ofSetBackgroundColor(31);
   ofEnableDepthTest();
 
+  gui.setup("Panel");
+  gui.draw();
+
   lapin.loadModel("bunny.obj");
   // paramètres
   camera_position = {0.0f, 0.0f, 0.0f};
@@ -93,6 +96,8 @@ void Renderer::reset()
 
 void Renderer::update()
 {
+	//text_fonction = textbox_fonction;
+	
   time_current = ofGetElapsedTimef();
   time_elapsed = time_current - time_last;
   time_last = time_current;
@@ -192,11 +197,13 @@ void Renderer::draw()
     if (camera_active != Camera::down)
       ofDrawBitmapString(" camera down", camera_down.getPosition());
   }
-  lapin.setPosition(camera_target.x, camera_target.y, camera_target.z);
-  ofPushMatrix();
-  ofRotate(180);
-  lapin.draw(OF_MESH_FILL);
-  ofPopMatrix();
+  //if (text_fonction == "6.1") {
+	  lapin.setPosition(camera_target.x, camera_target.y, camera_target.z);
+	  ofPushMatrix();
+	  ofRotate(180);
+	  lapin.draw(OF_MESH_FILL);
+	  ofPopMatrix();
+  //}
 
   // dessiner le contenu de la scène
   /*if (is_visible_box)
@@ -226,6 +233,7 @@ void Renderer::draw()
   }
   */
   camera->end();
+  gui.draw();
 }
 
 // fonction de configuration de la caméra active
