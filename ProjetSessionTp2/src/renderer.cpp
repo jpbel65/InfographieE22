@@ -12,6 +12,9 @@ void Renderer::setup()
   gui.setup("Panel");
   textbox_fonction.set("Fonction active", "6.1");
   gui.add(textbox_fonction);
+    
+  //gui pour camera
+    group_camera.setup("Gestion Cam");
  
 
   lapin.loadModel("bunny.obj");
@@ -98,7 +101,7 @@ void Renderer::reset()
 
 void Renderer::update()
 {
-	//text_fonction = textbox_fonction;
+  text_fonction = textbox_fonction;
 	
   time_current = ofGetElapsedTimef();
   time_elapsed = time_current - time_last;

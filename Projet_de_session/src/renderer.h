@@ -1,4 +1,4 @@
-// IFT3100H19_Triptyque/renderer.h
+group_Pvector.setup("Type de forme");// IFT3100H19_Triptyque/renderer.h
 // Classe responsable du rendu de l'application.
 
 #pragma once
