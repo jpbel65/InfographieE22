@@ -148,35 +148,7 @@ void Application::keyReleased(int key)
 {
   switch (key)
   {
-    case 49: // touche 1
-      renderer.camera_active = Camera::front;
-      renderer.setup_camera();
-      break;
 
-    case 50: // touche 2
-      renderer.camera_active = Camera::back;
-      renderer.setup_camera();
-      break;
-
-    case 51: // touche 3
-      renderer.camera_active = Camera::left;
-      renderer.setup_camera();
-      break;
-
-    case 52: // touche 4
-      renderer.camera_active = Camera::right;
-      renderer.setup_camera();
-      break;
-
-    case 53: // touche 5
-      renderer.camera_active = Camera::top;
-      renderer.setup_camera();
-      break;
-
-    case 54: // touche 6
-      renderer.camera_active = Camera::down;
-      renderer.setup_camera();
-      break;
 
     case 97: // touche a
       is_key_press_a = false;
@@ -225,18 +197,6 @@ void Application::keyReleased(int key)
 
     case 107: // touche k
       is_key_press_k = false;
-      break;
-
-    case 111: // touche o
-      renderer.is_camera_perspective = false;
-      renderer.setup_camera();
-      ofLog() << "<orthographic projection>";
-      break;
-
-    case 112: // touche p
-      renderer.is_camera_perspective = true;
-      renderer.setup_camera();
-      ofLog() << "<perpective projection>";
       break;
 
     case 113: // touche q
