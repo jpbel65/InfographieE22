@@ -17,8 +17,17 @@ public:
 	//gui
 	ofxPanel gui;
 	ofParameter<string> textbox_fonction;
-	string text_fonction = "6.1";
+	string text_fonction;
     ofxGuiGroup group_camera;
+
+	//9.1
+	ofPolyline line_renderer;
+	ofVec3f position;
+	vector<ofVec3f>pointCurve;
+	ofVec3f return_position_bezier(float t);
+	void add_pointCurve(int x, int y);
+	float facto(float x);
+
 
 
 	ofImage image;

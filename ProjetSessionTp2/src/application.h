@@ -40,4 +40,5 @@ public:
 
   void keyPressed(int key);
   void keyReleased(int key);
+  void mouseReleased(int x, int y, int button);
 };
