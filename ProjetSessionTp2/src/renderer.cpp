@@ -5,6 +5,9 @@
 
 void Renderer::setup()
 {
+    //triangulation
+    imageTri.load("jobs.jpg");
+    
     //listener pour boutons
     cam1.addListener(this, &Renderer::enableCamTop);
     cam2.addListener(this, &Renderer::enableCamDown);
@@ -15,11 +18,14 @@ void Renderer::setup()
     pers.addListener(this, &Renderer::enableProjPers);
     orth.addListener(this, &Renderer::enableProjOrth);
     tria.addListener(this, &Renderer::enableDelaunay);
+    showimg.addListener(this, &Renderer::enableDelaunayImage);
+    showpoints.addListener(this, &Renderer::enableDelaunayPoints);
     
     
   ofSetFrameRate(60);
   ofSetBackgroundColor(31);
   //ofEnableDepthTest();
+
 
   gui.setup("Panel");
   textbox_fonction.set("Fonction active", "6.1");
@@ -43,7 +49,11 @@ void Renderer::setup()
     
     //gui pour triangulation
     group_triangulation.setup("Triangulation Delaunay");
+    group_triangulation.add(showimg.setup("Enable Image"));
+    group_triangulation.add(showpoints.setup("Enable Points"));
     group_triangulation.add(tria.setup("Enable Delaunay"));
+    
+    
     gui.add(&group_triangulation);
  
 
@@ -189,12 +199,18 @@ void Renderer::update()
 void Renderer::draw()
 {
     // triangulation
+    if(enableImage){
+        text_fonction = "9.4";
+        ofSetColor(255,255,255);
+        imageTri.draw(220, 0);
+    }
+    if(enablePoints){
+        Renderer::drawAllPoints();
+    }
     
     if (enableTrig) {
         text_fonction = "9.4";
-        image.load("moi.JPG");
-        image.draw(220, 0);
-        ofSetColor(0,70,255);
+        ofSetColor(0,255,0);
         ofNoFill();
         triangulation.draw();
     }
@@ -382,23 +398,128 @@ void Renderer::enableProjOrth(){
     setup_camera();
     
 }
+void Renderer::enableDelaunayImage(){
+    enableImage = !enableImage;
+}
+void Renderer::enableDelaunayPoints(){
+    enablePoints = !enablePoints;
+}
+
 void Renderer::enableDelaunay(){
     
     enableTrig = !enableTrig;
     triangulation.reset();
     
+    ofMesh mesh = lapin.getMesh(0);
     
-    
-    
-    //triangulation.addPoint(3.4537395e+02+220,5.4899386e+02,0);
-    //triangulation.addPoint(2.9883226e+02+220,5.3503135e+02,0);
-    //triangulation.addPoint(2.6252973e+02+220,5.0245217e+02,0);
-    //triangulation.addPoint(2.3367388e+02+220,4.4380963e+02,0);
-    //triangulation.addPoint(2.2343471e+02+220,3.4327957e+02,0);
-    //triangulation.addPoint(2.2622721e+02+220,2.6322786e+02,0);
-    //triangulation.addPoint(2.6625307e+02+220,1.9062282e+02,0);
-    //triangulation.addPoint(3.9750065e+02+220,1.8876115e+02,0);
-    //triangulation.addPoint(4.5148901e+02+220,2.6136619e+02,0);
+    cout << "tex coords count: " << mesh.getNumVertices() << " : " << endl;
+    const vector <glm::vec3> Coords = mesh.getVertices();
+    for (int i=0; i<Coords.size(); i++){
+        cout << Coords[i] << endl;
+    }
+    cout << "end tex coords" << endl;
+    triangulation.addPoint(500.737,168.9074,0);
+    triangulation.addPoint(573.0323,168.9074,0);
+    triangulation.addPoint(548.033,159.4482,0);
+    triangulation.addPoint(572.3566,152.6916,0);
+    triangulation.addPoint(593.302,160.7995,0);
+    triangulation.addPoint(475.7378,162.8265,0);
+    triangulation.addPoint(496.6831,153.3673,0);
+    triangulation.addPoint(515.6015,160.1238,0);
+    triangulation.addPoint(535.1955,223.6356,0);
+    triangulation.addPoint(512.8989,214.1764,0);
+    triangulation.addPoint(560.8705,212.1494,0);
+    triangulation.addPoint(535.1955,202.0145,0);
+    triangulation.addPoint(534.5199,160.7995,0);
+    triangulation.addPoint(498.7101,249.3105,0);
+    triangulation.addPoint(536.5468,249.3105,0);
+    triangulation.addPoint(574.3836,248.6348,0);
+    triangulation.addPoint(535.8712,262.148,0);
+    triangulation.addPoint(540.6008,323.6327,0);
+    triangulation.addPoint(492.6292,306.7413,0);
+    triangulation.addPoint(592.6263,302.0117,0);
+    triangulation.addPoint(466.2786,275.6611,0);
+    triangulation.addPoint(619.6526,272.9585,0);
+    triangulation.addPoint(454.7924,237.8243,0);
+    triangulation.addPoint(631.8144,239.8513,0);
+    triangulation.addPoint(439.2523,214.852,0);
+    triangulation.addPoint(652.7598,218.2303,0);
+    triangulation.addPoint(435.1984,186.4744,0);
+    triangulation.addPoint(658.8407,188.5014,0);
+    triangulation.addPoint(650.7328,157.4212,0);
+    triangulation.addPoint(437.2253,153.3673,0);
+    triangulation.addPoint(451.4141,164.1778,0);
+    triangulation.addPoint(637.8953,164.1778,0);
+    triangulation.addPoint(449.3872,112.1522,0);
+    triangulation.addPoint(465.6029,78.3694,0);
+    triangulation.addPoint(496.0075,44.5866,0);
+    triangulation.addPoint(537.8982,33.1004,0);
+    triangulation.addPoint(575.7349,37.1544,0);
+    triangulation.addPoint(604.7881,58.7754,0);
+    triangulation.addPoint(627.0848,87.1529,0);
+    triangulation.addPoint(640.5979,126.341,0);
+    triangulation.addPoint(479.7917,56.0727,0);
+    triangulation.addPoint(498.0344,98.6391,0);
+    triangulation.addPoint(537.8982,85.126,0);
+    triangulation.addPoint(582.4915,104.72,0);
+    triangulation.addPoint(495.3318,181.7449,0);
+    triangulation.addPoint(577.7619,181.7449,0);
+    triangulation.addPoint(596.6803,173.637,0);
+    triangulation.addPoint(475.7378,169.583,0);
+    triangulation.addPoint(500.0614,135.1246,0);
+    triangulation.addPoint(577.7619,132.4219,0);
     triangulation.triangulate();
+}
+void Renderer::drawAllPoints(){
+    ofDrawCircle(500.737,168.9074,3);
+    ofDrawCircle(573.0323,168.9074,3);
+    ofDrawCircle(548.033,159.4482,3);
+    ofDrawCircle(572.3566,152.6916,3);
+    ofDrawCircle(593.302,160.7995,3);
+    ofDrawCircle(475.7378,162.8265,3);
+    ofDrawCircle(496.6831,153.3673,3);
+    ofDrawCircle(515.6015,160.1238,3);
+    ofDrawCircle(535.1955,223.6356,3);
+    ofDrawCircle(512.8989,214.1764,3);
+    ofDrawCircle(560.8705,212.1494,3);
+    ofDrawCircle(535.1955,202.0145,3);
+    ofDrawCircle(534.5199,160.7995,3);
+    ofDrawCircle(498.7101,249.3105,3);
+    ofDrawCircle(536.5468,249.3105,3);
+    ofDrawCircle(574.3836,248.6348,3);
+    ofDrawCircle(535.8712,262.148,3);
+    ofDrawCircle(540.6008,323.6327,3);
+    ofDrawCircle(492.6292,306.7413,3);
+    ofDrawCircle(592.6263,302.0117,3);
+    ofDrawCircle(466.2786,275.6611,3);
+    ofDrawCircle(619.6526,272.9585,3);
+    ofDrawCircle(454.7924,237.8243,3);
+    ofDrawCircle(631.8144,239.8513,3);
+    ofDrawCircle(439.2523,214.852,3);
+    ofDrawCircle(652.7598,218.2303,3);
+    ofDrawCircle(435.1984,186.4744,3);
+    ofDrawCircle(658.8407,188.5014,3);
+    ofDrawCircle(650.7328,157.4212,3);
+    ofDrawCircle(437.2253,153.3673,3);
+    ofDrawCircle(451.4141,164.1778,3);
+    ofDrawCircle(637.8953,164.1778,3);
+    ofDrawCircle(449.3872,112.1522,3);
+    ofDrawCircle(465.6029,78.3694,3);
+    ofDrawCircle(496.0075,44.5866,3);
+    ofDrawCircle(537.8982,33.1004,3);
+    ofDrawCircle(575.7349,37.1544,3);
+    ofDrawCircle(604.7881,58.7754,3);
+    ofDrawCircle(627.0848,87.1529,3);
+    ofDrawCircle(640.5979,126.341,3);
+    ofDrawCircle(479.7917,56.0727,3);
+    ofDrawCircle(498.0344,98.6391,3);
+    ofDrawCircle(537.8982,85.126,3);
+    ofDrawCircle(582.4915,104.72,3);
+    ofDrawCircle(495.3318,181.7449,3);
+    ofDrawCircle(577.7619,181.7449,3);
+    ofDrawCircle(596.6803,173.637,3);
+    ofDrawCircle(475.7378,169.583,3);
+    ofDrawCircle(500.0614,135.1246,3);
+    ofDrawCircle(577.7619,132.4219,3);
 }
 

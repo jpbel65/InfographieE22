@@ -35,12 +35,18 @@ public:
     //triangulation
     
     bool enableTrig = false;
+    bool enablePoints = false;
+    bool enableImage = false;
     ofImage imageTri;
     
     void enableDelaunay();
+    void enableDelaunayImage();
+    void enableDelaunayPoints();
+    void drawAllPoints();
+    
     ofxGuiGroup group_triangulation;
     ofxDelaunay triangulation;
-    ofxButton tria;
+    ofxButton tria,showimg,showpoints;
 
 	ofImage image;
 	ofImage image2;
