@@ -18,7 +18,7 @@ public:
 	//gui
 	ofxPanel gui;
 	ofParameter<string> textbox_fonction;
-	string text_fonction = "6.1";
+	string text_fonction = "8.3";
     
     //gestion camera
     ofxGuiGroup group_camera;
@@ -68,10 +68,6 @@ public:
     ofxIntSlider spot_posX,spot_posY,spot_posZ,spot_cons,spot_cutoff;
     ofxIntSlider point_posX,point_posY,point_posZ;
     
-    
-    //material
-    ofBoxPrimitive box1;
-    ofMaterial mat1;
     
     
     

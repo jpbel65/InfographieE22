@@ -7,6 +7,7 @@ void Renderer::setup()
 {
     //triangulation
     imageTri.load("jobs.jpg");
+
     
     //listener pour boutons
     cam1.addListener(this, &Renderer::enableCamTop);
@@ -90,6 +91,8 @@ void Renderer::setup()
  
 
   lapin.loadModel("bunny.obj");
+    lapin.disableMaterials();
+    
   // paramètres
   camera_position = {0.0f, 0.0f, 0.0f};
   camera_target = {0.0f, 0.0f, 0.0f};
@@ -173,6 +176,14 @@ void Renderer::reset()
 
 void Renderer::update()
 {
+    
+    
+    
+    
+    
+    
+    
+    
   text_fonction = textbox_fonction;
 	
   time_current = ofGetElapsedTimef();
@@ -230,6 +241,9 @@ void Renderer::update()
 
 void Renderer::draw()
 {
+    
+    
+    
     //lumiere
     color_ambi.set(slider_ambi.getParameter().cast<ofColor>());
     light_ambi.setAmbientColor(color_ambi);
@@ -326,19 +340,13 @@ void Renderer::draw()
   if (text_fonction == "6.1") {
 	  lapin.setPosition(camera_target.x, camera_target.y, camera_target.z);
 	  ofPushMatrix();
-	  ofRotate(180);
+      ofRotate(180);
 	  lapin.draw(OF_MESH_FILL);
 	  ofPopMatrix();
   }
-    if(text_fonction == "7.2"){
-        //mat1.setDiffuseColor(ofColor::white);
-        //mat1.setAmbientColor(ofColor::white);
-        //mat1.setSpecularColor(ofColor::white);
-        mat1.setShininess(128);
-        mat1.begin();
-        box1.set(100);
-        box1.draw();
-        mat1.end();
+    if(text_fonction == "8.3"){
+
+
     }
 
   // dessiner le contenu de la scène
