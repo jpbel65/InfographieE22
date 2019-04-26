@@ -20,6 +20,14 @@ void Renderer::setup()
     tria.addListener(this, &Renderer::enableDelaunay);
     showimg.addListener(this, &Renderer::enableDelaunayImage);
     showpoints.addListener(this, &Renderer::enableDelaunayPoints);
+    but_ambi.addListener(this, &Renderer::toggleAmbLight);
+    but_direc.addListener(this, &Renderer::toggleDirecLight);
+    but_spot.addListener(this, &Renderer::toggleSpotLight);
+    but_point.addListener(this, &Renderer::togglePointLight);
+    
+    
+    
+    
     
     
   ofSetFrameRate(60);
@@ -52,9 +60,33 @@ void Renderer::setup()
     group_triangulation.add(showimg.setup("Enable Image"));
     group_triangulation.add(showpoints.setup("Enable Points"));
     group_triangulation.add(tria.setup("Enable Delaunay"));
-    
-    
     gui.add(&group_triangulation);
+    
+    //gui pour lumiere
+    group_illumination.setup("Illumination");
+    group_illumination.add(but_ambi.setup("Toggle ambiante"));
+    group_illumination.add(slider_ambi.setup(color_ambi));
+    group_illumination.add(but_direc.setup("Toggle Directional"));
+    group_illumination.add(slider_direc.setup(color_direc));
+    group_illumination.add(slider_dirX.setup("Rotation X", 0, -180, 180));
+    group_illumination.add(slider_dirY.setup("Rotation Y", 0, -180, 180));
+    group_illumination.add(slider_dirZ.setup("Rotation Z", 0, -180, 180));
+    group_illumination.add(but_spot.setup("Toggle Spot"));
+    group_illumination.add(slider_spot.setup(color_spot));
+    group_illumination.add(spot_rotX.setup("Rotation X", 0, -180, 180));
+    group_illumination.add(spot_rotY.setup("Rotation Y", 0, -180, 180));
+    group_illumination.add(spot_rotZ.setup("Rotation Z", 0, -180, 180));
+    group_illumination.add(spot_posX.setup("Position X", 0, -500, 500));
+    group_illumination.add(spot_posY.setup("Position Y",  0, -500, 500));
+    group_illumination.add(spot_posZ.setup("Position Z",  0, -500, 500));
+    group_illumination.add(spot_cons.setup("Concentration",  0, 0, 127));
+    group_illumination.add(spot_cutoff.setup("Cutoff",  100, 0, 500));
+    group_illumination.add(but_point.setup("Toggle Point"));
+    group_illumination.add(slider_point.setup(color_point));
+    group_illumination.add(point_posX.setup("Position X", 0, -500, 500));
+    group_illumination.add(point_posY.setup("Position Y",  0, -500, 500));
+    group_illumination.add(point_posZ.setup("Position Z",  0, -500, 500));
+    gui.add(&group_illumination);
  
 
   lapin.loadModel("bunny.obj");
@@ -198,6 +230,34 @@ void Renderer::update()
 
 void Renderer::draw()
 {
+    //lumiere
+    color_ambi.set(slider_ambi.getParameter().cast<ofColor>());
+    light_ambi.setAmbientColor(color_ambi);
+    color_direc.set(slider_direc.getParameter().cast<ofColor>());
+    dir_rot = ofVec3f(slider_dirX.getParameter().cast<int>(), slider_dirY.getParameter().cast<int>(), slider_dirZ.getParameter().cast<int>());
+    light_direc.setSpecularColor(color_direc);
+    light_direc.setDiffuseColor(color_direc);
+    setLightOrientation(light_direc, dir_rot);
+    
+    
+    color_spot.set(slider_spot.getParameter().cast<ofColor>());
+    light_spot.setDiffuseColor(color_spot);
+    light_spot.setSpecularColor(color_spot);
+  
+    light_spot.setSpotlight();
+    light_spot.setSpotConcentration(spot_cons.getParameter().cast<int>());
+    light_spot.setSpotlightCutOff(spot_cutoff.getParameter().cast<int>());
+    light_spot.setPosition(spot_posX, spot_posY, spot_posZ);
+    spot_rot = ofVec3f(spot_rotX.getParameter().cast<int>(), spot_rotY.getParameter().cast<int>(), spot_rotZ.getParameter().cast<int>());
+    setLightOrientation(light_spot, spot_rot);
+    
+    color_point.set(slider_point.getParameter().cast<ofColor>());
+    light_point.setPointLight();
+    light_point.setPosition(point_posX.getParameter().cast<int>(), point_posY.getParameter().cast<int>(), point_posZ.getParameter().cast<int>());
+    light_point.setAmbientColor(color_point);
+    light_point.setDiffuseColor(color_point);
+    
+    
     // triangulation
     if(enableImage){
         text_fonction = "9.4";
@@ -270,6 +330,16 @@ void Renderer::draw()
 	  lapin.draw(OF_MESH_FILL);
 	  ofPopMatrix();
   }
+    if(text_fonction == "7.2"){
+        //mat1.setDiffuseColor(ofColor::white);
+        //mat1.setAmbientColor(ofColor::white);
+        //mat1.setSpecularColor(ofColor::white);
+        mat1.setShininess(128);
+        mat1.begin();
+        box1.set(100);
+        box1.draw();
+        mat1.end();
+    }
 
   // dessiner le contenu de la scène
   /*if (is_visible_box)
@@ -522,4 +592,62 @@ void Renderer::drawAllPoints(){
     ofDrawCircle(500.0614,135.1246,3);
     ofDrawCircle(577.7619,132.4219,3);
 }
+void Renderer::setLightOrientation(ofLight &light, ofVec3f rot){
+    ofVec3f xax(1, 0, 0);
+    ofVec3f yax(0, 1, 0);
+    ofVec3f zax(0, 0, 1);
+    ofQuaternion q;
+    q.makeRotate(rot.x, xax, rot.y, yax, rot.z, zax);
+    light.setOrientation(q);
+}
+
+
+void Renderer::toggleAmbLight(){
+    enableambi = !enableambi;
+    if(enableambi){
+        ofEnableLighting();
+        light_ambi.setAmbientColor(color_ambi);
+        light_ambi.enable();
+        cout << color_ambi << endl;
+        cout << slider_ambi.getParameter() << endl;
+    }
+    else{
+        light_ambi.disable();
+    }
+}
+void Renderer::toggleDirecLight(){
+    enabledirec = !enabledirec;
+    if(enabledirec){
+        ofEnableLighting();
+        light_direc.setDirectional();
+        light_direc.enable();
+    }
+    else{
+        light_direc.disable();
+    }
+}
+void Renderer::toggleSpotLight(){
+    enablespot = !enablespot;
+    if(enablespot){
+        ofEnableLighting();
+        light_spot.setSpotlight();
+        light_spot.enable();
+    }
+    else{
+        light_spot.disable();
+    }
+}
+void Renderer::togglePointLight(){
+    enablepoint = !enablepoint;
+    if(enablepoint){
+        ofEnableLighting();
+        light_point.setPointLight();
+        light_point.enable();
+    }
+    else{
+        light_point.disable();
+    }
+}
+
+
 

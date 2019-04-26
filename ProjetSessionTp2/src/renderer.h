@@ -33,20 +33,53 @@ public:
     void enableProjOrth();
     
     //triangulation
-    
     bool enableTrig = false;
     bool enablePoints = false;
     bool enableImage = false;
     ofImage imageTri;
-    
     void enableDelaunay();
     void enableDelaunayImage();
     void enableDelaunayPoints();
     void drawAllPoints();
-    
     ofxGuiGroup group_triangulation;
     ofxDelaunay triangulation;
     ofxButton tria,showimg,showpoints;
+    
+    //illumination
+    bool enableambi = false;
+    bool enablespot = false;
+    bool enabledirec = false;
+    bool enablepoint = false;
+    void toggleAmbLight();
+    void toggleDirecLight();
+    void toggleSpotLight();
+    void togglePointLight();
+    
+    void setLightOrientation(ofLight &light, ofVec3f rot);
+    ofLight light_ambi,light_direc,light_spot,light_point;
+    ofColor color_ambi,color_direc,color_spot,color_point;
+    ofxGuiGroup group_illumination;
+    ofxButton but_ambi,but_direc,but_spot,but_point;
+    ofxColorSlider slider_ambi,slider_direc,slider_spot,slider_point;
+    ofEventListener colorListener;
+    ofVec3f dir_rot,spot_rot;
+    ofxIntSlider slider_dirX,slider_dirY,slider_dirZ;
+    ofxIntSlider spot_rotX,spot_rotY,spot_rotZ;
+    ofxIntSlider spot_posX,spot_posY,spot_posZ,spot_cons,spot_cutoff;
+    ofxIntSlider point_posX,point_posY,point_posZ;
+    
+    
+    //material
+    ofBoxPrimitive box1;
+    ofMaterial mat1;
+    
+    
+    
+    
+    
+    
+    
+    //random shidellzz
 
 	ofImage image;
 	ofImage image2;
