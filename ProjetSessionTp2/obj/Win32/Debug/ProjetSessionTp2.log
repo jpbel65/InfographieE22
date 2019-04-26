@@ -1,6 +1,7 @@
 ﻿  renderer.cpp
-c:\users\belan\infographiee22\projetsessiontp2\src\renderer.cpp(241): warning C4018: '<' : incompatibilité signed/unsigned
-     CrÚation de la bibliothÞque bin\ProjetSessionTp2_debug.lib et de l'objet bin\ProjetSessionTp2_debug.exp
+c:\users\belan\infographiee22\projetsessiontp2\src\renderer.cpp(256): warning C4018: '<' : incompatibilité signed/unsigned
+c:\users\belan\infographiee22\projetsessiontp2\src\renderer.cpp(266): warning C4018: '<' : incompatibilité signed/unsigned
+c:\users\belan\infographiee22\projetsessiontp2\src\renderer.cpp(272): warning C4018: '<' : incompatibilité signed/unsigned
   ProjetSessionTp2.vcxproj -> C:\Users\belan\InfographieE22\ProjetSessionTp2\bin\ProjetSessionTp2_debug.exe
   
   	                   2	C:\Users\belan\Desktop\of_v0.10.1_vs2017_release\libs\fmodex\lib\vs\Win32\

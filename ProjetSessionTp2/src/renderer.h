@@ -27,6 +27,13 @@ public:
 	ofVec3f return_position_bezier(float t);
 	void add_pointCurve(int x, int y);
 	float facto(float x);
+	ofxFloatSlider Z_profond;
+	ofxGuiGroup group_bezier;
+	//9.2
+	ofVec3f return_position_bezier_surface(float t, float v);
+	vector<ofVec3f>pointSurface;
+
+	
 
 
 

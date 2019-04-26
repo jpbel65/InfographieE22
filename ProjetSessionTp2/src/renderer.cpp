@@ -13,6 +13,11 @@ void Renderer::setup()
 	gui.setup("Panel");
 	textbox_fonction.set("Fonction active", "9.1");
 	gui.add(textbox_fonction);
+	//9.1
+	Z_profond.setup("Z", 0.0f, -100.0f, 100.0f);
+	group_bezier.setup("9.1 & 9.2");
+	group_bezier.add(&Z_profond);
+	gui.add(&group_bezier);
 
 	//gui pour camera
 	group_camera.setup("Gestion Cam");
@@ -175,6 +180,16 @@ void Renderer::update()
 			line_renderer[index] = Renderer::return_position_bezier(index / 100.0f);
 		}
 	}
+	if (pointCurve.size() >= 16) {
+		pointSurface.clear();
+		for (int index = 0; index <= 10; ++index)
+		{
+			for (int j = 0; j <= 10; ++j) {
+				pointSurface.push_back(Renderer::return_position_bezier_surface(index / 10.0f, j / 10.0f));
+			}
+		}
+	}
+
 
 }
 
@@ -239,7 +254,23 @@ void Renderer::draw()
 	  ofSetColor(63, 63, 63);
 	  float radius = 25;
 	  for (int i = 0; i < pointCurve.size(); i++) {
-		  ofDrawEllipse(pointCurve[i].x, pointCurve[i].y, radius / 2, radius / 2);
+		  ofDrawSphere(pointCurve[i].x, pointCurve[i].y, pointCurve[i].z, radius / 2);
+	  }
+
+  }
+  if (text_fonction == "9.2") {
+	  ofSetColor(0, 255, 0);
+	  ofSetLineWidth(10);
+	  ofSetPolyMode(OF_POLY_WINDING_NONZERO);
+	  ofBeginShape();
+	  for (int i = 0; i < pointSurface.size(); i++) {
+		  ofVertex(pointSurface[i]);
+	  }
+	  ofEndShape();
+	  ofSetColor(63, 63, 63);
+	  float radius = 25;
+	  for (int i = 0; i < pointCurve.size() && i < 16; i++) {
+		  ofDrawSphere(pointCurve[i].x, pointCurve[i].y, pointCurve[i].z, radius / 2);
 	  }
 
   }
@@ -349,11 +380,7 @@ ofVec3f Renderer::return_position_bezier(float t) {
 	//pos.x = uuu * pointCurve[0].x + 3 * uu * t * pointCurve[1].x + 3 * u * tt * pointCurve[2].x + ttt * pointCurve[3].x;
 	for (float i = 0.0f; i < pointCurve.size(); i++) {
 		pos.x += pow(u, pointCurve.size() - 1 -i)*pow(t,i)*pointCurve[i].x * (facto(pointCurve.size() - 1)/facto(i)/facto(pointCurve.size() - 1 - i));
-	}
-	for (float i = 0.0f; i < pointCurve.size(); i++) {
 		pos.y += pow(u, pointCurve.size() - 1 - i)*pow(t, i)*pointCurve[i].y * (facto(pointCurve.size() - 1) / facto(i) / facto(pointCurve.size() - 1 - i));
-	}
-	for (float i = 0.0f; i < pointCurve.size(); i++) {
 		pos.z += pow(u, pointCurve.size() - 1 - i)*pow(t, i)*pointCurve[i].z * (facto(pointCurve.size() - 1) / facto(i) / facto(pointCurve.size() - 1 - i));
 	}
 	//pos.y = uuu * pointCurve[0].y + 3 * uu * t * pointCurve[1].y + 3 * u * tt * pointCurve[2].y + ttt * pointCurve[3].y;
@@ -365,6 +392,8 @@ ofVec3f Renderer::return_position_bezier(float t) {
 void Renderer::add_pointCurve(int x, int y) {
 	ofVec3f pos;
 	pos = camera->worldToScreen(ofVec3f(x, y, 0));
+	pos.z = Z_profond;
+	ofLog() << pos;
 	pointCurve.push_back(pos);
 }
 
@@ -374,4 +403,31 @@ float Renderer::facto(float x) {
 		r = r * i;
 	}
 	return r;
+}
+
+ofVec3f Renderer::return_position_bezier_surface(float t, float v) {
+	ofVec3f pos(0,0,0);
+	float w = 1 - v;
+	float u = 1 - t;
+	ofVec3f matri[4][4];
+	int taille = 0;
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			matri[i][j] = pointCurve[taille];
+			taille++;
+		}
+	}
+
+	for (int i = 0.0f; i < 4; i++) {
+		float x = pow(u, 4 - 1 - i)*pow(t, i) * (facto(4 - 1) / facto(i) / facto(4 - 1 - i));
+		float y = pow(u, 4 - 1 - i)*pow(t, i) * (facto(4 - 1) / facto(i) / facto(4 - 1 - i));
+		float z = pow(u, 4 - 1 - i)*pow(t, i) * (facto(4 - 1) / facto(i) / facto(4 - 1 - i));
+		for (int j = 0.0f; j < 4; j++) {
+			pos.x += x * pow(w, 4 - 1 - j)*pow(v, j)*matri[i][j].x * (facto(4 - 1) / facto(j) / facto(4 - 1 - j));
+			pos.y += y * pow(w, 4 - 1 - j)*pow(v, j)*matri[i][j].y * (facto(4 - 1) / facto(j) / facto(4 - 1 - j));
+			pos.z += z * pow(w, 4 - 1 - j)*pow(v, j)*matri[i][j].z * (facto(4 - 1) / facto(j) / facto(4 - 1 - j));
+		}
+	}
+	ofLog() << pos;
+	return pos;
 }

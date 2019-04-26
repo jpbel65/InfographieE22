@@ -310,7 +310,7 @@ void Application::keyReleased(int key)
 }
 
 void Application::mouseReleased(int x, int y, int button) {
-	if (renderer.text_fonction == "9.1")renderer.add_pointCurve(x, y);
+	if (renderer.text_fonction == "9.1" || renderer.text_fonction == "9.2")renderer.add_pointCurve(x, y);
 }
 
 void Application::exit()
