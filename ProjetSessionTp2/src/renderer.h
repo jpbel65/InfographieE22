@@ -69,8 +69,30 @@ public:
     ofxIntSlider point_posX,point_posY,point_posZ;
     
     
-    
-    
+    // variables impl/mentation fonctioin 7
+	ofShader shader_default_of;
+
+	// shaders
+	ofShader shader_color_fill;
+	ofShader shader_lambert;
+	ofShader shader_gouraud;
+	ofShader shader_phong;
+	ofShader shader_blinn_phong;
+
+	// shaders data
+	std::string shader_name;
+	ofShader *shader;
+
+	// scene objects
+	ofxAssimpModelLoader teapot;
+	ofLight light[4];
+
+	// function 7_4 parameter
+	float angle_7_4;
+	float rotationSpeed_7_4;
+	float distace_7_4;
+	float attenuation_7_4[3];
+	// ===================================
     
     
     
@@ -160,6 +182,14 @@ public:
   void reset();
   void update();
   void draw();
+
+  void function_7_1_setup();
+  void function_7_1_update();
+  void function_7_1_draw();
+
+  void function_7_4_setup();
+  void function_7_4_draw();
+  void function_7_4_update();
 
   void setup_camera();
 };
