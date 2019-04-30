@@ -6,7 +6,12 @@
 #include "ofMain.h"
 #include "ofxAssimpModelLoader.h"
 #include "ofxGui.h"
+#include "structs.h"
+#include <iostream>
+#include <fstream>
 #include <string>
+#include <bits/stdc++.h> 
+#include <boost/algorithm/string.hpp> 
 
 enum class Camera {front, back, left, right, top, down};
 
@@ -30,6 +35,13 @@ public:
     void enableCamRight();
     void enableProjPers();
     void enableProjOrth();
+
+
+
+    ofxGuiGroup raytracer_group;
+    ofxButton raytracer_button;
+    ofImage raytraced_image;
+    void raytrace();
     
 
 

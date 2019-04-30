@@ -1,0 +1,30 @@
+# Spécifications de la scène. Commencer la ligne par l'objet à créer: m pour un matériau, s pour une sphère et l pour une lumière.
+# LA couleur ambiante peut être spécifié en débutant la ligne par a
+# Tous les composantes doivent être séparées par un espace.
+
+# Couleur ambiante
+#  r    g    b
+a 0.05 0.05 0.05
+
+# matériaux
+# id  r   g   b  diffuse_albedo specular_albedo reflection_albedo refraction_albedo specular_exponent refraction
+m m1 0.4 0.4 0.8 0.6 0.3 0.1 0 50 1.0
+m m2 0.5 0.1 0.1 0.9 0.1 0.0 0 10 1.0
+m m3 1.0 1.0 1.0 0.0 10.0 0.8 0 1425 1.0
+m m4 0. 0. 0. 0.0 0.5 0.1 0.8 125 1.5
+
+# Sphères
+#  x y  z  rayon identifiant_materiau
+s -5 0 -24 2 m1
+s -1.0 -1.5 -12 2 m4
+s 1.5 -0.5 -18 3 m2
+s 7 5 -18 4 m3
+s -3 -4 -16 2 m1
+s -5 6 -16 3 m3
+s 5 6 -24 3 m2
+
+# Lumières
+#  x  y  z  intensité
+l -20 20 20 1.5
+l 30 50 -25 1.8
+l 30 20 30 1.7

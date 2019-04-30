@@ -2,6 +2,7 @@
 // Classe responsable du rendu de l'application.
 
 #include "renderer.h"
+#include "utils.h"
 
 void Renderer::setup()
 {
@@ -14,6 +15,7 @@ void Renderer::setup()
     cam6.addListener(this, &Renderer::enableCamRight);
     pers.addListener(this, &Renderer::enableProjPers);
     orth.addListener(this, &Renderer::enableProjOrth);
+    raytracer_button.addListener(this, &Renderer::raytrace);
     
     
   ofSetFrameRate(60);
@@ -41,6 +43,11 @@ void Renderer::setup()
     
     
     gui.add(&group_camera);
+
+    raytracer_group.setup("Raytracer");
+    raytracer_group.add(raytracer_button.setup("Lancer le raytracing"));
+
+    gui.add(&raytracer_group);
  
 
   lapin.loadModel("bunny.obj");
@@ -264,6 +271,15 @@ void Renderer::draw()
   }
   */
   camera->end();
+
+  if (raytraced_image.getHeight() > 0 && raytraced_image.getWidth() > 0 && text_fonction == "8")  {
+    raytraced_image.draw(
+        80,
+        80,
+        raytraced_image.getWidth(),
+        raytraced_image.getHeight());
+  }
+
   gui.draw();
 }
 
@@ -362,5 +378,76 @@ void Renderer::enableProjOrth(){
     is_camera_perspective = false;
     setup_camera();
     
+}
+
+void Renderer::raytrace() {
+  std::vector<raytracer::Sphere> spheres;
+  std::vector<raytracer::Point_light> lights;
+  raytracer::Color ambiant_color(0.05,0.05,0.05);
+  std::map<string, raytracer::Material> materials;
+
+  ofBuffer myfile = ofBufferFromFile("raytraycer.txt");
+  // std::ifstream myfile ("raytraycer.txt");
+  if (myfile.size() > 0)
+  {
+      for ( auto line : myfile.getLines() )
+      {
+          std::vector<string> obj;
+          boost::split(obj, line, boost::is_any_of(" "));
+          if (obj[0] == "s") {
+              raytracer::Material m = materials.find(obj[5])->second;
+              raytracer::Sphere s (stof(obj[1]), stof(obj[2]), stof(obj[3]), stof(obj[4]), m);
+              spheres.push_back(s);
+          } else if (obj[0] == "l") {
+              raytracer::Point_light light(linalg::vec<float, 3>(stof(obj[1]), stof(obj[2]), stof(obj[3])), stof(obj[4]));
+              lights.push_back(light);
+          } else if (obj[0] == "m") {
+              linalg::vec<float, 4> albedo(stof(obj[5]),stof(obj[6]),stof(obj[7]),stof(obj[8]));
+              raytracer::Material m(raytracer::Color(stof(obj[2]),stof(obj[3]),stof(obj[4])), albedo, stof(obj[9]), stof(obj[10]));
+              materials.insert({obj[1], m});
+          } else if (obj[0] == "a") {
+              ambiant_color = raytracer::Color(stof(obj[1]), stof(obj[2]), stof(obj[3]));
+          }
+      }
+      // myfile.close();
+  }
+
+  else {
+      std::cout << "[warning] Impossible de lire le fichier de scène. La scène par défaut sera utilisée." << std::endl;
+      linalg::vec<float, 4> albedo1(0.6,  0.3, 0.1, 0);
+      linalg::vec<float, 4> albedo2(0.9,  0.1, 0.0, 0);
+      linalg::vec<float, 4> albedo3(0.0, 10.0, 0.8, 0);
+      linalg::vec<float, 4> albedo4(0.0,  0.5, 0.1, 0.8);
+
+      raytracer::Material m1(raytracer::Color(0.4,0.4,0.8), albedo1,   50, 1.0);
+      raytracer::Material m2(raytracer::Color(0.5,0.1,0.1), albedo2,   10, 1.0);
+      raytracer::Material m3(raytracer::Color(1.0,1.0,1.0), albedo3, 1425, 1.0);
+      raytracer::Material m4(raytracer::Color(0. ,0. ,0. ), albedo4,  125, 1.5);
+
+      raytracer::Sphere s (-5  ,  0  , -24, 2, m1);
+      raytracer::Sphere s2(-1.0, -1.5, -12, 2, m4);
+      raytracer::Sphere s3( 1.5, -0.5, -18, 3, m2);
+      raytracer::Sphere s4( 7  ,  5  , -18, 4, m3);
+      raytracer::Sphere s5(-3  , -4  , -16, 2, m1);
+      raytracer::Sphere s6(-5  ,  6  , -16, 3, m3);
+      raytracer::Sphere s7( 5  ,  6  , -24, 3, m2);
+
+      spheres.push_back(s);
+      spheres.push_back(s2);
+      spheres.push_back(s3);
+      spheres.push_back(s4);
+      spheres.push_back(s5);
+      spheres.push_back(s6);
+      spheres.push_back(s7);
+
+      
+      lights.push_back(raytracer::Point_light(linalg::vec<float, 3>(-20,20, 20), 1.5));
+      lights.push_back(raytracer::Point_light(linalg::vec<float, 3>(30, 50, -25), 1.8));
+      lights.push_back(raytracer::Point_light(linalg::vec<float, 3>(30, 20, 30), 1.7));
+  }
+
+  /*ofPixels pixels = */raytracer::render(spheres, lights, ambiant_color, 1024, 768);
+  raytraced_image.load("raytrace.ppm");
+  textbox_fonction.set("8");
 }
 
