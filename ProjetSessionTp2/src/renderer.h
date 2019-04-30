@@ -78,6 +78,7 @@ public:
 	ofShader shader_gouraud;
 	ofShader shader_phong;
 	ofShader shader_blinn_phong;
+	ofShader shader_blinn_phong_anisotropique;
 
 	// shaders data
 	std::string shader_name;
@@ -93,6 +94,7 @@ public:
 	float distace_7_4;
 	float attenuation_7_4[3];
 	// ===================================
+
     
     
     

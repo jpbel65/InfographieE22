@@ -31,7 +31,7 @@ void Renderer::function_7_1_draw()
 	// dimension du teapot
 	teapot.setScale(
 		0.5f,
-		0.5f,
+		-0.5f,
 		0.5f);
 
 	// positionner le teapot
@@ -74,8 +74,6 @@ void Renderer::function_7_1_draw()
 	shader->setUniform3f("color_specular", 0.5f, 0.5f, 0.5f);
 	shader->setUniform1f("brightness", 0.5f);
 	shader->setUniform3f("light_position", glm::vec4(light[0].getGlobalPosition(), 0.0f) * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
-
-	shader->begin();
 
 	teapot.setPosition(
 		(float)(ofGetWindowWidth()* 0.8f),
@@ -122,7 +120,7 @@ void Renderer::function_7_2_draw()
 	// dimension du teapot
 	teapot.setScale(
 		0.5f,
-		0.5f,
+		-0.5f,
 		0.5f);
 
 	// positionner le teapot
@@ -237,7 +235,7 @@ void Renderer::function_7_4_draw()
 	// dimension du teapot
 	teapot.setScale(
 		0.5f,
-		0.5f,
+		-0.5f,
 		0.5f);
 
 	// positionner le teapot
@@ -396,9 +394,14 @@ void Renderer::setup()
 		"shader/blinn_phong_330_vs.glsl",
 		"shader/blinn_phong_330_fs.glsl");
 
+	shader_blinn_phong_anisotropique.load(
+		"shader/blinn_phong_anisotropique_330_vs.glsl",
+		"shader/blinn_phong_anisotropique_330_fs.glsl");
+
 	function_7_1_setup();
 	function_7_4_setup();
 	angle_7_4 = 0.0f;
+
 
   // paramètres
   camera_position = {0.0f, 0.0f, 0.0f};
@@ -487,7 +490,7 @@ void Renderer::update()
     if(text_fonction == "7.1")
 		function_7_1_update();
 
-	if(text_fonction == "7.2")
+	if(text_fonction == "7.2" || text_fonction == "7.5")
 		function_7_2_update();
 
 	if (text_fonction == "7.4")
@@ -689,34 +692,76 @@ void Renderer::draw()
     }
   }
   */
+
+	if (text_fonction == "7.5") {
+		teapot.disableMaterials();
+		ofEnableDepthTest();
+
+		shader_name = "Blinn-Phong-anisotropique";
+		shader = &shader_blinn_phong_anisotropique;
+		shader->begin();
+		shader->setUniform3f("color_ambient", 0.1f, 0.1f, 0.1f);
+		shader->setUniform3f("color_diffuse", 0.2f, 0.2f, 0.2f);
+		shader->setUniform3f("color_specular", 0.5f, 0.5f, 0.5f);
+		shader->setUniform1f("brightness", 2.0f);
+		shader->setUniform1f("anisotropique_factor", 2.0f);
+		shader->setUniform3f("light_position", glm::vec4(light[0].getGlobalPosition(), 0.0f) * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
+
+		// dimension du teapot
+		teapot.setScale(
+			0.7f,
+			-0.7f,
+			0.7f);
+
+		// positionner le teapot
+		teapot.setPosition(
+			(float)(ofGetWindowWidth()* 0.5f),
+			(float)(ofGetWindowHeight()* 0.50f),
+			-100.0f);
+
+		// dessiner un teapot
+		teapot.draw(OF_MESH_FILL);
+
+
+		shader->end();
+
+		teapot.enableMaterials();
+		ofDisableDepthTest();
+	}
+
+	if (text_fonction == "7.1") {
+		ofEnableDepthTest();
+		ofEnableLighting();
+		function_7_1_setup();
+		function_7_1_draw();
+		ofDisableLighting();
+		ofDisableDepthTest();
+	}
+
+	if (text_fonction == "7.2") {
+		ofEnableDepthTest();
+		ofEnableLighting();
+		function_7_2_setup();
+		function_7_2_draw();
+		ofDisableLighting();
+		ofDisableDepthTest();
+	}
+
+	if (text_fonction == "7.4") {
+		ofEnableDepthTest();
+		ofEnableLighting();
+		function_7_4_setup();
+		function_7_4_draw();
+		ofDisableLighting();
+		ofDisableDepthTest();
+	}
+
+
   camera->end();
 
-  if (text_fonction == "7.1") {
-	  ofEnableDepthTest();
-	  ofEnableLighting();
-	  function_7_1_setup();
-	  function_7_1_draw();
-	  ofDisableLighting();
-	  ofDisableDepthTest();
-  }
 
-  if (text_fonction == "7.2") {
-	  ofEnableDepthTest();
-	  ofEnableLighting();
-	  function_7_2_setup();
-	  function_7_2_draw();
-	  ofDisableLighting();
-	  ofDisableDepthTest();
-  }
 
-  if (text_fonction == "7.4") {
-	  ofEnableDepthTest();
-	  ofEnableLighting();
-	  function_7_4_setup();
-	  function_7_4_draw();
-	  ofDisableLighting();
-	  ofDisableDepthTest();
-  }
+
 
   gui.draw();
 }
