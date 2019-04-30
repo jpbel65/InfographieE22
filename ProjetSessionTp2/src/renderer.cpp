@@ -22,7 +22,7 @@ void Renderer::function_7_1_draw()
 	shader = &shader_lambert;
 	shader->begin();
 	shader->setUniform3f("color_ambient", 0.1f, 0.1f, 0.1f);
-	shader->setUniform3f("color_diffuse", 0.6f, 0.6f, 0.6f);
+	shader->setUniform3f("color_diffuse", 0.0f, 0.6f, 0.6f);
 	shader->setUniform3f("light_position", glm::vec4(light[0].getGlobalPosition(), 0.0f) * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
 
 	// activer le shader
@@ -49,8 +49,8 @@ void Renderer::function_7_1_draw()
 	shader = &shader_gouraud;
 	shader->begin();
 	shader->setUniform3f("color_ambient", 0.1f, 0.1f, 0.1f);
-	shader->setUniform3f("color_diffuse", 0.6f, 0.6f, 0.0f);
-	shader->setUniform3f("color_specular", 1.0f, 1.0f, 0.0f);
+	shader->setUniform3f("color_diffuse", 0.0f, 0.6f, 0.6f);
+	shader->setUniform3f("color_specular", 0.5f, 0.5f, 0.5f);
 	shader->setUniform1f("brightness", 0.5f);
 	shader->setUniform3f("light_position", glm::vec4(light[0].getGlobalPosition(), 0.0f) * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
 
@@ -71,7 +71,7 @@ void Renderer::function_7_1_draw()
 	shader->begin();
 	shader->setUniform3f("color_ambient", 0.1f, 0.1f, 0.1f);
 	shader->setUniform3f("color_diffuse", 0.0f, 0.6f, 0.6f);
-	shader->setUniform3f("color_specular", 1.0f, 1.0f, 0.0f);
+	shader->setUniform3f("color_specular", 0.5f, 0.5f, 0.5f);
 	shader->setUniform1f("brightness", 0.5f);
 	shader->setUniform3f("light_position", glm::vec4(light[0].getGlobalPosition(), 0.0f) * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
 
@@ -95,6 +95,96 @@ void Renderer::function_7_1_update()
 		ofMap(ofGetMouseY() / (float)ofGetHeight(), 0.0f, 1.0f, -ofGetHeight() / 2.0f, ofGetHeight() / 2.0f),
 		-0.5f * 1.5f);
 }
+
+
+//===
+
+void Renderer::function_7_2_setup()
+{
+	// désactiver le matériau par défaut du modèle
+	teapot.disableMaterials();
+
+	// select a shader
+	shader_name = "Blinn-Phong";
+	shader = &shader_blinn_phong;
+}
+
+void Renderer::function_7_2_draw()
+{
+
+	shader->begin();
+	shader->setUniform3f("color_ambient", 0.1f, 0.1f, 0.1f);
+	shader->setUniform3f("color_diffuse", 0.0f, 0.6f, 0.6f);
+	shader->setUniform3f("color_specular", 0.0f, 0.0f, 0.0f);
+	shader->setUniform1f("brightness", 0.1f);
+	shader->setUniform3f("light_position", glm::vec4(light[0].getGlobalPosition(), 0.0f) * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
+
+	// dimension du teapot
+	teapot.setScale(
+		0.5f,
+		0.5f,
+		0.5f);
+
+	// positionner le teapot
+	teapot.setPosition(
+		(float)(ofGetWindowWidth()* 0.2f),
+		(float)(ofGetWindowHeight()* 0.50f),
+		-100.0f);
+
+	// dessiner un teapot
+	teapot.draw(OF_MESH_FILL);
+
+	shader->end();
+
+	shader->begin();
+	shader->setUniform3f("color_ambient", 0.1f, 0.1f, 0.1f);
+	shader->setUniform3f("color_diffuse", 0.6f, 0.6f, 0.0f);
+	shader->setUniform3f("color_specular", 0.5f, 0.5f, 0.0f);
+	shader->setUniform1f("brightness", 0.0f);
+	shader->setUniform3f("light_position", glm::vec4(light[0].getGlobalPosition(), 0.0f) * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
+
+	shader->begin();
+
+	teapot.setPosition(
+		(float)(ofGetWindowWidth()* 0.5f),
+		(float)(ofGetWindowHeight()* 0.50f),
+		-100.0f);
+
+	// dessiner un teapot
+	teapot.draw(OF_MESH_FILL);
+
+	shader->end();
+
+	shader->begin();
+	shader->setUniform3f("color_ambient", 0.1f, 0.1f, 0.1f);
+	shader->setUniform3f("color_diffuse", 0.6f, 0.6f, 0.6f);
+	shader->setUniform3f("color_specular", 1.0f, 1.0f, 1.0f);
+	shader->setUniform1f("brightness", 0.0f);
+	shader->setUniform3f("light_position", glm::vec4(light[0].getGlobalPosition(), 0.0f) * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
+
+	shader->begin();
+
+	teapot.setPosition(
+		(float)(ofGetWindowWidth()* 0.8f),
+		(float)(ofGetWindowHeight()* 0.50f),
+		-100.0f);
+
+	// dessiner un teapot
+	teapot.draw(OF_MESH_FILL);
+
+	shader->end();
+}
+
+void Renderer::function_7_2_update()
+{
+	light[0].setGlobalPosition(
+		ofMap(ofGetMouseX() / (float)ofGetWidth(), 0.0f, 1.0f, -ofGetWidth() / 2.0f, ofGetWidth() / 2.0f),
+		ofMap(ofGetMouseY() / (float)ofGetHeight(), 0.0f, 1.0f, -ofGetHeight() / 2.0f, ofGetHeight() / 2.0f),
+		-0.5f * 1.5f);
+}
+//====
+
+
 
 void Renderer::function_7_4_setup()
 {
@@ -394,8 +484,11 @@ void Renderer::reset()
 void Renderer::update()
 {
     
-    if(text_fonction == "7.1" || text_fonction == "7.2")
+    if(text_fonction == "7.1")
 		function_7_1_update();
+
+	if(text_fonction == "7.2")
+		function_7_2_update();
 
 	if (text_fonction == "7.4")
 		function_7_4_update();
@@ -598,11 +691,20 @@ void Renderer::draw()
   */
   camera->end();
 
-  if (text_fonction == "7.1" || text_fonction == "7.2") {
+  if (text_fonction == "7.1") {
 	  ofEnableDepthTest();
 	  ofEnableLighting();
 	  function_7_1_setup();
 	  function_7_1_draw();
+	  ofDisableLighting();
+	  ofDisableDepthTest();
+  }
+
+  if (text_fonction == "7.2") {
+	  ofEnableDepthTest();
+	  ofEnableLighting();
+	  function_7_2_setup();
+	  function_7_2_draw();
 	  ofDisableLighting();
 	  ofDisableDepthTest();
   }

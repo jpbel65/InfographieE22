@@ -187,6 +187,11 @@ public:
   void function_7_1_update();
   void function_7_1_draw();
 
+  void function_7_2_setup();
+  void function_7_2_update();
+  void function_7_2_draw();
+
+
   void function_7_4_setup();
   void function_7_4_draw();
   void function_7_4_update();
