@@ -68,12 +68,9 @@ public:
     ofxIntSlider spot_posX,spot_posY,spot_posZ,spot_cons,spot_cutoff;
     ofxIntSlider point_posX,point_posY,point_posZ;
     
-    
-    
-    
-    
-    
-    
+    //texture
+    ofTexture mTex;
+    ofSpherePrimitive sphere;
     
     //random shidellzz
 

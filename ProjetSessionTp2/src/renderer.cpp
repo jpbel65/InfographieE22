@@ -26,7 +26,8 @@ void Renderer::setup()
     but_spot.addListener(this, &Renderer::toggleSpotLight);
     but_point.addListener(this, &Renderer::togglePointLight);
     
-    
+    ofDisableArbTex();
+    ofLoadImage(mTex,"rusty_metal_02_diff_1k.jpg");
     
     
     
@@ -341,12 +342,22 @@ void Renderer::draw()
 	  lapin.setPosition(camera_target.x, camera_target.y, camera_target.z);
 	  ofPushMatrix();
       ofRotate(180);
+      ofEnableDepthTest();
 	  lapin.draw(OF_MESH_FILL);
+      ofDisableDepthTest();
 	  ofPopMatrix();
   }
     if(text_fonction == "8.3"){
-
-
+        
+        ofDisableAlphaBlending();
+        ofEnableDepthTest();
+        
+        mTex.bind();
+        sphere.set(100, 64);
+        sphere.draw();
+        mTex.unbind();
+        
+        ofDisableDepthTest();
     }
 
   // dessiner le contenu de la scène
@@ -377,7 +388,11 @@ void Renderer::draw()
   }
   */
   camera->end();
-  gui.draw();
+    
+    ofDisableLighting();
+    ofSetColor(250, 255, 255);
+    gui.draw();
+    ofEnableLighting();
 }
 
 // fonction de configuration de la caméra active
