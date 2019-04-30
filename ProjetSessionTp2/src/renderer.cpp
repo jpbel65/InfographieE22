@@ -215,11 +215,11 @@ void Renderer::function_7_4_draw()
 
 	light[3].setSpotlight();
 	light[3].lookAt(light[2].getPosition());
-	light[3].setAttenuation(1.0f, 0.02f, 0.0f);
+	light[3].setAttenuation(1.0f, 0.02f, 0.001f);
 
 	light[2].setSpotlight();
 	light[2].lookAt(light[3].getPosition());
-	light[2].setAttenuation(1.0f, 0.005f, 0.0f);
+	light[2].setAttenuation(1.0f, 0.005f, 0.001f);
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -240,8 +240,8 @@ void Renderer::function_7_4_draw()
 
 	// positionner le teapot
 	teapot.setPosition(
-		(float)(ofGetWindowWidth()* 0.5f),
-		(float)(ofGetWindowHeight()* 0.50f),
+		(float)(ofGetWindowWidth()* 0.0f),
+		(float)(ofGetWindowHeight()* 0.0f),
 		-100.0f);
 
 	// dessiner un teapot
@@ -261,13 +261,13 @@ void Renderer::function_7_4_update()
 	if (angle_7_4 > 360.0f)
 		angle_7_4 -= 360.0f;
 
-	distace_7_4 = 30.0f + 100.0f * sinf(angle_7_4);
+	distace_7_4 = 20.0f + 0.5f * sinf(angle_7_4);
 
 	for (int i = 0; i < 4; i++) {
 		light[i].setGlobalPosition(
-			512.0f + distace_7_4 * cosf(angle_7_4 + (((float)i) *90.0f)),
-			256.0f + distace_7_4 * sinf(angle_7_4 + (((float)i) *90.0f)),
-			-0.5f * 1.5f);
+			0.0f*512.0f + distace_7_4 * cosf(angle_7_4 + (((float)i) *90.0f)),
+			0.0f*256.0f + distace_7_4 * sinf(angle_7_4 + (((float)i) *90.0f)),
+			50.f + 50.0f * sinf(angle_7_4));
 	}
 
 	attenuation_7_4[0] = 0.99f;
