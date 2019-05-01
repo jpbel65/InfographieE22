@@ -9,6 +9,7 @@
 #include "structs.h"
 #include <iostream>
 #include <fstream>
+#include "ofxDelaunay.h"
 #include <string>
 #include <bits/stdc++.h> 
 #include <boost/algorithm/string.hpp> 
@@ -22,7 +23,7 @@ public:
 	//gui
 	ofxPanel gui;
 	ofParameter<string> textbox_fonction;
-	string text_fonction = "6.1";
+	string text_fonction = "8.3";
     
     //gestion camera
     ofxGuiGroup group_camera;
@@ -43,7 +44,75 @@ public:
     ofImage raytraced_image;
     void raytrace();
     
+    //triangulation
+    bool enableTrig = false;
+    bool enablePoints = false;
+    bool enableImage = false;
+    ofImage imageTri;
+    void enableDelaunay();
+    void enableDelaunayImage();
+    void enableDelaunayPoints();
+    void drawAllPoints();
+    ofxGuiGroup group_triangulation;
+    ofxDelaunay triangulation;
+    ofxButton tria,showimg,showpoints;
+    
+    //illumination
+    bool enableambi = false;
+    bool enablespot = false;
+    bool enabledirec = false;
+    bool enablepoint = false;
+    void toggleAmbLight();
+    void toggleDirecLight();
+    void toggleSpotLight();
+    void togglePointLight();
+    
+    void setLightOrientation(ofLight &light, ofVec3f rot);
+    ofLight light_ambi,light_direc,light_spot,light_point;
+    ofColor color_ambi,color_direc,color_spot,color_point;
+    ofxGuiGroup group_illumination;
+    ofxButton but_ambi,but_direc,but_spot,but_point;
+    ofxColorSlider slider_ambi,slider_direc,slider_spot,slider_point;
+    ofEventListener colorListener;
+    ofVec3f dir_rot,spot_rot;
+    ofxIntSlider slider_dirX,slider_dirY,slider_dirZ;
+    ofxIntSlider spot_rotX,spot_rotY,spot_rotZ;
+    ofxIntSlider spot_posX,spot_posY,spot_posZ,spot_cons,spot_cutoff;
+    ofxIntSlider point_posX,point_posY,point_posZ;
+    
+    
+    // variables impl/mentation fonctioin 7
+	ofShader shader_default_of;
 
+	// shaders
+	ofShader shader_color_fill;
+	ofShader shader_lambert;
+	ofShader shader_gouraud;
+	ofShader shader_phong;
+	ofShader shader_blinn_phong;
+	ofShader shader_blinn_phong_anisotropique;
+	ofShader shader_lambert_toon;
+
+	// shaders data
+	std::string shader_name;
+	ofShader *shader;
+
+	// scene objects
+	ofxAssimpModelLoader teapot;
+	ofLight light[4];
+
+	// function 7_4 parameter
+	float angle_7_4;
+	float rotationSpeed_7_4;
+	float distace_7_4;
+	float attenuation_7_4[3];
+	// ===================================
+
+    
+    
+    
+    
+    //random shidellzz
 
 	ofImage image;
 	ofImage image2;
@@ -128,6 +197,19 @@ public:
   void reset();
   void update();
   void draw();
+
+  void function_7_1_setup();
+  void function_7_1_update();
+  void function_7_1_draw();
+
+  void function_7_2_setup();
+  void function_7_2_update();
+  void function_7_2_draw();
+
+
+  void function_7_4_setup();
+  void function_7_4_draw();
+  void function_7_4_update();
 
   void setup_camera();
 };

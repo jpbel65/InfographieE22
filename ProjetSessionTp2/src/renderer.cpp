@@ -2,10 +2,289 @@
 // Classe responsable du rendu de l'application.
 
 #include "renderer.h"
+#include <math.h>
 #include "utils.h"
+
+
+void Renderer::function_7_1_setup()
+{
+	// désactiver le matériau par défaut du modèle
+	teapot.disableMaterials();
+
+	// select a shader
+	shader_name = "lambert";
+	shader = &shader_lambert;
+}
+
+void Renderer::function_7_1_draw()
+{
+
+	shader_name = "Lambert";
+	shader = &shader_lambert_toon;//&shader_lambert;
+	shader->begin();
+	shader->setUniform3f("color_ambient", 0.1f, 0.1f, 0.1f);
+	shader->setUniform3f("color_diffuse", 0.0f, 0.6f, 0.6f);
+	shader->setUniform3f("light_position", glm::vec4(light[0].getGlobalPosition(), 0.0f) * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
+
+	// activer le shader
+	shader->begin();
+
+	// dimension du teapot
+	teapot.setScale(
+		0.5f,
+		-0.5f,
+		0.5f);
+
+	// positionner le teapot
+	teapot.setPosition(
+		(float)(ofGetWindowWidth()* 0.2f),
+		(float)(ofGetWindowHeight()* 0.50f),
+		-100.0f);
+
+	// dessiner un teapot
+	teapot.draw(OF_MESH_FILL);
+
+	shader->end();
+
+	shader_name = "Gouraud";
+	shader = &shader_gouraud;
+	shader->begin();
+	shader->setUniform3f("color_ambient", 0.1f, 0.1f, 0.1f);
+	shader->setUniform3f("color_diffuse", 0.0f, 0.6f, 0.6f);
+	shader->setUniform3f("color_specular", 0.5f, 0.5f, 0.5f);
+	shader->setUniform1f("brightness", 0.5f);
+	shader->setUniform3f("light_position", glm::vec4(light[0].getGlobalPosition(), 0.0f) * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
+
+	shader->begin();
+
+	teapot.setPosition(
+		(float)(ofGetWindowWidth()* 0.5f),
+		(float)(ofGetWindowHeight()* 0.50f),
+		-100.0f);
+
+	// dessiner un teapot
+	teapot.draw(OF_MESH_FILL);
+
+	shader->end();
+
+	shader_name = "Blinn-Phong";
+	shader = &shader_blinn_phong;
+	shader->begin();
+	shader->setUniform3f("color_ambient", 0.1f, 0.1f, 0.1f);
+	shader->setUniform3f("color_diffuse", 0.0f, 0.6f, 0.6f);
+	shader->setUniform3f("color_specular", 0.5f, 0.5f, 0.5f);
+	shader->setUniform1f("brightness", 0.5f);
+	shader->setUniform3f("light_position", glm::vec4(light[0].getGlobalPosition(), 0.0f) * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
+
+	teapot.setPosition(
+		(float)(ofGetWindowWidth()* 0.8f),
+		(float)(ofGetWindowHeight()* 0.50f),
+		-100.0f);
+
+	// dessiner un teapot
+	teapot.draw(OF_MESH_FILL);
+
+	shader->end();
+}
+
+void Renderer::function_7_1_update()
+{
+	light[0].setGlobalPosition(
+		ofMap(ofGetMouseX() / (float)ofGetWidth(), 0.0f, 1.0f, -ofGetWidth() / 2.0f, ofGetWidth() / 2.0f),
+		ofMap(ofGetMouseY() / (float)ofGetHeight(), 0.0f, 1.0f, -ofGetHeight() / 2.0f, ofGetHeight() / 2.0f),
+		-0.5f * 1.5f);
+}
+
+
+//===
+
+void Renderer::function_7_2_setup()
+{
+	// désactiver le matériau par défaut du modèle
+	teapot.disableMaterials();
+
+	// select a shader
+	shader_name = "Blinn-Phong";
+	shader = &shader_blinn_phong;
+}
+
+void Renderer::function_7_2_draw()
+{
+
+	shader->begin();
+	shader->setUniform3f("color_ambient", 0.1f, 0.1f, 0.1f);
+	shader->setUniform3f("color_diffuse", 0.0f, 0.6f, 0.6f);
+	shader->setUniform3f("color_specular", 0.0f, 0.0f, 0.0f);
+	shader->setUniform1f("brightness", 0.1f);
+	shader->setUniform3f("light_position", glm::vec4(light[0].getGlobalPosition(), 0.0f) * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
+
+	// dimension du teapot
+	teapot.setScale(
+		0.5f,
+		-0.5f,
+		0.5f);
+
+	// positionner le teapot
+	teapot.setPosition(
+		(float)(ofGetWindowWidth()* 0.2f),
+		(float)(ofGetWindowHeight()* 0.50f),
+		-100.0f);
+
+	// dessiner un teapot
+	teapot.draw(OF_MESH_FILL);
+
+	shader->end();
+
+	shader->begin();
+	shader->setUniform3f("color_ambient", 0.1f, 0.1f, 0.1f);
+	shader->setUniform3f("color_diffuse", 0.6f, 0.6f, 0.0f);
+	shader->setUniform3f("color_specular", 0.5f, 0.5f, 0.0f);
+	shader->setUniform1f("brightness", 0.0f);
+	shader->setUniform3f("light_position", glm::vec4(light[0].getGlobalPosition(), 0.0f) * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
+
+	shader->begin();
+
+	teapot.setPosition(
+		(float)(ofGetWindowWidth()* 0.5f),
+		(float)(ofGetWindowHeight()* 0.50f),
+		-100.0f);
+
+	// dessiner un teapot
+	teapot.draw(OF_MESH_FILL);
+
+	shader->end();
+
+	shader->begin();
+	shader->setUniform3f("color_ambient", 0.1f, 0.1f, 0.1f);
+	shader->setUniform3f("color_diffuse", 0.6f, 0.6f, 0.6f);
+	shader->setUniform3f("color_specular", 1.0f, 1.0f, 1.0f);
+	shader->setUniform1f("brightness", 0.0f);
+	shader->setUniform3f("light_position", glm::vec4(light[0].getGlobalPosition(), 0.0f) * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
+
+	shader->begin();
+
+	teapot.setPosition(
+		(float)(ofGetWindowWidth()* 0.8f),
+		(float)(ofGetWindowHeight()* 0.50f),
+		-100.0f);
+
+	// dessiner un teapot
+	teapot.draw(OF_MESH_FILL);
+
+	shader->end();
+}
+
+void Renderer::function_7_2_update()
+{
+	light[0].setGlobalPosition(
+		ofMap(ofGetMouseX() / (float)ofGetWidth(), 0.0f, 1.0f, -ofGetWidth() / 2.0f, ofGetWidth() / 2.0f),
+		ofMap(ofGetMouseY() / (float)ofGetHeight(), 0.0f, 1.0f, -ofGetHeight() / 2.0f, ofGetHeight() / 2.0f),
+		-0.5f * 1.5f);
+}
+//====
+
+
+
+void Renderer::function_7_4_setup()
+{
+	// désactiver le matériau par défaut du modèle
+	teapot.enableMaterials();
+
+	//angle_7_4 = 0.0f;
+	rotationSpeed_7_4 = 0.01f;
+}
+
+void Renderer::function_7_4_draw()
+{
+	ofEnableLighting();
+
+	light[0].setDiffuseColor(ofFloatColor(0.7f, 0.1f, 0.1f));
+	light[0].setSpecularColor(ofColor(0.0f, 0.0f, 0.0f));
+	light[0].setAmbientColor(ofColor(0.0f, 0.0f, 0.0f));
+
+	light[1].setDiffuseColor(ofFloatColor(0.1f, 0.7f, 0.1f));
+	light[1].setSpecularColor(ofColor(0.0f, 0.0f, 0.0f));
+	light[1].setAmbientColor(ofColor(0.0f, 0.0f, 0.0f));
+
+	light[2].setDiffuseColor(ofFloatColor(0.0f, 0.0f, 1.0f));
+	light[2].setSpecularColor(ofColor(0.0f, 0.0f, 0.0f));
+	light[2].setAmbientColor(ofColor(0.0f, 0.0f, 0.0f));
+
+	light[3].setDiffuseColor(ofFloatColor(1.0f, 0.0f, 1.0f));
+	light[3].setSpecularColor(ofColor(0.0f, 0.0f, 0.0f));
+	light[3].setAmbientColor(ofColor(0.0f, 0.0f, 0.0f));
+
+	light[3].setSpotlight();
+	light[3].lookAt(light[2].getPosition());
+	light[3].setAttenuation(1.0f, 0.02f, 0.001f);
+
+	light[2].setSpotlight();
+	light[2].lookAt(light[3].getPosition());
+	light[2].setAttenuation(1.0f, 0.005f, 0.001f);
+
+	for (int i = 0; i < 4; i++)
+	{
+		light[i].setPointLight();
+		light[i].enable();
+	}
+
+	shader = &shader_default_of;
+
+	// activer le shader
+	shader->begin();
+
+	// dimension du teapot
+	teapot.setScale(
+		0.5f,
+		-0.5f,
+		0.5f);
+
+	// positionner le teapot
+	teapot.setPosition(
+		(float)(ofGetWindowWidth()* 0.0f),
+		(float)(ofGetWindowHeight()* 0.0f),
+		-100.0f);
+
+	// dessiner un teapot
+	teapot.draw(OF_MESH_FILL);
+
+	shader->end();
+
+	for (int i = 0; i < 4; i++)
+		light[i].disable();
+
+	ofDisableLighting();
+}
+
+void Renderer::function_7_4_update()
+{
+	angle_7_4 += rotationSpeed_7_4 + 0.01;
+	if (angle_7_4 > 360.0f)
+		angle_7_4 -= 360.0f;
+
+	distace_7_4 = 20.0f + 0.5f * sinf(angle_7_4);
+
+	for (int i = 0; i < 4; i++) {
+		light[i].setGlobalPosition(
+			0.0f*512.0f + distace_7_4 * cosf(angle_7_4 + (((float)i) *90.0f)),
+			0.0f*256.0f + distace_7_4 * sinf(angle_7_4 + (((float)i) *90.0f)),
+			50.f + 50.0f * sinf(angle_7_4));
+	}
+
+	attenuation_7_4[0] = 0.99f;
+	attenuation_7_4[1] = 0.0f;
+	attenuation_7_4[2] = 0.0000f + 0.0000f * cosf(angle_7_4);
+	ofLog() << angle_7_4;
+	attenuation_7_4[2] = 0.0f;
+}
+
 
 void Renderer::setup()
 {
+    //triangulation
+    imageTri.load("jobs.jpg");
+
+    
     //listener pour boutons
     cam1.addListener(this, &Renderer::enableCamTop);
     cam2.addListener(this, &Renderer::enableCamDown);
@@ -15,12 +294,24 @@ void Renderer::setup()
     cam6.addListener(this, &Renderer::enableCamRight);
     pers.addListener(this, &Renderer::enableProjPers);
     orth.addListener(this, &Renderer::enableProjOrth);
+    tria.addListener(this, &Renderer::enableDelaunay);
+    showimg.addListener(this, &Renderer::enableDelaunayImage);
+    showpoints.addListener(this, &Renderer::enableDelaunayPoints);
+    but_ambi.addListener(this, &Renderer::toggleAmbLight);
+    but_direc.addListener(this, &Renderer::toggleDirecLight);
+    but_spot.addListener(this, &Renderer::toggleSpotLight);
+    but_point.addListener(this, &Renderer::togglePointLight);
     raytracer_button.addListener(this, &Renderer::raytrace);
+    
+    
+    
+    
     
     
   ofSetFrameRate(60);
   ofSetBackgroundColor(31);
   //ofEnableDepthTest();
+
 
   gui.setup("Panel");
   textbox_fonction.set("Fonction active", "6.1");
@@ -40,8 +331,41 @@ void Renderer::setup()
     group_camera.add(cam6.setup("Enable Cam Right"));
     group_camera.add(pers.setup("Enable Perspective"));
     group_camera.add(orth.setup("Enable Orthogonale"));
+    gui.add(&group_camera);
     
+    //gui pour triangulation
+    group_triangulation.setup("Triangulation Delaunay");
+    group_triangulation.add(showimg.setup("Enable Image"));
+    group_triangulation.add(showpoints.setup("Enable Points"));
+    group_triangulation.add(tria.setup("Enable Delaunay"));
+    gui.add(&group_triangulation);
     
+    //gui pour lumiere
+    group_illumination.setup("Illumination");
+    group_illumination.add(but_ambi.setup("Toggle ambiante"));
+    group_illumination.add(slider_ambi.setup(color_ambi));
+    group_illumination.add(but_direc.setup("Toggle Directional"));
+    group_illumination.add(slider_direc.setup(color_direc));
+    group_illumination.add(slider_dirX.setup("Rotation X", 0, -180, 180));
+    group_illumination.add(slider_dirY.setup("Rotation Y", 0, -180, 180));
+    group_illumination.add(slider_dirZ.setup("Rotation Z", 0, -180, 180));
+    group_illumination.add(but_spot.setup("Toggle Spot"));
+    group_illumination.add(slider_spot.setup(color_spot));
+    group_illumination.add(spot_rotX.setup("Rotation X", 0, -180, 180));
+    group_illumination.add(spot_rotY.setup("Rotation Y", 0, -180, 180));
+    group_illumination.add(spot_rotZ.setup("Rotation Z", 0, -180, 180));
+    group_illumination.add(spot_posX.setup("Position X", 0, -500, 500));
+    group_illumination.add(spot_posY.setup("Position Y",  0, -500, 500));
+    group_illumination.add(spot_posZ.setup("Position Z",  0, -500, 500));
+    group_illumination.add(spot_cons.setup("Concentration",  0, 0, 127));
+    group_illumination.add(spot_cutoff.setup("Cutoff",  100, 0, 500));
+    group_illumination.add(but_point.setup("Toggle Point"));
+    group_illumination.add(slider_point.setup(color_point));
+    group_illumination.add(point_posX.setup("Position X", 0, -500, 500));
+    group_illumination.add(point_posY.setup("Position Y",  0, -500, 500));
+    group_illumination.add(point_posZ.setup("Position Z",  0, -500, 500));
+    gui.add(&group_illumination);
+
     gui.add(&group_camera);
 
     raytracer_group.setup("Raytracer");
@@ -51,6 +375,46 @@ void Renderer::setup()
  
 
   lapin.loadModel("bunny.obj");
+    lapin.disableMaterials();
+    
+
+	// setup lumiere classique
+		// chargement d'un modèle 3D
+	teapot.loadModel("geometry/teapot.obj");
+	// charger, compiler et linker les sources des shaders
+	shader_color_fill.load(
+		"shader/color_fill_330_vs.glsl",
+		"shader/color_fill_330_fs.glsl");
+
+	shader_lambert.load(
+		"shader/lambert_330_vs.glsl",
+		"shader/lambert_330_fs.glsl");
+
+	shader_gouraud.load(
+		"shader/gouraud_330_vs.glsl",
+		"shader/gouraud_330_fs.glsl");
+
+	shader_phong.load(
+		"shader/phong_330_vs.glsl",
+		"shader/phong_330_fs.glsl");
+
+	shader_blinn_phong.load(
+		"shader/blinn_phong_330_vs.glsl",
+		"shader/blinn_phong_330_fs.glsl");
+
+	shader_blinn_phong_anisotropique.load(
+		"shader/blinn_phong_anisotropique_330_vs.glsl",
+		"shader/blinn_phong_anisotropique_330_fs.glsl");
+
+	shader_lambert_toon.load(
+		"shader/lambert_toon_330_vs.glsl",
+		"shader/lambert_toon_330_fs.glsl");
+
+	function_7_1_setup();
+	function_7_4_setup();
+	angle_7_4 = 0.0f;
+
+
   // paramètres
   camera_position = {0.0f, 0.0f, 0.0f};
   camera_target = {0.0f, 0.0f, 0.0f};
@@ -134,6 +498,20 @@ void Renderer::reset()
 
 void Renderer::update()
 {
+    
+    if(text_fonction == "7.1")
+		function_7_1_update();
+
+	if(text_fonction == "7.2" || text_fonction == "7.5")
+		function_7_2_update();
+
+	if (text_fonction == "7.4")
+		function_7_4_update();
+    
+    
+    
+    
+    
   text_fonction = textbox_fonction;
 	
   time_current = ofGetElapsedTimef();
@@ -191,6 +569,58 @@ void Renderer::update()
 
 void Renderer::draw()
 {
+    
+    
+    
+    //lumiere
+    color_ambi.set(slider_ambi.getParameter().cast<ofColor>());
+    light_ambi.setAmbientColor(color_ambi);
+    color_direc.set(slider_direc.getParameter().cast<ofColor>());
+    dir_rot = ofVec3f(slider_dirX.getParameter().cast<int>(), slider_dirY.getParameter().cast<int>(), slider_dirZ.getParameter().cast<int>());
+    light_direc.setSpecularColor(color_direc);
+    light_direc.setDiffuseColor(color_direc);
+    setLightOrientation(light_direc, dir_rot);
+    
+    
+    color_spot.set(slider_spot.getParameter().cast<ofColor>());
+    light_spot.setDiffuseColor(color_spot);
+    light_spot.setSpecularColor(color_spot);
+  
+    light_spot.setSpotlight();
+    light_spot.setSpotConcentration(spot_cons.getParameter().cast<int>());
+    light_spot.setSpotlightCutOff(spot_cutoff.getParameter().cast<int>());
+    light_spot.setPosition(spot_posX, spot_posY, spot_posZ);
+    spot_rot = ofVec3f(spot_rotX.getParameter().cast<int>(), spot_rotY.getParameter().cast<int>(), spot_rotZ.getParameter().cast<int>());
+    setLightOrientation(light_spot, spot_rot);
+    
+    color_point.set(slider_point.getParameter().cast<ofColor>());
+    light_point.setPointLight();
+    light_point.setPosition(point_posX.getParameter().cast<int>(), point_posY.getParameter().cast<int>(), point_posZ.getParameter().cast<int>());
+    light_point.setAmbientColor(color_point);
+    light_point.setDiffuseColor(color_point);
+    
+    
+    // triangulation
+    if(enableImage){
+        text_fonction = "9.4";
+        ofSetColor(255,255,255);
+        imageTri.draw(220, 0);
+    }
+    if(enablePoints){
+        Renderer::drawAllPoints();
+    }
+    
+    if (enableTrig) {
+        text_fonction = "9.4";
+        ofSetColor(0,255,0);
+        ofNoFill();
+        triangulation.draw();
+    }
+    else{
+        ofFill();
+        ofSetColor(255,255,255);
+    }
+    
   // activer la caméra
   camera->begin();
 
@@ -238,10 +668,14 @@ void Renderer::draw()
   if (text_fonction == "6.1") {
 	  lapin.setPosition(camera_target.x, camera_target.y, camera_target.z);
 	  ofPushMatrix();
-	  ofRotate(180);
+      ofRotate(180);
 	  lapin.draw(OF_MESH_FILL);
 	  ofPopMatrix();
   }
+    if(text_fonction == "8.3"){
+
+
+    }
 
   // dessiner le contenu de la scène
   /*if (is_visible_box)
@@ -270,6 +704,71 @@ void Renderer::draw()
     }
   }
   */
+
+	if (text_fonction == "7.5") {
+		teapot.disableMaterials();
+		ofEnableDepthTest();
+
+		shader_name = "Blinn-Phong-anisotropique";
+		shader = &shader_blinn_phong_anisotropique;
+		shader->begin();
+		shader->setUniform3f("color_ambient", 0.1f, 0.1f, 0.1f);
+		shader->setUniform3f("color_diffuse", 0.2f, 0.2f, 0.2f);
+		shader->setUniform3f("color_specular", 0.5f, 0.5f, 0.5f);
+		shader->setUniform1f("brightness", 2.0f);
+		shader->setUniform1f("anisotropique_factor", 2.0f);
+		shader->setUniform3f("light_position", glm::vec4(light[0].getGlobalPosition(), 0.0f) * ofGetCurrentMatrix(OF_MATRIX_MODELVIEW));
+
+		// dimension du teapot
+		teapot.setScale(
+			0.7f,
+			-0.7f,
+			0.7f);
+
+		// positionner le teapot
+		teapot.setPosition(
+			(float)(ofGetWindowWidth()* 0.5f),
+			(float)(ofGetWindowHeight()* 0.50f),
+			-100.0f);
+
+		// dessiner un teapot
+		teapot.draw(OF_MESH_FILL);
+
+
+		shader->end();
+
+		teapot.enableMaterials();
+		ofDisableDepthTest();
+	}
+
+	if (text_fonction == "7.1") {
+		ofEnableDepthTest();
+		ofEnableLighting();
+		function_7_1_setup();
+		function_7_1_draw();
+		ofDisableLighting();
+		ofDisableDepthTest();
+	}
+
+	if (text_fonction == "7.2") {
+		ofEnableDepthTest();
+		ofEnableLighting();
+		function_7_2_setup();
+		function_7_2_draw();
+		ofDisableLighting();
+		ofDisableDepthTest();
+	}
+
+	if (text_fonction == "7.4") {
+		ofEnableDepthTest();
+		ofEnableLighting();
+		function_7_4_setup();
+		function_7_4_draw();
+		ofDisableLighting();
+		ofDisableDepthTest();
+	}
+
+
   camera->end();
 
   if (raytraced_image.getHeight() > 0 && raytraced_image.getWidth() > 0 && text_fonction == "8")  {
@@ -379,12 +878,143 @@ void Renderer::enableProjOrth(){
     setup_camera();
     
 }
+void Renderer::enableDelaunayImage(){
+    enableImage = !enableImage;
+}
+void Renderer::enableDelaunayPoints(){
+    enablePoints = !enablePoints;
+}
 
 void Renderer::raytrace() {
   std::vector<raytracer::Sphere> spheres;
   std::vector<raytracer::Point_light> lights;
   raytracer::Color ambiant_color(0.05,0.05,0.05);
   std::map<string, raytracer::Material> materials;
+void Renderer::enableDelaunay(){
+    
+    enableTrig = !enableTrig;
+    triangulation.reset();
+    
+    ofMesh mesh = lapin.getMesh(0);
+    
+    cout << "tex coords count: " << mesh.getNumVertices() << " : " << endl;
+    const vector <glm::vec3> Coords = mesh.getVertices();
+    for (int i=0; i<Coords.size(); i++){
+        cout << Coords[i] << endl;
+    }
+    cout << "end tex coords" << endl;
+    triangulation.addPoint(500.737,168.9074,0);
+    triangulation.addPoint(573.0323,168.9074,0);
+    triangulation.addPoint(548.033,159.4482,0);
+    triangulation.addPoint(572.3566,152.6916,0);
+    triangulation.addPoint(593.302,160.7995,0);
+    triangulation.addPoint(475.7378,162.8265,0);
+    triangulation.addPoint(496.6831,153.3673,0);
+    triangulation.addPoint(515.6015,160.1238,0);
+    triangulation.addPoint(535.1955,223.6356,0);
+    triangulation.addPoint(512.8989,214.1764,0);
+    triangulation.addPoint(560.8705,212.1494,0);
+    triangulation.addPoint(535.1955,202.0145,0);
+    triangulation.addPoint(534.5199,160.7995,0);
+    triangulation.addPoint(498.7101,249.3105,0);
+    triangulation.addPoint(536.5468,249.3105,0);
+    triangulation.addPoint(574.3836,248.6348,0);
+    triangulation.addPoint(535.8712,262.148,0);
+    triangulation.addPoint(540.6008,323.6327,0);
+    triangulation.addPoint(492.6292,306.7413,0);
+    triangulation.addPoint(592.6263,302.0117,0);
+    triangulation.addPoint(466.2786,275.6611,0);
+    triangulation.addPoint(619.6526,272.9585,0);
+    triangulation.addPoint(454.7924,237.8243,0);
+    triangulation.addPoint(631.8144,239.8513,0);
+    triangulation.addPoint(439.2523,214.852,0);
+    triangulation.addPoint(652.7598,218.2303,0);
+    triangulation.addPoint(435.1984,186.4744,0);
+    triangulation.addPoint(658.8407,188.5014,0);
+    triangulation.addPoint(650.7328,157.4212,0);
+    triangulation.addPoint(437.2253,153.3673,0);
+    triangulation.addPoint(451.4141,164.1778,0);
+    triangulation.addPoint(637.8953,164.1778,0);
+    triangulation.addPoint(449.3872,112.1522,0);
+    triangulation.addPoint(465.6029,78.3694,0);
+    triangulation.addPoint(496.0075,44.5866,0);
+    triangulation.addPoint(537.8982,33.1004,0);
+    triangulation.addPoint(575.7349,37.1544,0);
+    triangulation.addPoint(604.7881,58.7754,0);
+    triangulation.addPoint(627.0848,87.1529,0);
+    triangulation.addPoint(640.5979,126.341,0);
+    triangulation.addPoint(479.7917,56.0727,0);
+    triangulation.addPoint(498.0344,98.6391,0);
+    triangulation.addPoint(537.8982,85.126,0);
+    triangulation.addPoint(582.4915,104.72,0);
+    triangulation.addPoint(495.3318,181.7449,0);
+    triangulation.addPoint(577.7619,181.7449,0);
+    triangulation.addPoint(596.6803,173.637,0);
+    triangulation.addPoint(475.7378,169.583,0);
+    triangulation.addPoint(500.0614,135.1246,0);
+    triangulation.addPoint(577.7619,132.4219,0);
+    triangulation.triangulate();
+}
+void Renderer::drawAllPoints(){
+    ofDrawCircle(500.737,168.9074,3);
+    ofDrawCircle(573.0323,168.9074,3);
+    ofDrawCircle(548.033,159.4482,3);
+    ofDrawCircle(572.3566,152.6916,3);
+    ofDrawCircle(593.302,160.7995,3);
+    ofDrawCircle(475.7378,162.8265,3);
+    ofDrawCircle(496.6831,153.3673,3);
+    ofDrawCircle(515.6015,160.1238,3);
+    ofDrawCircle(535.1955,223.6356,3);
+    ofDrawCircle(512.8989,214.1764,3);
+    ofDrawCircle(560.8705,212.1494,3);
+    ofDrawCircle(535.1955,202.0145,3);
+    ofDrawCircle(534.5199,160.7995,3);
+    ofDrawCircle(498.7101,249.3105,3);
+    ofDrawCircle(536.5468,249.3105,3);
+    ofDrawCircle(574.3836,248.6348,3);
+    ofDrawCircle(535.8712,262.148,3);
+    ofDrawCircle(540.6008,323.6327,3);
+    ofDrawCircle(492.6292,306.7413,3);
+    ofDrawCircle(592.6263,302.0117,3);
+    ofDrawCircle(466.2786,275.6611,3);
+    ofDrawCircle(619.6526,272.9585,3);
+    ofDrawCircle(454.7924,237.8243,3);
+    ofDrawCircle(631.8144,239.8513,3);
+    ofDrawCircle(439.2523,214.852,3);
+    ofDrawCircle(652.7598,218.2303,3);
+    ofDrawCircle(435.1984,186.4744,3);
+    ofDrawCircle(658.8407,188.5014,3);
+    ofDrawCircle(650.7328,157.4212,3);
+    ofDrawCircle(437.2253,153.3673,3);
+    ofDrawCircle(451.4141,164.1778,3);
+    ofDrawCircle(637.8953,164.1778,3);
+    ofDrawCircle(449.3872,112.1522,3);
+    ofDrawCircle(465.6029,78.3694,3);
+    ofDrawCircle(496.0075,44.5866,3);
+    ofDrawCircle(537.8982,33.1004,3);
+    ofDrawCircle(575.7349,37.1544,3);
+    ofDrawCircle(604.7881,58.7754,3);
+    ofDrawCircle(627.0848,87.1529,3);
+    ofDrawCircle(640.5979,126.341,3);
+    ofDrawCircle(479.7917,56.0727,3);
+    ofDrawCircle(498.0344,98.6391,3);
+    ofDrawCircle(537.8982,85.126,3);
+    ofDrawCircle(582.4915,104.72,3);
+    ofDrawCircle(495.3318,181.7449,3);
+    ofDrawCircle(577.7619,181.7449,3);
+    ofDrawCircle(596.6803,173.637,3);
+    ofDrawCircle(475.7378,169.583,3);
+    ofDrawCircle(500.0614,135.1246,3);
+    ofDrawCircle(577.7619,132.4219,3);
+}
+void Renderer::setLightOrientation(ofLight &light, ofVec3f rot){
+    ofVec3f xax(1, 0, 0);
+    ofVec3f yax(0, 1, 0);
+    ofVec3f zax(0, 0, 1);
+    ofQuaternion q;
+    q.makeRotate(rot.x, xax, rot.y, yax, rot.z, zax);
+    light.setOrientation(q);
+}
 
   ofBuffer myfile = ofBufferFromFile("raytraycer.txt");
   // std::ifstream myfile ("raytraycer.txt");
@@ -450,4 +1080,55 @@ void Renderer::raytrace() {
   raytraced_image.load("raytrace.ppm");
   textbox_fonction.set("8");
 }
+
+
+
+void Renderer::toggleAmbLight(){
+    enableambi = !enableambi;
+    if(enableambi){
+        ofEnableLighting();
+        light_ambi.setAmbientColor(color_ambi);
+        light_ambi.enable();
+        cout << color_ambi << endl;
+        cout << slider_ambi.getParameter() << endl;
+    }
+    else{
+        light_ambi.disable();
+    }
+}
+void Renderer::toggleDirecLight(){
+    enabledirec = !enabledirec;
+    if(enabledirec){
+        ofEnableLighting();
+        light_direc.setDirectional();
+        light_direc.enable();
+    }
+    else{
+        light_direc.disable();
+    }
+}
+void Renderer::toggleSpotLight(){
+    enablespot = !enablespot;
+    if(enablespot){
+        ofEnableLighting();
+        light_spot.setSpotlight();
+        light_spot.enable();
+    }
+    else{
+        light_spot.disable();
+    }
+}
+void Renderer::togglePointLight(){
+    enablepoint = !enablepoint;
+    if(enablepoint){
+        ofEnableLighting();
+        light_point.setPointLight();
+        light_point.enable();
+    }
+    else{
+        light_point.disable();
+    }
+}
+
+
 
