@@ -79,6 +79,7 @@ public:
 	ofShader shader_phong;
 	ofShader shader_blinn_phong;
 	ofShader shader_blinn_phong_anisotropique;
+	ofShader shader_lambert_toon;
 
 	// shaders data
 	std::string shader_name;

@@ -19,7 +19,7 @@ void Renderer::function_7_1_draw()
 {
 
 	shader_name = "Lambert";
-	shader = &shader_lambert;
+	shader = &shader_lambert_toon;//&shader_lambert;
 	shader->begin();
 	shader->setUniform3f("color_ambient", 0.1f, 0.1f, 0.1f);
 	shader->setUniform3f("color_diffuse", 0.0f, 0.6f, 0.6f);
@@ -397,6 +397,10 @@ void Renderer::setup()
 	shader_blinn_phong_anisotropique.load(
 		"shader/blinn_phong_anisotropique_330_vs.glsl",
 		"shader/blinn_phong_anisotropique_330_fs.glsl");
+
+	shader_lambert_toon.load(
+		"shader/lambert_toon_330_vs.glsl",
+		"shader/lambert_toon_330_fs.glsl");
 
 	function_7_1_setup();
 	function_7_4_setup();
