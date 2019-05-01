@@ -415,6 +415,22 @@ void Renderer::setup()
 	angle_7_4 = 0.0f;
 
 
+	//9.1
+	Z_profond.setup("Z", 0.0f, -100.0f, 100.0f);
+	group_bezier.setup("9.1 & 9.2");
+	group_bezier.add(&Z_profond);
+	gui.add(&group_bezier);
+
+	//gui pour camera
+	group_camera.setup("Gestion Cam");
+
+	//obj de test
+
+	//9.1
+	for (int index = 0; index <= 100; ++index) {
+		line_renderer.addVertex(ofPoint());
+	}
+
   // paramètres
   camera_position = {0.0f, 0.0f, 0.0f};
   camera_target = {0.0f, 0.0f, 0.0f};
@@ -482,6 +498,13 @@ void Renderer::reset()
   camera_top.setPosition(0, offset_camera, 0);
   camera_down.setPosition(0, -offset_camera, 0);
 
+  camera_front.setOrientation(ofVec3f(0, 0, 180));
+  //camera_back.setOrientation(ofVec3f(0, -180, 0));
+  //camera_left.setOrientation(ofVec3f(0, 180, 0));
+  //camera_right.setOrientation(ofVec3f(0, 180, 0));
+  //camera_top.setOrientation(ofVec3f(0, 180, 0));
+  //camera_down.setOrientation(ofVec3f(0, 180, 0));
+
   // orientation de chaque caméra
   camera_front.lookAt(camera_target);
   camera_back.lookAt(camera_target);
@@ -518,53 +541,75 @@ void Renderer::update()
   time_elapsed = time_current - time_last;
   time_last = time_current;
 
-  speed_translation = speed_delta * time_elapsed;
-  speed_rotation = speed_translation / 8.0f;
+	time_current = ofGetElapsedTimef();
+	time_elapsed = time_current - time_last;
+	time_last = time_current;
 
-  if (is_camera_move_left)
-    camera->truck(-speed_translation);
-  if (is_camera_move_right)
-    camera->truck(speed_translation);
+	speed_translation = speed_delta * time_elapsed;
+	speed_rotation = speed_translation / 8.0f;
 
-  if (is_camera_move_up)
-    camera->boom(speed_translation);
-  if (is_camera_move_down)
-    camera->boom(-speed_translation);
+	if (is_camera_move_left)
+		camera->truck(-speed_translation);
+	if (is_camera_move_right)
+		camera->truck(speed_translation);
 
-  if (is_camera_move_forward)
-    camera->dolly(-speed_translation);
-  if (is_camera_move_backward)
-    camera->dolly(speed_translation);
+	if (is_camera_move_up)
+		camera->boom(speed_translation);
+	if (is_camera_move_down)
+		camera->boom(-speed_translation);
 
-  if (is_camera_tilt_up)
-    camera->tiltDeg(-speed_rotation);
-  if (is_camera_tilt_down)
-    camera->tiltDeg(speed_rotation);
+	if (is_camera_move_forward)
+		camera->dolly(-speed_translation);
+	if (is_camera_move_backward)
+		camera->dolly(speed_translation);
 
-  if (is_camera_pan_left)
-    camera->panDeg(speed_rotation);
-  if (is_camera_pan_right)
-    camera->panDeg(-speed_rotation);
+	if (is_camera_tilt_up)
+		camera->tiltDeg(-speed_rotation);
+	if (is_camera_tilt_down)
+		camera->tiltDeg(speed_rotation);
 
-  if (is_camera_roll_left)
-    camera->rollDeg(-speed_rotation);
-  if (is_camera_roll_right)
-    camera->rollDeg(speed_rotation);
+	if (is_camera_pan_left)
+		camera->panDeg(speed_rotation);
+	if (is_camera_pan_right)
+		camera->panDeg(-speed_rotation);
 
-  if (is_camera_perspective)
-  {
-    if (is_camera_fov_narrow)
-    {
-      camera_fov = std::max(camera_fov -= camera_fov_delta * time_elapsed, 0.0f);
-      camera->setFov(camera_fov);
-    }
+	if (is_camera_roll_left)
+		camera->rollDeg(-speed_rotation);
+	if (is_camera_roll_right)
+		camera->rollDeg(speed_rotation);
 
-    if (is_camera_fov_wide)
-    {
-      camera_fov = std::min(camera_fov += camera_fov_delta * time_elapsed, 180.0f);
-      camera->setFov(camera_fov);
-    }
-  }
+	if (is_camera_perspective)
+	{
+		if (is_camera_fov_narrow)
+		{
+			camera_fov = std::max(camera_fov -= camera_fov_delta * time_elapsed, 0.0f);
+			camera->setFov(camera_fov);
+		}
+
+		if (is_camera_fov_wide)
+		{
+			camera_fov = std::min(camera_fov += camera_fov_delta * time_elapsed, 180.0f);
+			camera->setFov(camera_fov);
+		}
+	}
+	//9.1
+	if (pointCurve.size() >= 4) {
+		for (int index = 0; index <= 100; ++index)
+		{
+			line_renderer[index] = Renderer::return_position_bezier(index / 100.0f);
+		}
+	}
+	if (pointCurve.size() >= 16) {
+		pointSurface.clear();
+		for (int index = 0; index <= 10; ++index)
+		{
+			for (int j = 0; j <= 10; ++j) {
+				pointSurface.push_back(Renderer::return_position_bezier_surface(index / 10.0f, j / 10.0f));
+			}
+		}
+	}
+
+
 }
 
 void Renderer::draw()
@@ -672,7 +717,34 @@ void Renderer::draw()
 	  lapin.draw(OF_MESH_FILL);
 	  ofPopMatrix();
   }
+  if (text_fonction == "9.1") {
+	  ofSetColor(0, 255, 0);
+	  ofSetLineWidth(10);
+	  line_renderer.draw();
+	  ofSetColor(63, 63, 63);
+	  float radius = 25;
+	  for (int i = 0; i < pointCurve.size(); i++) {
+		  ofDrawSphere(pointCurve[i].x, pointCurve[i].y, pointCurve[i].z, radius / 2);
+	  }
     if(text_fonction == "8.3"){
+
+  }
+  if (text_fonction == "9.2") {
+	  ofSetColor(0, 255, 0);
+	  ofSetLineWidth(10);
+	  ofSetPolyMode(OF_POLY_WINDING_NONZERO);
+	  ofBeginShape();
+	  for (int i = 0; i < pointSurface.size(); i++) {
+		  ofVertex(pointSurface[i]);
+	  }
+	  ofEndShape();
+	  ofSetColor(63, 63, 63);
+	  float radius = 25;
+	  for (int i = 0; i < pointCurve.size() && i < 16; i++) {
+		  ofDrawSphere(pointCurve[i].x, pointCurve[i].y, pointCurve[i].z, radius / 2);
+	  }
+
+  }
 
 
     }
@@ -1132,3 +1204,66 @@ void Renderer::togglePointLight(){
 
 
 
+
+ofVec3f Renderer::return_position_bezier(float t) {
+	ofVec3f pos(0,0,0);
+	float u = 1 - t;
+	float uu = u * u;
+	float uuu = uu * u;
+	float tt = t * t;
+	float ttt = tt * t;
+
+	//pos.x = uuu * pointCurve[0].x + 3 * uu * t * pointCurve[1].x + 3 * u * tt * pointCurve[2].x + ttt * pointCurve[3].x;
+	for (float i = 0.0f; i < pointCurve.size(); i++) {
+		pos.x += pow(u, pointCurve.size() - 1 -i)*pow(t,i)*pointCurve[i].x * (facto(pointCurve.size() - 1)/facto(i)/facto(pointCurve.size() - 1 - i));
+		pos.y += pow(u, pointCurve.size() - 1 - i)*pow(t, i)*pointCurve[i].y * (facto(pointCurve.size() - 1) / facto(i) / facto(pointCurve.size() - 1 - i));
+		pos.z += pow(u, pointCurve.size() - 1 - i)*pow(t, i)*pointCurve[i].z * (facto(pointCurve.size() - 1) / facto(i) / facto(pointCurve.size() - 1 - i));
+	}
+	//pos.y = uuu * pointCurve[0].y + 3 * uu * t * pointCurve[1].y + 3 * u * tt * pointCurve[2].y + ttt * pointCurve[3].y;
+	//pos.z = uuu * pointCurve[0].z + 3 * uu * t * pointCurve[1].z + 3 * u * tt * pointCurve[2].z + ttt * pointCurve[3].z;
+	//ofLog() << pos.x << pos.y << pos.z;
+	return pos;
+}
+
+void Renderer::add_pointCurve(int x, int y) {
+	ofVec3f pos;
+	pos = camera->worldToScreen(ofVec3f(x, y, 0));
+	pos.z = Z_profond;
+	ofLog() << pos;
+	pointCurve.push_back(pos);
+}
+
+float Renderer::facto(float x) {
+	float r = 1.0f;
+	for (float i = x; i > 0; i--) {
+		r = r * i;
+	}
+	return r;
+}
+
+ofVec3f Renderer::return_position_bezier_surface(float t, float v) {
+	ofVec3f pos(0,0,0);
+	float w = 1 - v;
+	float u = 1 - t;
+	ofVec3f matri[4][4];
+	int taille = 0;
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			matri[i][j] = pointCurve[taille];
+			taille++;
+		}
+	}
+
+	for (int i = 0.0f; i < 4; i++) {
+		float x = pow(u, 4 - 1 - i)*pow(t, i) * (facto(4 - 1) / facto(i) / facto(4 - 1 - i));
+		float y = pow(u, 4 - 1 - i)*pow(t, i) * (facto(4 - 1) / facto(i) / facto(4 - 1 - i));
+		float z = pow(u, 4 - 1 - i)*pow(t, i) * (facto(4 - 1) / facto(i) / facto(4 - 1 - i));
+		for (int j = 0.0f; j < 4; j++) {
+			pos.x += x * pow(w, 4 - 1 - j)*pow(v, j)*matri[i][j].x * (facto(4 - 1) / facto(j) / facto(4 - 1 - j));
+			pos.y += y * pow(w, 4 - 1 - j)*pow(v, j)*matri[i][j].y * (facto(4 - 1) / facto(j) / facto(4 - 1 - j));
+			pos.z += z * pow(w, 4 - 1 - j)*pow(v, j)*matri[i][j].z * (facto(4 - 1) / facto(j) / facto(4 - 1 - j));
+		}
+	}
+	ofLog() << pos;
+	return pos;
+}

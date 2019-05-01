@@ -1,8 +1,7 @@
-﻿  application.cpp
-  main.cpp
-  renderer.cpp
-c:\users\belan\infographiee22\projetsessiontp2\src\renderer.cpp(205): warning C4996: 'ofRotate': Use ofRotateDeg or ofRotateRad
-  c:\users\belan\desktop\of_v0.10.1_vs2017_release\libs\openframeworks\graphics\ofgraphics.h(1011): note: voir la déclaration de 'ofRotate'
+﻿  renderer.cpp
+c:\users\belan\infographiee22\projetsessiontp2\src\renderer.cpp(256): warning C4018: '<' : incompatibilité signed/unsigned
+c:\users\belan\infographiee22\projetsessiontp2\src\renderer.cpp(266): warning C4018: '<' : incompatibilité signed/unsigned
+c:\users\belan\infographiee22\projetsessiontp2\src\renderer.cpp(272): warning C4018: '<' : incompatibilité signed/unsigned
   ProjetSessionTp2.vcxproj -> C:\Users\belan\InfographieE22\ProjetSessionTp2\bin\ProjetSessionTp2_debug.exe
   
   	                   2	C:\Users\belan\Desktop\of_v0.10.1_vs2017_release\libs\fmodex\lib\vs\Win32\

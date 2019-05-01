@@ -23,9 +23,7 @@ public:
 	//gui
 	ofxPanel gui;
 	ofParameter<string> textbox_fonction;
-	string text_fonction = "8.3";
-    
-    //gestion camera
+	string text_fonction;
     ofxGuiGroup group_camera;
     ofxButton cam1,cam2,cam3,cam4,cam5,cam6,pers,orth;
     void enableCamFront();
@@ -37,6 +35,18 @@ public:
     void enableProjPers();
     void enableProjOrth();
 
+	//9.1
+	ofPolyline line_renderer;
+	ofVec3f position;
+	vector<ofVec3f>pointCurve;
+	ofVec3f return_position_bezier(float t);
+	void add_pointCurve(int x, int y);
+	float facto(float x);
+	ofxFloatSlider Z_profond;
+	ofxGuiGroup group_bezier;
+	//9.2
+	ofVec3f return_position_bezier_surface(float t, float v);
+	vector<ofVec3f>pointSurface;
 
 
     ofxGuiGroup raytracer_group;
